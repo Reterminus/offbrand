@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const CARDS_URL = '/api/cards';
 const SETS_URL = '/api/sets';
 const AUTH_URL = '/api/auth';
@@ -7,7 +9,7 @@ const KEYWORDS_URL = '/api/keywords';
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: '/',
+  baseURL: BASE_URL,
   headers: {
     'Content-Type': 'application/json'
   }
