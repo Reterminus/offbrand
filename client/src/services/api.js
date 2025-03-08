@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+// Force the correct server URL if the environment variable is wrong
+const BASE_URL = process.env.REACT_APP_API_URL && !process.env.REACT_APP_API_URL.includes('client') 
+  ? process.env.REACT_APP_API_URL 
+  : 'https://offbrand-server.onrender.com';
 
 const CARDS_URL = '/api/cards';
 const SETS_URL = '/api/sets';
