@@ -7,6 +7,8 @@ const SETS_URL = '/api/sets';
 const AUTH_URL = '/api/auth';
 const KEYWORDS_URL = '/api/keywords';
 
+console.log('API URL:', process.env.REACT_APP_API_URL);
+
 // Create axios instance with default config
 const api = axios.create({
   baseURL: BASE_URL,
@@ -71,10 +73,13 @@ export const initAdmin = async () => {
 // Get all cards
 export const getCards = async () => {
   try {
+    console.log('Making request to:', BASE_URL + CARDS_URL);
     const response = await api.get(CARDS_URL);
     return response.data;
   } catch (error) {
     console.error('Error fetching cards:', error);
+    console.error('Request URL:', error.config?.url);
+    console.error('Base URL:', BASE_URL);
     throw error;
   }
 };
