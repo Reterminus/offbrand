@@ -94,10 +94,23 @@
     transform: translate(-50%, -50%) !important;
     width: 90% !important;
     max-width: 400px;
-    max-height: 80vh;
+    max-height: 90vh;
     overflow-y: auto;
     z-index: 2000;
     right: auto !important;
+    pointer-events: auto !important;
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .card-detail.show-mobile {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .card-container:hover .card-detail {
+    opacity: 0;
+    visibility: hidden;
   }
 
   .card-notes {
@@ -107,7 +120,7 @@
     transform: translate(-50%, -50%) !important;
     width: 90% !important;
     max-width: 350px;
-    max-height: 80vh;
+    max-height: 90vh;
     overflow-y: auto;
     z-index: 2100;
     right: auto !important;
@@ -137,6 +150,79 @@
   .clear-filters {
     width: 100%;
     margin-top: 10px;
+  }
+
+  /* Portrait-specific adjustments */
+  @media (orientation: portrait) {
+    .card-container {
+      height: 200px;
+    }
+
+    .card-detail {
+      padding: 15px;
+      max-height: 80vh;
+    }
+
+    .card-title {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .card-metadata-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 5px;
+    }
+
+    .stats-row {
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .card-description {
+      font-size: 14px;
+    }
+
+    .description-title {
+      font-size: 14px;
+    }
+
+    /* Adjust form layouts for portrait */
+    .form-row {
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .form-row .form-group {
+      width: 100%;
+    }
+
+    /* Make buttons more tappable */
+    .btn {
+      min-height: 44px;
+      padding: 12px 20px;
+    }
+
+    .card-actions button {
+      min-width: 44px;
+      min-height: 44px;
+    }
+  }
+
+  /* Landscape-specific adjustments */
+  @media (orientation: landscape) {
+    .card-container {
+      height: 180px;
+    }
+
+    .card-detail {
+      max-height: 85vh;
+      width: 85% !important;
+    }
+
+    .card-grid {
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
   }
 }
 
