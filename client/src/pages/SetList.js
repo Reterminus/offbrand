@@ -57,7 +57,7 @@ const SetList = () => {
       <div className="header">
         <h1>Card Sets</h1>
         {isAdmin && (
-          <Link to="/sets/create" className="btn">Create New Set</Link>
+          <Link to="/sets/create" className="btn">Add Set</Link>
         )}
       </div>
 

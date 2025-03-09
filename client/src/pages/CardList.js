@@ -255,7 +255,7 @@ const CardList = () => {
       <div className="header">
         <h1>All Cards</h1>
         {isAdmin && (
-          <Link to="/create" className="btn">Create New Card</Link>
+          <Link to="/create" className="btn">Add Card</Link>
         )}
       </div>
 

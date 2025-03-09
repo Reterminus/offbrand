@@ -60,7 +60,7 @@ const KeywordList = () => {
       <div className="header">
         <h1>Keywords</h1>
         {isAdmin && (
-          <Link to="/keywords/create" className="btn">Create New Keyword</Link>
+          <Link to="/keywords/create" className="btn">Add Keyword</Link>
         )}
       </div>
 
