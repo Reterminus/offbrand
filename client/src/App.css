@@ -73,6 +73,71 @@
   gap: 30px;
   margin-top: 30px;
   position: relative;
+  padding: 0 15px;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+  .card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+  }
+
+  .card-container {
+    height: 250px;
+  }
+
+  .card-detail {
+    position: fixed;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 90% !important;
+    max-width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 2000;
+    right: auto !important;
+  }
+
+  .card-notes {
+    position: fixed;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 90% !important;
+    max-width: 350px;
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 2100;
+    right: auto !important;
+  }
+
+  .filters-container {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .search-container {
+    width: 100%;
+  }
+
+  .filter-container {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .class-filter,
+  .rarity-filter {
+    min-width: 0;
+    flex: 1;
+    margin: 5px;
+  }
+
+  .clear-filters {
+    width: 100%;
+    margin-top: 10px;
+  }
 }
 
 /* Search and Filter Styles */
@@ -374,6 +439,8 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  max-height: 60vh;
+  overflow-y: auto;
 }
 
 .description-section {
@@ -1213,4 +1280,56 @@
   font-size: 14px;
   color: #aaa;
   font-family: monospace;
+}
+
+/* Add overlay when card detail is shown on mobile */
+.mobile-overlay {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1500;
+  }
+}
+
+.image-source-toggle {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.image-source-toggle button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: 500;
+}
+
+.image-source-toggle .btn-primary {
+  background-color: #4285f4;
+  color: white;
+}
+
+.image-source-toggle .btn-secondary {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.image-source-toggle .btn-primary:hover {
+  background-color: #3367d6;
+}
+
+.image-source-toggle .btn-secondary:hover {
+  background-color: #e0e0e0;
 } 

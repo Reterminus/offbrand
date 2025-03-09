@@ -76,14 +76,21 @@ router.post('/', admin, upload.single('image'), async (req, res) => {
       evolvedDescription,
       spellDescription,
       amuletDescription,
-      notes
+      notes,
+      imageUrl
     } = req.body;
     
-    if (!req.file) {
-      return res.status(400).json({ message: 'Image is required' });
+    let finalImageUrl = imageUrl;
+    
+    // If a file was uploaded, use that instead of the imageUrl
+    if (req.file) {
+      finalImageUrl = `${req.protocol}://${req.get('host')}/${req.file.path}`;
     }
     
-    const imageUrl = `${req.protocol}://${req.get('host')}/${req.file.path}`;
+    // Check if we have either a file or an imageUrl
+    if (!finalImageUrl) {
+      return res.status(400).json({ message: 'Either an image file or image URL is required' });
+    }
     
     // Create base card object
     const cardData = {
@@ -95,7 +102,7 @@ router.post('/', admin, upload.single('image'), async (req, res) => {
       rarity,
       class: cardClass,
       notes: notes || '',
-      imageUrl
+      imageUrl: finalImageUrl
     };
     
     // Add type-specific fields
@@ -140,7 +147,8 @@ router.patch('/:id', admin, upload.single('image'), async (req, res) => {
       evolvedDescription,
       spellDescription,
       amuletDescription,
-      notes
+      notes,
+      imageUrl
     } = req.body;
     
     // Create base update object
@@ -169,18 +177,22 @@ router.patch('/:id', admin, upload.single('image'), async (req, res) => {
       updateData.amuletDescription = amuletDescription || '';
     }
     
+    // Handle image update
     if (req.file) {
-      const imageUrl = `${req.protocol}://${req.get('host')}/${req.file.path}`;
-      updateData.imageUrl = imageUrl;
+      // If a new file is uploaded
+      updateData.imageUrl = `${req.protocol}://${req.get('host')}/${req.file.path}`;
       
-      // Delete old image if exists
+      // Delete old image if it's a local file
       const card = await Card.findById(req.params.id);
-      if (card && card.imageUrl) {
+      if (card && card.imageUrl && card.imageUrl.startsWith(req.protocol)) {
         const oldImagePath = card.imageUrl.split('/').slice(3).join('/');
         if (fs.existsSync(oldImagePath)) {
           fs.unlinkSync(oldImagePath);
         }
       }
+    } else if (imageUrl) {
+      // If a new URL is provided
+      updateData.imageUrl = imageUrl;
     }
     
     const updatedCard = await Card.findByIdAndUpdate(
@@ -189,7 +201,10 @@ router.patch('/:id', admin, upload.single('image'), async (req, res) => {
       { new: true }
     );
     
-    if (!updatedCard) return res.status(404).json({ message: 'Card not found' });
+    if (!updatedCard) {
+      return res.status(404).json({ message: 'Card not found' });
+    }
+    
     res.json(updatedCard);
   } catch (err) {
     res.status(400).json({ message: err.message });

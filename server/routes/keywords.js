@@ -9,17 +9,14 @@ const { admin } = require('../middleware/auth');
 // Set up multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = 'uploads/keywords/';
+    const uploadDir = 'uploads/';
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    // Create a unique filename with original extension
-    const fileExt = path.extname(file.originalname);
-    const fileName = `keyword-${Date.now()}${fileExt}`;
-    cb(null, fileName);
+    cb(null, `${Date.now()}-${file.originalname}`);
   }
 });
 
@@ -63,26 +60,25 @@ router.get('/:id', async (req, res) => {
 // CREATE a new keyword - admin only
 router.post('/', admin, upload.single('image'), async (req, res) => {
   try {
-    const { title, description, imagePosition } = req.body;
+    const { title, description, imagePosition, imageUrl } = req.body;
     
-    if (!req.file) {
-      return res.status(400).json({ message: 'Image is required' });
+    let finalImageUrl = imageUrl;
+    
+    // If a file was uploaded, use that instead of the imageUrl
+    if (req.file) {
+      finalImageUrl = `${req.protocol}://${req.get('host')}/${req.file.path}`;
     }
     
-    // Ensure the image URL is properly formatted
-    const imageUrl = `${req.protocol}://${req.get('host')}/${req.file.path.replace(/\\/g, '/')}`;
-    
-    // Check if keyword with same title already exists
-    const existingKeyword = await Keyword.findOne({ title });
-    if (existingKeyword) {
-      return res.status(400).json({ message: 'A keyword with this title already exists' });
+    // Check if we have either a file or an imageUrl
+    if (!finalImageUrl) {
+      return res.status(400).json({ message: 'Either an image file or image URL is required' });
     }
     
     const newKeyword = new Keyword({
       title,
       description,
-      imageUrl,
-      imagePosition: imagePosition || 'center'
+      imageUrl: finalImageUrl,
+      imagePosition: imagePosition || '50% 50%'
     });
     
     const savedKeyword = await newKeyword.save();
@@ -95,41 +91,31 @@ router.post('/', admin, upload.single('image'), async (req, res) => {
 // UPDATE a keyword - admin only
 router.patch('/:id', admin, upload.single('image'), async (req, res) => {
   try {
-    const { title, description, imagePosition } = req.body;
+    const { title, description, imagePosition, imageUrl } = req.body;
     
-    // Create update object
-    const updateData = { 
-      title, 
+    // Create base update object
+    const updateData = {
+      title,
       description,
-      imagePosition: imagePosition || undefined
+      imagePosition: imagePosition || '50% 50%'
     };
     
-    // If a new image is uploaded, update the imageUrl
+    // Handle image update
     if (req.file) {
-      // Ensure the image URL is properly formatted
-      const imageUrl = `${req.protocol}://${req.get('host')}/${req.file.path.replace(/\\/g, '/')}`;
-      updateData.imageUrl = imageUrl;
+      // If a new file is uploaded
+      updateData.imageUrl = `${req.protocol}://${req.get('host')}/${req.file.path}`;
       
-      // Delete old image if exists
+      // Delete old image if it's a local file
       const keyword = await Keyword.findById(req.params.id);
-      if (keyword && keyword.imageUrl) {
+      if (keyword && keyword.imageUrl && keyword.imageUrl.startsWith(req.protocol)) {
         const oldImagePath = keyword.imageUrl.split('/').slice(3).join('/');
         if (fs.existsSync(oldImagePath)) {
           fs.unlinkSync(oldImagePath);
         }
       }
-    }
-    
-    // Check if updating to a title that already exists (excluding this keyword)
-    if (title) {
-      const existingKeyword = await Keyword.findOne({ 
-        title, 
-        _id: { $ne: req.params.id } 
-      });
-      
-      if (existingKeyword) {
-        return res.status(400).json({ message: 'A keyword with this title already exists' });
-      }
+    } else if (imageUrl) {
+      // If a new URL is provided
+      updateData.imageUrl = imageUrl;
     }
     
     const updatedKeyword = await Keyword.findByIdAndUpdate(
@@ -138,7 +124,10 @@ router.patch('/:id', admin, upload.single('image'), async (req, res) => {
       { new: true }
     );
     
-    if (!updatedKeyword) return res.status(404).json({ message: 'Keyword not found' });
+    if (!updatedKeyword) {
+      return res.status(404).json({ message: 'Keyword not found' });
+    }
+    
     res.json(updatedKeyword);
   } catch (err) {
     res.status(400).json({ message: err.message });

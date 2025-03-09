@@ -8,8 +8,10 @@ const CreateKeyword = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    imagePosition: '50% 50%',
-    image: null
+    image: null,
+    imageUrl: '',
+    imageSource: 'file',
+    imagePosition: '50% 50%'
   });
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -28,7 +30,9 @@ const CreateKeyword = () => {
     if (file) {
       setFormData({
         ...formData,
-        image: file
+        image: file,
+        imageUrl: '',
+        imageSource: 'file'
       });
       
       // Create a preview URL for the selected image
@@ -38,6 +42,27 @@ const CreateKeyword = () => {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleImageUrlChange = (e) => {
+    const url = e.target.value;
+    setFormData({
+      ...formData,
+      imageUrl: url,
+      image: null,
+      imageSource: 'url'
+    });
+    setPreview(url);
+  };
+
+  const handleImageSourceChange = (source) => {
+    setFormData({
+      ...formData,
+      imageSource: source,
+      image: null,
+      imageUrl: ''
+    });
+    setPreview(null);
   };
 
   const handlePositionChange = (position) => {
@@ -51,8 +76,8 @@ const CreateKeyword = () => {
     e.preventDefault();
     
     // Basic validation
-    if (!formData.title || !formData.description || !formData.image) {
-      setError('Please fill in all fields and select an image.');
+    if (!formData.title || !formData.description || (!formData.image && !formData.imageUrl)) {
+      setError('Please fill in all required fields and provide an image.');
       return;
     }
     
@@ -64,12 +89,18 @@ const CreateKeyword = () => {
       data.append('title', formData.title);
       data.append('description', formData.description);
       data.append('imagePosition', formData.imagePosition);
-      data.append('image', formData.image);
+      
+      // Append either the file or the URL
+      if (formData.imageSource === 'file' && formData.image) {
+        data.append('image', formData.image);
+      } else if (formData.imageSource === 'url' && formData.imageUrl) {
+        data.append('imageUrl', formData.imageUrl);
+      }
       
       await createKeyword(data);
       navigate('/keywords');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to create keyword. Please try again.');
+      setError('Failed to create keyword. Please try again.');
       setLoading(false);
     }
   };
@@ -83,7 +114,7 @@ const CreateKeyword = () => {
       <form className="create-keyword-form" onSubmit={handleSubmit}>
         <h2 className="form-title">Keyword Details</h2>
         
-        {error && <div className="error-message">{error}</div>}
+        {error && <div className="error">{error}</div>}
         
         <div className="form-group">
           <label htmlFor="title">Title *</label>
@@ -114,46 +145,81 @@ const CreateKeyword = () => {
         </div>
         
         <div className="form-group">
-          <label htmlFor="image">Background Image *</label>
-          <input
-            type="file"
-            id="image"
-            name="image"
-            className="form-control"
-            onChange={handleImageChange}
-            accept="image/*"
-            required
-          />
-          <small className="form-text">
-            Upload a background image for your keyword. Max size: 5MB. Supported formats: JPEG, PNG, GIF.
-          </small>
+          <label>Keyword Image Source</label>
+          <div className="image-source-toggle">
+            <button
+              type="button"
+              className={`btn ${formData.imageSource === 'file' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => handleImageSourceChange('file')}
+            >
+              Upload File
+            </button>
+            <button
+              type="button"
+              className={`btn ${formData.imageSource === 'url' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => handleImageSourceChange('url')}
+            >
+              Image URL
+            </button>
+          </div>
         </div>
-        
-        {preview && (
+
+        {formData.imageSource === 'file' ? (
           <div className="form-group">
-            <label>Image Position</label>
-            <ImagePositionSelector 
-              imageUrl={preview}
-              initialPosition={formData.imagePosition}
-              onChange={handlePositionChange}
+            <label htmlFor="image">Keyword Image *</label>
+            <input
+              type="file"
+              id="image"
+              name="image"
+              className="form-control"
+              onChange={handleImageChange}
+              accept="image/*"
+              required={formData.imageSource === 'file'}
             />
             <small className="form-text">
-              Drag to adjust how the image is positioned in the keyword card.
+              Upload an image for your keyword. Max size: 5MB. Supported formats: JPEG, PNG, GIF.
+            </small>
+          </div>
+        ) : (
+          <div className="form-group">
+            <label htmlFor="imageUrl">Image URL *</label>
+            <input
+              type="url"
+              id="imageUrl"
+              name="imageUrl"
+              className="form-control"
+              value={formData.imageUrl}
+              onChange={handleImageUrlChange}
+              placeholder="Enter image URL (e.g., https://imgur.com/your-image.jpg)"
+              required={formData.imageSource === 'url'}
+            />
+            <small className="form-text">
+              Enter a direct link to your image. Imgur and similar image hosting services are supported.
             </small>
           </div>
         )}
         
+        <div className="image-preview">
+          {preview ? (
+            <img 
+              src={preview} 
+              alt="Keyword preview" 
+              onError={() => {
+                setPreview(null);
+                if (formData.imageSource === 'url') {
+                  setError('Failed to load image. Please check the URL and try again.');
+                }
+              }}
+            />
+          ) : (
+            <div className="image-preview-text">Image preview will appear here</div>
+          )}
+        </div>
+        
         <div className="form-actions">
           <button 
-            type="button" 
-            className="btn btn-secondary"
-            onClick={() => navigate('/keywords')}
-          >
-            Cancel
-          </button>
-          <button 
             type="submit" 
-            className="btn btn-primary"
+            className="btn submit-btn" 
             disabled={loading}
           >
             {loading ? 'Creating...' : 'Create Keyword'}

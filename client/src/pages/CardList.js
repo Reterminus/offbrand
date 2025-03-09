@@ -17,6 +17,7 @@ const CardList = () => {
   const [selectedClass, setSelectedClass] = useState('');
   const [selectedRarity, setSelectedRarity] = useState('');
   const [showNotesForCard, setShowNotesForCard] = useState(null);
+  const [showMobileOverlay, setShowMobileOverlay] = useState(false);
   const cardRefs = useRef({});
 
   useEffect(() => {
@@ -178,12 +179,16 @@ const CardList = () => {
   // Handle mouse enter/leave for cards
   const handleMouseEnter = (id) => {
     setActiveCardId(id);
+    if (window.innerWidth <= 768) {
+      setShowMobileOverlay(true);
+    }
   };
 
   const handleMouseLeave = () => {
-    setActiveCardId(null);
-    // Hide notes when mouse leaves the card
-    setShowNotesForCard(null);
+    if (window.innerWidth > 768) {
+      setActiveCardId(null);
+      setShowNotesForCard(null);
+    }
   };
 
   // Handle double click to show notes
@@ -229,6 +234,13 @@ const CardList = () => {
 
   // Rarity options for the filter dropdown
   const rarityOptions = ['Bronze', 'Silver', 'Gold', 'Legendary'];
+
+  // Add handler to close mobile detail view
+  const handleCloseMobileDetail = () => {
+    setActiveCardId(null);
+    setShowNotesForCard(null);
+    setShowMobileOverlay(false);
+  };
 
   if (loading) {
     return <div className="loading">Loading cards...</div>;
@@ -288,6 +300,10 @@ const CardList = () => {
           )}
         </div>
       </div>
+
+      {showMobileOverlay && (
+        <div className="mobile-overlay" onClick={handleCloseMobileDetail} />
+      )}
 
       {filteredCards.length === 0 ? (
         <div className="no-cards">
