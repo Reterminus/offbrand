@@ -10,7 +10,7 @@ const CreateKeyword = () => {
     description: '',
     image: null,
     imageUrl: '',
-    imageSource: 'file',
+    imageSource: 'url',
     imagePosition: '50% 50%'
   });
   const [preview, setPreview] = useState(null);

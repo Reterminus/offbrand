@@ -23,7 +23,7 @@ const CreateCard = () => {
     notes: '',
     image: null,
     imageUrl: '',
-    imageSource: 'file' // 'file' or 'url'
+    imageSource: 'url' // Changed default to 'url'
   });
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
