@@ -394,48 +394,39 @@
   margin-right: 8px;
 }
 
-.card-class[title="Neutral"],
-.card-class:contains("Neutral") {
+.card-class[title="Neutral"] {
   color: #d3d3d3; /* light grey */
 }
 
-.card-class[title="Forestcraft"],
-.card-class:contains("Forestcraft") {
+.card-class[title="Forestcraft"] {
   color: #90EE90; /* light green */
 }
 
-.card-class[title="Swordcraft"],
-.card-class:contains("Swordcraft") {
+.card-class[title="Swordcraft"] {
   color: #FFD700; /* yellow */
 }
 
-.card-class[title="Runecraft"],
-.card-class:contains("Runecraft") {
-  color: #00008B; /* dark blue */
+.card-class[title="Runecraft"] {
+  color: #4169E1; /* dark blue - changed to be more visible */
 }
 
-.card-class[title="Dragoncraft"],
-.card-class:contains("Dragoncraft") {
+.card-class[title="Dragoncraft"] {
   color: #FF8C00; /* dark orange */
 }
 
-.card-class[title="Shadowcraft"],
-.card-class:contains("Shadowcraft") {
-  color: #800080; /* dark purple */
+.card-class[title="Shadowcraft"] {
+  color: #BA55D3; /* medium purple - changed to be more visible */
 }
 
-.card-class[title="Bloodcraft"],
-.card-class:contains("Bloodcraft") {
-  color: #800000; /* mahogany */
+.card-class[title="Bloodcraft"] {
+  color: #CD5C5C; /* mahogany - changed to be more visible */
 }
 
-.card-class[title="Havencraft"],
-.card-class:contains("Havencraft") {
+.card-class[title="Havencraft"] {
   color: #FFFFFF; /* white */
 }
 
-.card-class[title="Portalcraft"],
-.card-class:contains("Portalcraft") {
+.card-class[title="Portalcraft"] {
   color: #00FFFF; /* cyan */
 }
 
