@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getCards, deleteCard } from '../services/api';
+import { getCards, deleteCard, getSets } from '../services/api';
 import { sortCards } from '../utils/cardUtils';
 import { AuthContext } from '../context/AuthContext';
 
@@ -8,6 +8,7 @@ const CardList = () => {
   const navigate = useNavigate();
   const { isAdmin } = useContext(AuthContext);
   const [cards, setCards] = useState([]);
+  const [sets, setSets] = useState([]);
   const [filteredCards, setFilteredCards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -16,26 +17,31 @@ const CardList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedClass, setSelectedClass] = useState('');
   const [selectedRarity, setSelectedRarity] = useState('');
+  const [selectedSet, setSelectedSet] = useState('');
   const [showNotesForCard, setShowNotesForCard] = useState(null);
   const [showMobileOverlay, setShowMobileOverlay] = useState(false);
   const cardRefs = useRef({});
 
   useEffect(() => {
-    const fetchCards = async () => {
+    const fetchData = async () => {
       try {
-        const data = await getCards();
+        const [cardsData, setsData] = await Promise.all([
+          getCards(),
+          getSets()
+        ]);
         // Sort cards by class, rarity, and title
-        const sortedCards = sortCards(data);
+        const sortedCards = sortCards(cardsData);
         setCards(sortedCards);
         setFilteredCards(sortedCards);
+        setSets(setsData);
         setLoading(false);
       } catch (err) {
-        setError('Failed to fetch cards. Please try again later.');
+        setError('Failed to fetch data. Please try again later.');
         setLoading(false);
       }
     };
 
-    fetchCards();
+    fetchData();
   }, []);
 
   // Filter cards when search term or selected filters change
@@ -85,9 +91,17 @@ const CardList = () => {
     if (selectedRarity !== '') {
       result = result.filter(card => card.rarity === selectedRarity);
     }
+
+    // Filter by set
+    if (selectedSet !== '') {
+      const selectedSetData = sets.find(set => set._id === selectedSet);
+      if (selectedSetData) {
+        result = result.filter(card => selectedSetData.cards.includes(card._id));
+      }
+    }
     
     setFilteredCards(result);
-  }, [searchTerm, selectedClass, selectedRarity, cards]);
+  }, [searchTerm, selectedClass, selectedRarity, selectedSet, cards, sets]);
 
   // Calculate detail position when window is resized
   useEffect(() => {
@@ -218,11 +232,17 @@ const CardList = () => {
     setSelectedRarity(e.target.value);
   };
 
+  // Handle set filter change
+  const handleSetChange = (e) => {
+    setSelectedSet(e.target.value);
+  };
+
   // Clear all filters
   const handleClearFilters = () => {
     setSearchTerm('');
     setSelectedClass('');
     setSelectedRarity('');
+    setSelectedSet('');
   };
 
   // Class options for the filter dropdown
@@ -290,7 +310,17 @@ const CardList = () => {
               <option key={option} value={option}>{option}</option>
             ))}
           </select>
-          {(searchTerm || selectedClass || selectedRarity) && (
+          <select
+            value={selectedSet}
+            onChange={handleSetChange}
+            className="set-filter"
+          >
+            <option value="">All Sets</option>
+            {sets.map(set => (
+              <option key={set._id} value={set._id}>{set.name}</option>
+            ))}
+          </select>
+          {(searchTerm || selectedClass || selectedRarity || selectedSet) && (
             <button 
               className="btn btn-secondary clear-filters"
               onClick={handleClearFilters}
