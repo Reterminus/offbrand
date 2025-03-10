@@ -381,7 +381,7 @@
   display: flex;
   justify-content: space-between;
   margin-bottom: 10px;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .card-metadata-row > div {
@@ -390,8 +390,15 @@
   gap: 8px;
 }
 
+.card-metadata-row > div:first-child {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
 .card-class {
   font-weight: 600;
+  margin-left: 8px;
 }
 
 .card-class[title="Neutral"] {
@@ -454,6 +461,13 @@
   text-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
 }
 
+.card-trait {
+  font-style: italic;
+  color: #b0b0b0;
+  margin-bottom: 0;
+  display: block;
+}
+
 .card-token-badge {
   display: inline-block;
   background-color: #ea4335;
@@ -462,12 +476,7 @@
   border-radius: 4px;
   font-size: 12px;
   font-weight: bold;
-  width: fit-content;
-}
-
-.card-trait {
-  font-style: italic;
-  color: #b0b0b0;
+  margin-right: 8px;
   width: fit-content;
 }
 
