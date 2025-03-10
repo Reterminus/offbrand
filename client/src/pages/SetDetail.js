@@ -19,6 +19,11 @@ const SetDetail = () => {
   const [detailPositions, setDetailPositions] = useState({});
   const [showNotesForCard, setShowNotesForCard] = useState(null);
   const cardRefs = useRef({});
+  
+  // New state for card filtering
+  const [cardSearchTerm, setCardSearchTerm] = useState('');
+  const [selectedFilterClass, setSelectedFilterClass] = useState('');
+  const [selectedFilterRarity, setSelectedFilterRarity] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -173,8 +178,35 @@ const SetDetail = () => {
 
   // Get available cards (cards not already in the set)
   const availableCards = allCards.filter(card => 
-    !set?.cards.some(setCard => setCard._id === card._id)
+    !set?.cards.some(setCard => setCard._id === card._id) &&
+    // Apply search and filters
+    (cardSearchTerm === '' || 
+      card.title.toLowerCase().includes(cardSearchTerm.toLowerCase()) ||
+      (card.description && card.description.toLowerCase().includes(cardSearchTerm.toLowerCase()))
+    ) &&
+    (selectedFilterClass === '' || card.class === selectedFilterClass) &&
+    (selectedFilterRarity === '' || card.rarity === selectedFilterRarity)
   );
+
+  // Get the selected card object
+  const selectedCard = selectedCardId ? allCards.find(card => card._id === selectedCardId) : null;
+
+  // Class options for the filter dropdown
+  const classOptions = [
+    'Neutral', 'Forestcraft', 'Swordcraft', 'Runecraft', 
+    'Dragoncraft', 'Shadowcraft', 'Bloodcraft', 'Havencraft', 
+    'Portalcraft'
+  ];
+
+  // Rarity options for the filter dropdown
+  const rarityOptions = ['Bronze', 'Silver', 'Gold', 'Legendary'];
+
+  // Clear all filters
+  const handleClearFilters = () => {
+    setCardSearchTerm('');
+    setSelectedFilterClass('');
+    setSelectedFilterRarity('');
+  };
 
   if (loading) {
     return <div className="loading">Loading set details...</div>;
@@ -225,26 +257,115 @@ const SetDetail = () => {
       {isAdmin && (
         <div className="set-management">
           <h2>Add Cards to Set</h2>
+          
+          <div className="add-card-filters">
+            <div className="search-container">
+              <input
+                type="text"
+                placeholder="Search cards by name or description..."
+                value={cardSearchTerm}
+                onChange={(e) => setCardSearchTerm(e.target.value)}
+                className="search-input"
+              />
+            </div>
+            
+            <div className="filter-container">
+              <select
+                value={selectedFilterClass}
+                onChange={(e) => setSelectedFilterClass(e.target.value)}
+                className="class-filter"
+              >
+                <option value="">All Classes</option>
+                {classOptions.map(option => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+              
+              <select
+                value={selectedFilterRarity}
+                onChange={(e) => setSelectedFilterRarity(e.target.value)}
+                className="rarity-filter"
+              >
+                <option value="">All Rarities</option>
+                {rarityOptions.map(option => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+              
+              {(cardSearchTerm || selectedFilterClass || selectedFilterRarity) && (
+                <button 
+                  className="btn btn-secondary clear-filters"
+                  onClick={handleClearFilters}
+                >
+                  Clear Filters
+                </button>
+              )}
+            </div>
+          </div>
+          
           <div className="add-card-form">
-            <select 
-              value={selectedCardId} 
-              onChange={(e) => setSelectedCardId(e.target.value)}
-              disabled={addingCard || availableCards.length === 0}
-            >
-              <option value="">Select a card to add</option>
-              {availableCards.map(card => (
-                <option key={card._id} value={card._id}>
-                  {card.title} ({card.class}, {card.rarity})
+            <div className="card-selection-container">
+              <select 
+                value={selectedCardId} 
+                onChange={(e) => setSelectedCardId(e.target.value)}
+                disabled={addingCard || availableCards.length === 0}
+                className="card-select"
+              >
+                <option value="">
+                  {availableCards.length === 0 
+                    ? 'No cards available to add' 
+                    : `Select a card to add (${availableCards.length} available)`}
                 </option>
-              ))}
-            </select>
-            <button 
-              className="btn btn-primary" 
-              onClick={handleAddCard}
-              disabled={!selectedCardId || addingCard}
-            >
-              {addingCard ? 'Adding...' : 'Add Card'}
-            </button>
+                {availableCards.map(card => (
+                  <option key={card._id} value={card._id}>
+                    {card.title} ({card.class}, {card.rarity})
+                  </option>
+                ))}
+              </select>
+              <button 
+                className="btn btn-primary" 
+                onClick={handleAddCard}
+                disabled={!selectedCardId || addingCard}
+              >
+                {addingCard ? 'Adding...' : 'Add Card'}
+              </button>
+            </div>
+            
+            {selectedCard && (
+              <div className="selected-card-preview">
+                <div className="preview-image">
+                  <img src={selectedCard.imageUrl} alt={selectedCard.title} />
+                </div>
+                <div className="preview-details">
+                  <h3>{selectedCard.title}</h3>
+                  <div className="preview-metadata">
+                    <p>
+                      <span className="preview-label">Class:</span> 
+                      <span className={`preview-class preview-class-${selectedCard.class.toLowerCase()}`}>
+                        {selectedCard.class}
+                      </span>
+                    </p>
+                    <p>
+                      <span className="preview-label">Rarity:</span> 
+                      <span className={`preview-rarity preview-rarity-${selectedCard.rarity.toLowerCase()}`}>
+                        {selectedCard.rarity}
+                      </span>
+                    </p>
+                    <p>
+                      <span className="preview-label">Cost:</span> {selectedCard.cost}
+                    </p>
+                    {selectedCard.trait && (
+                      <p>
+                        <span className="preview-label">Trait:</span> {selectedCard.trait}
+                      </p>
+                    )}
+                    {selectedCard.isToken && (
+                      <p className="preview-token">Token Card</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
