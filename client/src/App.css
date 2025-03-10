@@ -384,13 +384,14 @@
   align-items: center;
 }
 
-/*.card-class:not(:empty)::before {
-  content: none;
-}*/
+.card-metadata-row > div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
 .card-class {
   font-weight: 600;
-  /*margin-left: 8px;*/
 }
 
 .card-class[title="Neutral"] {
@@ -453,12 +454,6 @@
   text-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
 }
 
-.card-trait {
-  font-style: italic;
-  color: #b0b0b0;
-  margin-bottom: 10px;
-}
-
 .card-token-badge {
   display: inline-block;
   background-color: #ea4335;
@@ -467,7 +462,13 @@
   border-radius: 4px;
   font-size: 12px;
   font-weight: bold;
-  margin-right: 8px;
+  width: fit-content;
+}
+
+.card-trait {
+  font-style: italic;
+  color: #b0b0b0;
+  width: fit-content;
 }
 
 .card-type-badge {
