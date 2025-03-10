@@ -1,5 +1,21 @@
-.App {
+/* Root styles to ensure full height */
+html, body {
+  margin: 0;
+  padding: 0;
   min-height: 100vh;
+  background-color: #1a1a1a;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.App {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   background-color: #1a1a1a;
   color: #e0e0e0;
 }
