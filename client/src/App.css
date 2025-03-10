@@ -389,11 +389,6 @@
   margin-left: 8px;
 }
 
-.card-class:not(:empty)::before {
-  content: '•';
-  margin-right: 8px;
-}
-
 .card-class[title="Neutral"] {
   color: #d3d3d3; /* light grey */
 }
