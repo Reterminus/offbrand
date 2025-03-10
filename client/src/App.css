@@ -384,13 +384,13 @@
   align-items: center;
 }
 
-.card-class:not(:empty)::before {
+/*.card-class:not(:empty)::before {
   content: none;
-}
+}*/
 
 .card-class {
   font-weight: 600;
-  margin-left: 8px;
+  /*margin-left: 8px;*/
 }
 
 .card-class[title="Neutral"] {
