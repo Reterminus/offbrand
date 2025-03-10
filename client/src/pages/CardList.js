@@ -399,7 +399,7 @@ const CardList = () => {
                   <div className="card-metadata-row">
                     <div>
                       <span className="card-cost">{card.cost}</span>
-                      <span className="card-class">{card.class}</span>
+                      <span className="card-class" title={card.class}>{card.class}</span>
                     </div>
                     <span className={`card-rarity card-rarity-${card.rarity.toLowerCase()}`}>{card.rarity}</span>
                   </div>
