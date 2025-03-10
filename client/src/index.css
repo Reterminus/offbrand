@@ -10,7 +10,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f5f5;
+  background-color: #1a1a1a;
 }
 
 code {
@@ -30,11 +30,11 @@ code {
   align-items: center;
   margin-bottom: 30px;
   padding-bottom: 20px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid #444;
 }
 
 .header h1 {
-  color: #333;
+  color: #e0e0e0;
   font-size: 28px;
 }
 
