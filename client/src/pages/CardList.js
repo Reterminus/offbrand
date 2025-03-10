@@ -411,7 +411,7 @@ const CardList = () => {
                           Trait: {card.trait}
                         </span>
                       )}
-                      {card.isToken && (
+                      {card.isToken && !card.trait && (
                         <span className="card-token-badge">
                           Token
                         </span>
@@ -421,6 +421,17 @@ const CardList = () => {
                       {card.cardType || 'Follower'}
                     </span>
                   </div>
+                  
+                  {card.trait && card.isToken && (
+                    <div className="card-metadata-row token-row">
+                      <div>
+                        <span className="card-token-badge">
+                          Token
+                        </span>
+                      </div>
+                      <div></div>
+                    </div>
+                  )}
                 </div>
                 
                 {/* Follower card details */}

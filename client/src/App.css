@@ -381,24 +381,16 @@
   display: flex;
   justify-content: space-between;
   margin-bottom: 10px;
-  align-items: flex-start;
-}
-
-.card-metadata-row > div {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.card-metadata-row > div:first-child {
-  display: flex;
-  flex-direction: row;
   align-items: center;
 }
 
+/*.card-class:not(:empty)::before {
+  content: none;
+}*/
+
 .card-class {
   font-weight: 600;
-  margin-left: 8px;
+  /*margin-left: 8px;*/
 }
 
 .card-class[title="Neutral"] {
@@ -464,8 +456,7 @@
 .card-trait {
   font-style: italic;
   color: #b0b0b0;
-  margin-bottom: 0;
-  display: block;
+  margin-bottom: 10px;
 }
 
 .card-token-badge {
@@ -477,7 +468,12 @@
   font-size: 12px;
   font-weight: bold;
   margin-right: 8px;
-  width: fit-content;
+}
+
+/* Style for token row when it appears under trait */
+.token-row {
+  margin-top: -5px;
+  margin-bottom: 10px;
 }
 
 .card-type-badge {
