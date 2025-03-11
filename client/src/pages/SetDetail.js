@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getSet, getCards, addCardToSet, removeCardFromSet } from '../services/api';
 import { sortCards } from '../utils/cardUtils';
 import { AuthContext } from '../context/AuthContext';
+import '../styles/ScrollableContainer.css';
 
 const SetDetail = () => {
   const { id } = useParams();
@@ -376,226 +377,228 @@ const SetDetail = () => {
         <div className="no-cards">
           <p>No cards in this set yet. {isAdmin ? 'Add some cards using the form above.' : ''}</p>
         </div>
-      ) : viewMode === 'grid' ? (
-        // Grid View (similar to CardList)
-        <div className="card-grid">
-          {set.cards.map(card => (
-            <div 
-              className="card-container" 
-              key={card._id}
-              ref={(el) => setCardRef(card._id, el)}
-              onMouseEnter={() => handleMouseEnter(card._id)}
-              onMouseLeave={handleMouseLeave}
-              onDoubleClick={() => handleDoubleClick(card)}
-              style={{ zIndex: activeCardId === card._id ? 1000 : 1 }}
-            >
-              <div className="card">
-                <img 
-                  src={card.imageUrl} 
-                  alt={card.title} 
-                  className="card-image" 
-                />
-                {card.isToken && <div className="token-label">Token</div>}
-                {isAdmin && (
-                  <div className="card-actions">
-                    <Link 
-                      to={`/edit/${card._id}`} 
-                      className="btn btn-edit"
-                      onClick={handleButtonClick}
-                    >
-                      Edit
-                    </Link>
-                    <button 
-                      className="btn btn-danger"
-                      onClick={(e) => {
-                        handleButtonClick(e);
-                        handleRemoveCard(card._id);
-                      }}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                )}
-              </div>
-              
-              <div 
-                className="card-detail"
-                style={{
-                  left: detailPositions[card._id] === 'left' ? 'auto' : 'calc(100% + 20px)',
-                  right: detailPositions[card._id] === 'left' ? 'calc(100% + 20px)' : 'auto'
-                }}
-              >
-                <h3 className="card-title">{card.title}</h3>
-                
-                <div className="card-metadata">
-                  <div className="card-metadata-row">
-                    <div>
-                      <span className="card-cost">{card.cost}</span>
-                      <span className="card-class">{card.class}</span>
-                    </div>
-                    <span className={`card-rarity card-rarity-${card.rarity.toLowerCase()}`}>{card.rarity}</span>
+      ) : (
+        <div className="scrollable-container">
+          {viewMode === 'grid' ? (
+            <div className="card-grid">
+              {set.cards.map(card => (
+                <div 
+                  className="card-container" 
+                  key={card._id}
+                  ref={(el) => setCardRef(card._id, el)}
+                  onMouseEnter={() => handleMouseEnter(card._id)}
+                  onMouseLeave={handleMouseLeave}
+                  onDoubleClick={() => handleDoubleClick(card)}
+                  style={{ zIndex: activeCardId === card._id ? 1000 : 1 }}
+                >
+                  <div className="card">
+                    <img 
+                      src={card.imageUrl} 
+                      alt={card.title} 
+                      className="card-image" 
+                    />
+                    {card.isToken && <div className="token-label">Token</div>}
+                    {isAdmin && (
+                      <div className="card-actions">
+                        <Link 
+                          to={`/edit/${card._id}`} 
+                          className="btn btn-edit"
+                          onClick={handleButtonClick}
+                        >
+                          Edit
+                        </Link>
+                        <button 
+                          className="btn btn-danger"
+                          onClick={(e) => {
+                            handleButtonClick(e);
+                            handleRemoveCard(card._id);
+                          }}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )}
                   </div>
                   
-                  <div className="card-metadata-row">
-                    <div>
-                      {card.trait && (
-                        <span className="card-trait">
-                          Trait: {card.trait}
-                        </span>
-                      )}
-                      {card.isToken && (
-                        <span className="card-token-badge">
-                          Token
-                        </span>
-                      )}
-                    </div>
-                    <span className={`card-type-badge ${card.cardType?.toLowerCase() || 'follower'}`}>
-                      {card.cardType || 'Follower'}
-                    </span>
-                  </div>
-                </div>
-                
-                {/* Follower card details */}
-                {(!card.cardType || card.cardType === 'Follower') && (
-                  <div className="card-descriptions">
-                    <div className="description-section">
-                      <h4 className="description-title">Unevolved</h4>
-                      <div className="stats-row">
-                        <span>Attack: <span className="attack-value">{card.unevolvedAttack}</span></span>
-                        <span>Defense: <span className="defense-value">{card.unevolvedDefense}</span></span>
+                  <div 
+                    className="card-detail"
+                    style={{
+                      left: detailPositions[card._id] === 'left' ? 'auto' : 'calc(100% + 20px)',
+                      right: detailPositions[card._id] === 'left' ? 'calc(100% + 20px)' : 'auto'
+                    }}
+                  >
+                    <h3 className="card-title">{card.title}</h3>
+                    
+                    <div className="card-metadata">
+                      <div className="card-metadata-row">
+                        <div>
+                          <span className="card-cost">{card.cost}</span>
+                          <span className="card-class">{card.class}</span>
+                        </div>
+                        <span className={`card-rarity card-rarity-${card.rarity.toLowerCase()}`}>{card.rarity}</span>
                       </div>
-                      <p className="card-description">{card.unevolvedDescription}</p>
+                      
+                      <div className="card-metadata-row">
+                        <div>
+                          {card.trait && (
+                            <span className="card-trait">
+                              Trait: {card.trait}
+                            </span>
+                          )}
+                          {card.isToken && (
+                            <span className="card-token-badge">
+                              Token
+                            </span>
+                          )}
+                        </div>
+                        <span className={`card-type-badge ${card.cardType?.toLowerCase() || 'follower'}`}>
+                          {card.cardType || 'Follower'}
+                        </span>
+                      </div>
                     </div>
                     
-                    <div className="description-section">
-                      <h4 className="description-title">Evolved</h4>
-                      <div className="stats-row">
-                        <span>Attack: <span className="attack-value">{card.evolvedAttack}</span></span>
-                        <span>Defense: <span className="defense-value">{card.evolvedDefense}</span></span>
-                      </div>
-                      <p className="card-description">{card.evolvedDescription}</p>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Spell card details */}
-                {card.cardType === 'Spell' && (
-                  <div className="card-descriptions">
-                    <div className="description-section">
-                      <h4 className="description-title">Spell Effect</h4>
-                      <p className="card-description">{card.spellDescription}</p>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Amulet card details */}
-                {card.cardType === 'Amulet' && (
-                  <div className="card-descriptions">
-                    <div className="description-section">
-                      <h4 className="description-title">Amulet Effect</h4>
-                      <p className="card-description">{card.amuletDescription}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              {/* Notes popup */}
-              {card.notes && card.notes.trim() !== '' && (
-                <div 
-                  className={`card-notes ${showNotesForCard === card._id ? 'show' : ''}`}
-                  style={{
-                    left: detailPositions[card._id] === 'left' ? 'auto' : 'calc(100% + 400px)',
-                    right: detailPositions[card._id] === 'left' ? 'calc(100% + 400px)' : 'auto'
-                  }}
-                >
-                  <h3 className="card-notes-title">{card.title} Details</h3>
-                  <div className="card-notes-content">
-                    {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
-                      <div key={index} className="note-line">
-                        {line}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      ) : (
-        // List View (original implementation)
-        <div className="set-cards">
-          {set.cards.map(card => (
-            <div 
-              className="set-card-item" 
-              key={card._id}
-              onDoubleClick={() => handleDoubleClick(card)}
-            >
-              <div className="set-card-image">
-                <img src={card.imageUrl} alt={card.title} />
-                {card.isToken && <div className="token-label">Token</div>}
-              </div>
-              <div className="set-card-info">
-                <h3>{card.title}</h3>
-                <div className="set-card-meta">
-                  <span className="cost-label">Cost: {card.cost}</span>
-                  <span className="card-class">{card.class}</span>
-                  <span className={`card-rarity card-rarity-${card.rarity.toLowerCase()}`}>{card.rarity}</span>
-                  <span className={`card-type-badge ${card.cardType?.toLowerCase() || 'follower'}`}>
-                    {card.cardType || 'Follower'}
-                  </span>
-                </div>
-                
-                <div className="set-card-stats">
-                  {(!card.cardType || card.cardType === 'Follower') && (
-                    <div>
-                      <span>Unevolved: <span className="attack-value">{card.unevolvedAttack}</span>/<span className="defense-value">{card.unevolvedDefense}</span></span>
-                      <span>Evolved: <span className="attack-value">{card.evolvedAttack}</span>/<span className="defense-value">{card.evolvedDefense}</span></span>
-                    </div>
-                  )}
-                  {card.cardType === 'Spell' && (
-                    <div>
-                      <span>Spell Effect: {card.spellDescription?.substring(0, 50)}...</span>
-                    </div>
-                  )}
-                  {card.cardType === 'Amulet' && (
-                    <div>
-                      <span>Amulet Effect: {card.amuletDescription?.substring(0, 50)}...</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Integrated notes section for list view */}
-                {card.notes && card.notes.trim() !== '' && (
-                  <div className="set-card-notes">
-                    <h4 className="set-card-notes-title">{card.title} Details:</h4>
-                    <div className="set-card-notes-content">
-                      {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
-                        <div key={index} className="note-line">
-                          {line}
+                    {/* Follower card details */}
+                    {(!card.cardType || card.cardType === 'Follower') && (
+                      <div className="card-descriptions">
+                        <div className="description-section">
+                          <h4 className="description-title">Unevolved</h4>
+                          <div className="stats-row">
+                            <span>Attack: <span className="attack-value">{card.unevolvedAttack}</span></span>
+                            <span>Defense: <span className="defense-value">{card.unevolvedDefense}</span></span>
+                          </div>
+                          <p className="card-description">{card.unevolvedDescription}</p>
                         </div>
-                      ))}
-                    </div>
+                        
+                        <div className="description-section">
+                          <h4 className="description-title">Evolved</h4>
+                          <div className="stats-row">
+                            <span>Attack: <span className="attack-value">{card.evolvedAttack}</span></span>
+                            <span>Defense: <span className="defense-value">{card.evolvedDefense}</span></span>
+                          </div>
+                          <p className="card-description">{card.evolvedDescription}</p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Spell card details */}
+                    {card.cardType === 'Spell' && (
+                      <div className="card-descriptions">
+                        <div className="description-section">
+                          <h4 className="description-title">Spell Effect</h4>
+                          <p className="card-description">{card.spellDescription}</p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Amulet card details */}
+                    {card.cardType === 'Amulet' && (
+                      <div className="card-descriptions">
+                        <div className="description-section">
+                          <h4 className="description-title">Amulet Effect</h4>
+                          <p className="card-description">{card.amuletDescription}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-
-                {isAdmin && (
-                  <div className="set-card-actions">
-                    <Link to={`/edit/${card._id}`} className="btn btn-edit">Edit</Link>
-                    <button 
-                      className="btn btn-danger"
-                      onClick={() => handleRemoveCard(card._id)}
+                  
+                  {/* Notes popup */}
+                  {card.notes && card.notes.trim() !== '' && (
+                    <div 
+                      className={`card-notes ${showNotesForCard === card._id ? 'show' : ''}`}
+                      style={{
+                        left: detailPositions[card._id] === 'left' ? 'auto' : 'calc(100% + 400px)',
+                        right: detailPositions[card._id] === 'left' ? 'calc(100% + 400px)' : 'auto'
+                      }}
                     >
-                      Remove from Set
-                    </button>
-                  </div>
-                )}
-              </div>
+                      <h3 className="card-notes-title">{card.title} Details</h3>
+                      <div className="card-notes-content">
+                        {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
+                          <div key={index} className="note-line">
+                            {line}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
-          ))}
+          ) : (
+            <div className="list-view">
+              {set.cards.map(card => (
+                <div 
+                  className="set-card-item" 
+                  key={card._id}
+                  onDoubleClick={() => handleDoubleClick(card)}
+                >
+                  <div className="set-card-image">
+                    <img src={card.imageUrl} alt={card.title} />
+                    {card.isToken && <div className="token-label">Token</div>}
+                  </div>
+                  <div className="set-card-info">
+                    <h3>{card.title}</h3>
+                    <div className="set-card-meta">
+                      <span className="cost-label">Cost: {card.cost}</span>
+                      <span className="card-class">{card.class}</span>
+                      <span className={`card-rarity card-rarity-${card.rarity.toLowerCase()}`}>{card.rarity}</span>
+                      <span className={`card-type-badge ${card.cardType?.toLowerCase() || 'follower'}`}>
+                        {card.cardType || 'Follower'}
+                      </span>
+                    </div>
+                    
+                    <div className="set-card-stats">
+                      {(!card.cardType || card.cardType === 'Follower') && (
+                        <div>
+                          <span>Unevolved: <span className="attack-value">{card.unevolvedAttack}</span>/<span className="defense-value">{card.unevolvedDefense}</span></span>
+                          <span>Evolved: <span className="attack-value">{card.evolvedAttack}</span>/<span className="defense-value">{card.evolvedDefense}</span></span>
+                        </div>
+                      )}
+                      {card.cardType === 'Spell' && (
+                        <div>
+                          <span>Spell Effect: {card.spellDescription?.substring(0, 50)}...</span>
+                        </div>
+                      )}
+                      {card.cardType === 'Amulet' && (
+                        <div>
+                          <span>Amulet Effect: {card.amuletDescription?.substring(0, 50)}...</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Integrated notes section for list view */}
+                    {card.notes && card.notes.trim() !== '' && (
+                      <div className="set-card-notes">
+                        <h4 className="set-card-notes-title">{card.title} Details:</h4>
+                        <div className="set-card-notes-content">
+                          {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
+                            <div key={index} className="note-line">
+                              {line}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {isAdmin && (
+                      <div className="set-card-actions">
+                        <Link to={`/edit/${card._id}`} className="btn btn-edit">Edit</Link>
+                        <button 
+                          className="btn btn-danger"
+                          onClick={() => handleRemoveCard(card._id)}
+                        >
+                          Remove from Set
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
   );
 };
 
-export default SetDetail; 
+export default SetDetail;
