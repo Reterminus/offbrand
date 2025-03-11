@@ -246,6 +246,20 @@ const EditKeyword = () => {
           )}
         </div>
         
+        {preview && (
+          <div className="form-group">
+            <label>Image Position</label>
+            <ImagePositionSelector
+              imageUrl={preview}
+              initialPosition={formData.imagePosition}
+              onChange={handlePositionChange}
+            />
+            <small className="form-text">
+              Drag the image or use the preset buttons to adjust how the image is positioned.
+            </small>
+          </div>
+        )}
+        
         <div className="form-actions">
           <button 
             type="submit" 
