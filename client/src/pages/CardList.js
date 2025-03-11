@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { getCards, deleteCard, getSets } from '../services/api';
 import { sortCards } from '../utils/cardUtils';
 import { AuthContext } from '../context/AuthContext';
-import '../styles/ScrollableContainer.css';
 
 const CardList = () => {
   const navigate = useNavigate();
@@ -345,167 +344,165 @@ const CardList = () => {
           </p>
         </div>
       ) : (
-        <div className="scrollable-container">
-          <div className="card-grid">
-            {filteredCards.map(card => (
+        <div className="card-grid">
+          {filteredCards.map(card => (
+            <div 
+              className="card-container" 
+              key={card._id}
+              ref={(el) => setCardRef(card._id, el)}
+              onMouseEnter={() => handleMouseEnter(card._id)}
+              onMouseLeave={handleMouseLeave}
+              onDoubleClick={() => handleDoubleClick(card)}
+              style={{ zIndex: activeCardId === card._id ? 1000 : 1 }}
+            >
+              <div className="card">
+                <img 
+                  src={card.imageUrl} 
+                  alt={card.title} 
+                  className="card-image" 
+                />
+                {card.isToken && <div className="token-label">Token</div>}
+                {isAdmin && (
+                  <div className="card-actions">
+                    <button 
+                      className="btn btn-edit"
+                      onClick={(e) => {
+                        handleButtonClick(e);
+                        handleEdit(card._id);
+                      }}
+                    >
+                      Edit
+                    </button>
+                    <button 
+                      className="btn btn-danger"
+                      onClick={(e) => {
+                        handleButtonClick(e);
+                        handleDelete(card._id);
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
+              </div>
+              
               <div 
-                className="card-container" 
-                key={card._id}
-                ref={(el) => setCardRef(card._id, el)}
-                onMouseEnter={() => handleMouseEnter(card._id)}
-                onMouseLeave={handleMouseLeave}
-                onDoubleClick={() => handleDoubleClick(card)}
-                style={{ zIndex: activeCardId === card._id ? 1000 : 1 }}
+                className="card-detail"
+                style={{
+                  left: detailPositions[card._id] === 'left' ? 'auto' : 'calc(100% + 20px)',
+                  right: detailPositions[card._id] === 'left' ? 'calc(100% + 20px)' : 'auto'
+                }}
               >
-                <div className="card">
-                  <img 
-                    src={card.imageUrl} 
-                    alt={card.title} 
-                    className="card-image" 
-                  />
-                  {card.isToken && <div className="token-label">Token</div>}
-                  {isAdmin && (
-                    <div className="card-actions">
-                      <button 
-                        className="btn btn-edit"
-                        onClick={(e) => {
-                          handleButtonClick(e);
-                          handleEdit(card._id);
-                        }}
-                      >
-                        Edit
-                      </button>
-                      <button 
-                        className="btn btn-danger"
-                        onClick={(e) => {
-                          handleButtonClick(e);
-                          handleDelete(card._id);
-                        }}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  )}
-                </div>
+                <h3 className="card-title">{card.title}</h3>
                 
-                <div 
-                  className="card-detail"
-                  style={{
-                    left: detailPositions[card._id] === 'left' ? 'auto' : 'calc(100% + 20px)',
-                    right: detailPositions[card._id] === 'left' ? 'calc(100% + 20px)' : 'auto'
-                  }}
-                >
-                  <h3 className="card-title">{card.title}</h3>
-                  
-                  <div className="card-metadata">
-                    <div className="card-metadata-row">
-                      <div>
-                        <span className="card-cost">{card.cost}</span>
-                        <span className="card-class" title={card.class}>{card.class}</span>
-                      </div>
-                      <span className={`card-rarity card-rarity-${card.rarity.toLowerCase()}`}>{card.rarity}</span>
+                <div className="card-metadata">
+                  <div className="card-metadata-row">
+                    <div>
+                      <span className="card-cost">{card.cost}</span>
+                      <span className="card-class" title={card.class}>{card.class}</span>
                     </div>
-                    
-                    <div className="card-metadata-row">
-                      <div>
-                        {card.trait && (
-                          <span className="card-trait">
-                            Trait: {card.trait}
-                          </span>
-                        )}
-                        {card.isToken && !card.trait && (
-                          <span className="card-token-badge">
-                            Token
-                          </span>
-                        )}
-                      </div>
-                      <span className={`card-type-badge ${card.cardType?.toLowerCase() || 'follower'}`}>
-                        {card.cardType || 'Follower'}
-                      </span>
-                    </div>
-                    
-                    {card.trait && card.isToken && (
-                      <div className="card-metadata-row token-row">
-                        <div>
-                          <span className="card-token-badge">
-                            Token
-                          </span>
-                        </div>
-                        <div></div>
-                      </div>
-                    )}
+                    <span className={`card-rarity card-rarity-${card.rarity.toLowerCase()}`}>{card.rarity}</span>
                   </div>
                   
-                  {/* Follower card details */}
-                  {(!card.cardType || card.cardType === 'Follower') && (
-                    <div className="card-descriptions">
-                      <div className="description-section">
-                        <h4 className="description-title">Unevolved</h4>
-                        <div className="stats-row">
-                          <span>Attack: <span className="attack-value">{card.unevolvedAttack}</span></span>
-                          <span>Defense: <span className="defense-value">{card.unevolvedDefense}</span></span>
-                        </div>
-                        <p className="card-description">{card.unevolvedDescription}</p>
-                      </div>
-                      
-                      <div className="description-section">
-                        <h4 className="description-title">Evolved</h4>
-                        <div className="stats-row">
-                          <span>Attack: <span className="attack-value">{card.evolvedAttack}</span></span>
-                          <span>Defense: <span className="defense-value">{card.evolvedDefense}</span></span>
-                        </div>
-                        <p className="card-description">{card.evolvedDescription}</p>
-                      </div>
+                  <div className="card-metadata-row">
+                    <div>
+                      {card.trait && (
+                        <span className="card-trait">
+                          Trait: {card.trait}
+                        </span>
+                      )}
+                      {card.isToken && !card.trait && (
+                        <span className="card-token-badge">
+                          Token
+                        </span>
+                      )}
                     </div>
-                  )}
+                    <span className={`card-type-badge ${card.cardType?.toLowerCase() || 'follower'}`}>
+                      {card.cardType || 'Follower'}
+                    </span>
+                  </div>
                   
-                  {/* Spell card details */}
-                  {card.cardType === 'Spell' && (
-                    <div className="card-descriptions">
-                      <div className="description-section">
-                        <h4 className="description-title">Spell Effect</h4>
-                        <p className="card-description">{card.spellDescription}</p>
+                  {card.trait && card.isToken && (
+                    <div className="card-metadata-row token-row">
+                      <div>
+                        <span className="card-token-badge">
+                          Token
+                        </span>
                       </div>
-                    </div>
-                  )}
-                  
-                  {/* Amulet card details */}
-                  {card.cardType === 'Amulet' && (
-                    <div className="card-descriptions">
-                      <div className="description-section">
-                        <h4 className="description-title">Amulet Effect</h4>
-                        <p className="card-description">{card.amuletDescription}</p>
-                      </div>
+                      <div></div>
                     </div>
                   )}
                 </div>
                 
-                {/* Notes popup */}
-                {card.notes && card.notes.trim() !== '' && (
-                  <div 
-                    className={`card-notes ${showNotesForCard === card._id ? 'show' : ''}`}
-                    style={{
-                      left: detailPositions[card._id] === 'left' ? 'auto' : 'calc(100% + 400px)',
-                      right: detailPositions[card._id] === 'left' ? 'calc(100% + 400px)' : 'auto'
-                    }}
-                  >
-                    <h3 className="card-notes-title">{card.title} Details</h3>
-                    <div className="card-notes-content">
-                      {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
-                        <div key={index} className="note-line">
-                          {line}
-                        </div>
-                      ))}
+                {/* Follower card details */}
+                {(!card.cardType || card.cardType === 'Follower') && (
+                  <div className="card-descriptions">
+                    <div className="description-section">
+                      <h4 className="description-title">Unevolved</h4>
+                      <div className="stats-row">
+                        <span>Attack: <span className="attack-value">{card.unevolvedAttack}</span></span>
+                        <span>Defense: <span className="defense-value">{card.unevolvedDefense}</span></span>
+                      </div>
+                      <p className="card-description">{card.unevolvedDescription}</p>
+                    </div>
+                    
+                    <div className="description-section">
+                      <h4 className="description-title">Evolved</h4>
+                      <div className="stats-row">
+                        <span>Attack: <span className="attack-value">{card.evolvedAttack}</span></span>
+                        <span>Defense: <span className="defense-value">{card.evolvedDefense}</span></span>
+                      </div>
+                      <p className="card-description">{card.evolvedDescription}</p>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Spell card details */}
+                {card.cardType === 'Spell' && (
+                  <div className="card-descriptions">
+                    <div className="description-section">
+                      <h4 className="description-title">Spell Effect</h4>
+                      <p className="card-description">{card.spellDescription}</p>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Amulet card details */}
+                {card.cardType === 'Amulet' && (
+                  <div className="card-descriptions">
+                    <div className="description-section">
+                      <h4 className="description-title">Amulet Effect</h4>
+                      <p className="card-description">{card.amuletDescription}</p>
                     </div>
                   </div>
                 )}
               </div>
-            ))}
-          </div>
+              
+              {/* Notes popup */}
+              {card.notes && card.notes.trim() !== '' && (
+                <div 
+                  className={`card-notes ${showNotesForCard === card._id ? 'show' : ''}`}
+                  style={{
+                    left: detailPositions[card._id] === 'left' ? 'auto' : 'calc(100% + 400px)',
+                    right: detailPositions[card._id] === 'left' ? 'calc(100% + 400px)' : 'auto'
+                  }}
+                >
+                  <h3 className="card-notes-title">{card.title} Details</h3>
+                  <div className="card-notes-content">
+                    {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
+                      <div key={index} className="note-line">
+                        {line}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>
   );
 };
 
-export default CardList;
+export default CardList; 
