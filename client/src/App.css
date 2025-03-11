@@ -486,17 +486,17 @@
 }
 
 .card-type-badge.follower {
-  background-color: #4285f4;
+  background-color: #c9635e;
   color: white;
 }
 
 .card-type-badge.spell {
-  background-color: #9c27b0;
+  background-color: #844cd3;
   color: white;
 }
 
 .card-type-badge.amulet {
-  background-color: #ff9800;
+  background-color: #5ea692;
   color: white;
 }
 
