@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getSet, getCards, addCardToSet, removeCardFromSet } from '../services/api';
 import { sortCards } from '../utils/cardUtils';
 import { AuthContext } from '../context/AuthContext';
+import './SetDetail.css'; // Import the CSS file
 
 const SetDetail = () => {
   const { id } = useParams();
@@ -378,7 +379,7 @@ const SetDetail = () => {
         </div>
       ) : viewMode === 'grid' ? (
         // Grid View (similar to CardList)
-        <div className="card-grid">
+        <div className="card-grid scrollable-container">
           {set.cards.map(card => (
             <div 
               className="card-container" 
@@ -523,7 +524,7 @@ const SetDetail = () => {
         </div>
       ) : (
         // List View (original implementation)
-        <div className="set-cards">
+        <div className="set-cards scrollable-container">
           {set.cards.map(card => (
             <div 
               className="set-card-item" 
@@ -598,4 +599,4 @@ const SetDetail = () => {
   );
 };
 
-export default SetDetail; 
+export default SetDetail;

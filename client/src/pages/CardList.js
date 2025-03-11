@@ -344,7 +344,7 @@ const CardList = () => {
           </p>
         </div>
       ) : (
-        <div className="card-grid">
+        <div className="card-grid scrollable-container">
           {filteredCards.map(card => (
             <div 
               className="card-container" 
@@ -505,4 +505,4 @@ const CardList = () => {
   );
 };
 
-export default CardList; 
+export default CardList;
