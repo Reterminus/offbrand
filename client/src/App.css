@@ -104,44 +104,76 @@
     max-height: 100%;
   }
 
-  /* Completely redesigned card detail for mobile */
-  .card-detail {
+  /* Override the hover-based display for mobile */
+  .card-container .card-detail {
     position: fixed;
-    left: 0 !important;
-    right: 0 !important;
-    top: 0 !important;
-    bottom: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    max-width: none !important;
-    max-height: none !important;
-    transform: none !important;
-    margin: 0 !important;
-    padding: 15px !important;
-    border-radius: 0 !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 95% !important;
+    max-width: 350px;
+    max-height: 85vh;
     overflow-y: auto;
     z-index: 2000;
+    right: auto !important;
+    padding: 15px;
+    border-radius: 8px;
     background-color: #2d2d2d;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  /* When card is tapped/active on mobile, show the detail */
+  .card-container.active .card-detail {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  /* Close button for mobile card detail */
+  .mobile-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2001;
+  }
+
+  .mobile-close-btn:before,
+  .mobile-close-btn:after {
+    content: '';
+    position: absolute;
+    width: 15px;
+    height: 2px;
+    background-color: white;
+  }
+
+  .mobile-close-btn:before {
+    transform: rotate(45deg);
+  }
+
+  .mobile-close-btn:after {
+    transform: rotate(-45deg);
   }
 
   .card-detail .card-title {
     font-size: 18px;
     margin-bottom: 10px;
-    text-align: center;
+    padding-right: 30px; /* Make room for close button */
   }
 
   .card-detail .card-metadata {
     margin-bottom: 12px;
     padding-bottom: 10px;
-  }
-
-  .card-detail .card-metadata-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 8px;
   }
 
   .card-detail .card-descriptions {
@@ -162,30 +194,44 @@
     line-height: 1.4;
   }
 
-  /* Similar treatment for card notes */
-  .card-notes {
+  /* Override the hover-based display for mobile notes */
+  .card-container .card-notes {
     position: fixed;
-    left: 0 !important;
-    right: 0 !important;
-    top: 0 !important;
-    bottom: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    max-width: none !important;
-    max-height: none !important;
-    transform: none !important;
-    margin: 0 !important;
-    padding: 15px !important;
-    border-radius: 0 !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 95% !important;
+    max-width: 350px;
+    max-height: 85vh;
     overflow-y: auto;
     z-index: 2100;
+    right: auto !important;
+    padding: 15px;
+    border-radius: 8px;
     background-color: #2d2d2d;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .card-notes.show {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  /* Close button for mobile notes */
+  .card-notes .mobile-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2101;
   }
 
   .card-notes-title {
     font-size: 16px;
     margin-bottom: 10px;
-    text-align: center;
+    padding-right: 30px; /* Make room for close button */
   }
 
   .card-notes-content {
