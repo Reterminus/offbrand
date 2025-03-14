@@ -255,7 +255,6 @@ const CardList = () => {
   const handleCloseMobileDetail = () => {
     setActiveCardId(null);
     setShowNotesForCard(null);
-    setShowMobileOverlay(false);
   };
 
   if (loading) {
