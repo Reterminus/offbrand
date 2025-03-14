@@ -19,7 +19,6 @@ const CardList = () => {
   const [selectedRarity, setSelectedRarity] = useState('');
   const [selectedSet, setSelectedSet] = useState('');
   const [showNotesForCard, setShowNotesForCard] = useState(null);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const cardRefs = useRef({});
 
   useEffect(() => {
@@ -131,18 +130,6 @@ const CardList = () => {
     };
   }, [filteredCards]);
 
-  // Update isMobile state when window is resized
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
   const handleEdit = (id) => {
     navigate(`/edit/${id}`);
   };
@@ -208,17 +195,9 @@ const CardList = () => {
   };
 
   const handleMouseLeave = () => {
-    if (!isMobile) {
+    if (window.innerWidth > 768) {
       setActiveCardId(null);
       setShowNotesForCard(null);
-    }
-  };
-
-  // Handle card click for mobile devices
-  const handleCardClick = (id) => {
-    if (isMobile) {
-      // Toggle card detail view on mobile
-      setActiveCardId(prevId => prevId === id ? null : id);
     }
   };
 
@@ -359,12 +338,11 @@ const CardList = () => {
         <div className="card-grid">
           {filteredCards.map(card => (
             <div 
-              className={`card-container ${activeCardId === card._id ? 'active' : ''}`} 
+              className="card-container" 
               key={card._id}
               ref={(el) => setCardRef(card._id, el)}
               onMouseEnter={() => handleMouseEnter(card._id)}
               onMouseLeave={handleMouseLeave}
-              onClick={() => handleCardClick(card._id)}
               onDoubleClick={() => handleDoubleClick(card)}
               style={{ zIndex: activeCardId === card._id ? 1000 : 1 }}
             >
@@ -401,20 +379,11 @@ const CardList = () => {
               
               <div 
                 className="card-detail"
-                style={isMobile ? {} : {
+                style={{
                   left: detailPositions[card._id] === 'left' ? 'auto' : 'calc(100% + 20px)',
                   right: detailPositions[card._id] === 'left' ? 'calc(100% + 20px)' : 'auto'
                 }}
               >
-                {isMobile && (
-                  <div 
-                    className="mobile-close-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCloseMobileDetail();
-                    }}
-                  ></div>
-                )}
                 <h3 className="card-title">{card.title}</h3>
                 
                 <div className="card-metadata">
@@ -504,20 +473,11 @@ const CardList = () => {
               {card.notes && card.notes.trim() !== '' && (
                 <div 
                   className={`card-notes ${showNotesForCard === card._id ? 'show' : ''}`}
-                  style={isMobile ? {} : {
+                  style={{
                     left: detailPositions[card._id] === 'left' ? 'auto' : 'calc(100% + 400px)',
                     right: detailPositions[card._id] === 'left' ? 'calc(100% + 400px)' : 'auto'
                   }}
                 >
-                  {isMobile && (
-                    <div 
-                      className="mobile-close-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowNotesForCard(null);
-                      }}
-                    ></div>
-                  )}
                   <h3 className="card-notes-title">{card.title} Details</h3>
                   <div className="card-notes-content">
                     {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
