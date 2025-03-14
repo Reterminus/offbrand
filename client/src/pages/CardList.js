@@ -106,26 +106,40 @@ const CardList = () => {
   // Calculate detail position when window is resized
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth <= 768) return; // Skip for mobile
-      
       const newPositions = {};
       Object.keys(cardRefs.current).forEach(id => {
         const cardElement = cardRefs.current[id];
         if (cardElement) {
           const rect = cardElement.getBoundingClientRect();
           const windowWidth = window.innerWidth;
-          const cardCenter = rect.left + rect.width / 2;
+          const cardCenter = rect.left + (rect.width / 2);
           
-          // If card is in the right half of the screen, show detail on the left
-          newPositions[id] = cardCenter > windowWidth / 2 ? 'left' : 'right';
+          // Calculate how many cards can fit in a row
+          const cardWidth = rect.width;
+          const cardsPerRow = Math.floor(windowWidth / cardWidth);
+          
+          // If we have 3 or fewer cards per row, always show details below the card
+          if (cardsPerRow <= 3) {
+            newPositions[id] = 'bottom';
+          } else {
+            // Otherwise, use the original left/right logic
+            newPositions[id] = cardCenter > windowWidth / 2 ? 'left' : 'right';
+          }
         }
       });
       setDetailPositions(newPositions);
     };
 
+    // Initial calculation
     handleResize();
+
+    // Add event listener for window resize
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, [filteredCards]);
 
   const handleEdit = (id) => {
@@ -182,10 +196,16 @@ const CardList = () => {
     }
   };
 
-  // Handle card interactions
+  // Prevent event propagation to avoid triggering parent events
+  const handleButtonClick = (e) => {
+    e.stopPropagation();
+  };
+
+  // Handle mouse enter/leave for cards
   const handleMouseEnter = (id) => {
-    if (window.innerWidth > 768) {
-      setActiveCardId(id);
+    setActiveCardId(id);
+    if (window.innerWidth <= 768) {
+      setShowMobileOverlay(true);
     }
   };
 
@@ -196,11 +216,10 @@ const CardList = () => {
     }
   };
 
-  const handleCardClick = (id, event) => {
-    if (window.innerWidth <= 768) {
-      setActiveCardId(id);
-      setShowMobileOverlay(true);
-      event.stopPropagation();
+  // Handle double click to show notes
+  const handleDoubleClick = (card) => {
+    if (card.notes && card.notes.trim() !== '') {
+      setShowNotesForCard(card._id);
     }
   };
 
@@ -246,6 +265,13 @@ const CardList = () => {
 
   // Rarity options for the filter dropdown
   const rarityOptions = ['Bronze', 'Silver', 'Gold', 'Legendary'];
+
+  // Add handler to close mobile detail view
+  const handleCloseMobileDetail = () => {
+    setActiveCardId(null);
+    setShowNotesForCard(null);
+    setShowMobileOverlay(false);
+  };
 
   if (loading) {
     return <div className="loading">Loading cards...</div>;
@@ -317,13 +343,7 @@ const CardList = () => {
       </div>
 
       {showMobileOverlay && (
-        <div 
-          className={`mobile-overlay ${showMobileOverlay ? 'active' : ''}`} 
-          onClick={() => {
-            setActiveCardId(null);
-            setShowMobileOverlay(false);
-          }} 
-        />
+        <div className="mobile-overlay" onClick={handleCloseMobileDetail} />
       )}
 
       {filteredCards.length === 0 ? (
@@ -343,7 +363,7 @@ const CardList = () => {
               ref={(el) => setCardRef(card._id, el)}
               onMouseEnter={() => handleMouseEnter(card._id)}
               onMouseLeave={handleMouseLeave}
-              onClick={(e) => handleCardClick(card._id, e)}
+              onDoubleClick={() => handleDoubleClick(card)}
               style={{ zIndex: activeCardId === card._id ? 1000 : 1 }}
             >
               <div className="card">
@@ -358,7 +378,7 @@ const CardList = () => {
                     <button 
                       className="btn btn-edit"
                       onClick={(e) => {
-                        e.stopPropagation();
+                        handleButtonClick(e);
                         handleEdit(card._id);
                       }}
                     >
@@ -367,7 +387,7 @@ const CardList = () => {
                     <button 
                       className="btn btn-danger"
                       onClick={(e) => {
-                        e.stopPropagation();
+                        handleButtonClick(e);
                         handleDelete(card._id);
                       }}
                     >
@@ -377,101 +397,99 @@ const CardList = () => {
                 )}
               </div>
               
-              {activeCardId === card._id && (
-                <div 
-                  className="card-detail"
-                  style={{
-                    left: window.innerWidth <= 768 ? 'auto' : 
-                          (detailPositions[card._id] === 'left' ? 'auto' : 'calc(100% + 20px)'),
-                    right: window.innerWidth <= 768 ? 'auto' : 
-                           (detailPositions[card._id] === 'left' ? 'calc(100% + 20px)' : 'auto')
-                  }}
-                >
-                  <h3 className="card-title">{card.title}</h3>
-                  
-                  <div className="card-metadata">
-                    <div className="card-metadata-row">
-                      <div>
-                        <span className="card-cost">{card.cost}</span>
-                        <span className="card-class" title={card.class}>{card.class}</span>
-                      </div>
-                      <span className={`card-rarity card-rarity-${card.rarity.toLowerCase()}`}>{card.rarity}</span>
+              <div 
+                className="card-detail"
+                data-position={detailPositions[card._id]}
+                style={{
+                  opacity: activeCardId === card._id ? 1 : 0,
+                  visibility: activeCardId === card._id ? 'visible' : 'hidden',
+                  pointerEvents: activeCardId === card._id ? 'auto' : 'none'
+                }}
+              >
+                <h3 className="card-title">{card.title}</h3>
+                
+                <div className="card-metadata">
+                  <div className="card-metadata-row">
+                    <div>
+                      <span className="card-cost">{card.cost}</span>
+                      <span className="card-class" title={card.class}>{card.class}</span>
                     </div>
-                    
-                    <div className="card-metadata-row">
-                      <div>
-                        {card.trait && (
-                          <span className="card-trait">
-                            Trait: {card.trait}
-                          </span>
-                        )}
-                        {card.isToken && !card.trait && (
-                          <span className="card-token-badge">
-                            Token
-                          </span>
-                        )}
-                      </div>
-                      <span className={`card-type-badge ${card.cardType?.toLowerCase() || 'follower'}`}>
-                        {card.cardType || 'Follower'}
-                      </span>
-                    </div>
-                    
-                    {card.trait && card.isToken && (
-                      <div className="card-metadata-row token-row">
-                        <div>
-                          <span className="card-token-badge">
-                            Token
-                          </span>
-                        </div>
-                        <div></div>
-                      </div>
-                    )}
+                    <span className={`card-rarity card-rarity-${card.rarity.toLowerCase()}`}>{card.rarity}</span>
                   </div>
                   
-                  {/* Follower card details */}
-                  {(!card.cardType || card.cardType === 'Follower') && (
-                    <div className="card-descriptions">
-                      <div className="description-section">
-                        <h4 className="description-title">Unevolved</h4>
-                        <div className="stats-row">
-                          <span>Attack: <span className="attack-value">{card.unevolvedAttack}</span></span>
-                          <span>Defense: <span className="defense-value">{card.unevolvedDefense}</span></span>
-                        </div>
-                        <p className="card-description">{card.unevolvedDescription}</p>
-                      </div>
-                      
-                      <div className="description-section">
-                        <h4 className="description-title">Evolved</h4>
-                        <div className="stats-row">
-                          <span>Attack: <span className="attack-value">{card.evolvedAttack}</span></span>
-                          <span>Defense: <span className="defense-value">{card.evolvedDefense}</span></span>
-                        </div>
-                        <p className="card-description">{card.evolvedDescription}</p>
-                      </div>
+                  <div className="card-metadata-row">
+                    <div>
+                      {card.trait && (
+                        <span className="card-trait">
+                          Trait: {card.trait}
+                        </span>
+                      )}
+                      {card.isToken && !card.trait && (
+                        <span className="card-token-badge">
+                          Token
+                        </span>
+                      )}
                     </div>
-                  )}
+                    <span className={`card-type-badge ${card.cardType?.toLowerCase() || 'follower'}`}>
+                      {card.cardType || 'Follower'}
+                    </span>
+                  </div>
                   
-                  {/* Spell card details */}
-                  {card.cardType === 'Spell' && (
-                    <div className="card-descriptions">
-                      <div className="description-section">
-                        <h4 className="description-title">Spell Effect</h4>
-                        <p className="card-description">{card.spellDescription}</p>
+                  {card.trait && card.isToken && (
+                    <div className="card-metadata-row token-row">
+                      <div>
+                        <span className="card-token-badge">
+                          Token
+                        </span>
                       </div>
-                    </div>
-                  )}
-                  
-                  {/* Amulet card details */}
-                  {card.cardType === 'Amulet' && (
-                    <div className="card-descriptions">
-                      <div className="description-section">
-                        <h4 className="description-title">Amulet Effect</h4>
-                        <p className="card-description">{card.amuletDescription}</p>
-                      </div>
+                      <div></div>
                     </div>
                   )}
                 </div>
-              )}
+                
+                {/* Follower card details */}
+                {(!card.cardType || card.cardType === 'Follower') && (
+                  <div className="card-descriptions">
+                    <div className="description-section">
+                      <h4 className="description-title">Unevolved</h4>
+                      <div className="stats-row">
+                        <span>Attack: <span className="attack-value">{card.unevolvedAttack}</span></span>
+                        <span>Defense: <span className="defense-value">{card.unevolvedDefense}</span></span>
+                      </div>
+                      <p className="card-description">{card.unevolvedDescription}</p>
+                    </div>
+                    
+                    <div className="description-section">
+                      <h4 className="description-title">Evolved</h4>
+                      <div className="stats-row">
+                        <span>Attack: <span className="attack-value">{card.evolvedAttack}</span></span>
+                        <span>Defense: <span className="defense-value">{card.evolvedDefense}</span></span>
+                      </div>
+                      <p className="card-description">{card.evolvedDescription}</p>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Spell card details */}
+                {card.cardType === 'Spell' && (
+                  <div className="card-descriptions">
+                    <div className="description-section">
+                      <h4 className="description-title">Spell Effect</h4>
+                      <p className="card-description">{card.spellDescription}</p>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Amulet card details */}
+                {card.cardType === 'Amulet' && (
+                  <div className="card-descriptions">
+                    <div className="description-section">
+                      <h4 className="description-title">Amulet Effect</h4>
+                      <p className="card-description">{card.amuletDescription}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
               
               {/* Notes popup */}
               {card.notes && card.notes.trim() !== '' && (
