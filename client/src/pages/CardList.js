@@ -19,7 +19,6 @@ const CardList = () => {
   const [selectedRarity, setSelectedRarity] = useState('');
   const [selectedSet, setSelectedSet] = useState('');
   const [showNotesForCard, setShowNotesForCard] = useState(null);
-  const [showMobileOverlay, setShowMobileOverlay] = useState(false);
   const cardRefs = useRef({});
 
   useEffect(() => {
@@ -193,17 +192,12 @@ const CardList = () => {
   // Handle mouse enter/leave for cards
   const handleMouseEnter = (id) => {
     setActiveCardId(id);
-    // Only show mobile overlay if we're on mobile and a card detail is being shown
-    if (window.innerWidth <= 768 && activeCardId === id) {
-      setShowMobileOverlay(true);
-    }
   };
 
   const handleMouseLeave = () => {
     if (window.innerWidth > 768) {
       setActiveCardId(null);
       setShowNotesForCard(null);
-      setShowMobileOverlay(false);
     }
   };
 
@@ -263,13 +257,6 @@ const CardList = () => {
     setShowNotesForCard(null);
     setShowMobileOverlay(false);
   };
-
-  // Add effect to handle mobile overlay state
-  useEffect(() => {
-    if (window.innerWidth <= 768) {
-      setShowMobileOverlay(activeCardId !== null);
-    }
-  }, [activeCardId]);
 
   if (loading) {
     return <div className="loading">Loading cards...</div>;
@@ -339,10 +326,6 @@ const CardList = () => {
           )}
         </div>
       </div>
-
-      {showMobileOverlay && (
-        <div className={`mobile-overlay ${showMobileOverlay ? 'show' : ''}`} onClick={handleCloseMobileDetail} />
-      )}
 
       {filteredCards.length === 0 ? (
         <div className="no-cards">

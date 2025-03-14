@@ -1501,29 +1501,6 @@
   font-family: monospace;
 }
 
-/* Add overlay when card detail is shown on mobile */
-.mobile-overlay {
-  display: none;
-}
-
-@media (max-width: 768px) {
-  .mobile-overlay {
-    display: none; /* Changed from block to none by default */
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1500;
-  }
-
-  /* Only show overlay when a card detail is visible */
-  .mobile-overlay.show {
-    display: block;
-  }
-}
-
 .image-source-toggle {
   display: flex;
   gap: 10px;
