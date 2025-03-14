@@ -109,12 +109,44 @@
     left: 50% !important;
     top: 50% !important;
     transform: translate(-50%, -50%) !important;
-    width: 90% !important;
-    max-width: 400px;
-    max-height: 80vh;
+    width: 95% !important;
+    max-width: 350px;
+    max-height: 85vh;
     overflow-y: auto;
     z-index: 2000;
     right: auto !important;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #2d2d2d;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .card-detail .card-title {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .card-detail .card-metadata {
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+  }
+
+  .card-detail .card-descriptions {
+    gap: 12px;
+  }
+
+  .card-detail .description-section {
+    padding-bottom: 10px;
+  }
+
+  .card-detail .description-title {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  .card-detail .card-description {
+    font-size: 14px;
+    line-height: 1.4;
   }
 
   .card-notes {
@@ -122,12 +154,29 @@
     left: 50% !important;
     top: 50% !important;
     transform: translate(-50%, -50%) !important;
-    width: 90% !important;
+    width: 95% !important;
     max-width: 350px;
-    max-height: 80vh;
+    max-height: 85vh;
     overflow-y: auto;
     z-index: 2100;
     right: auto !important;
+    padding: 15px;
+    border-radius: 8px;
+  }
+
+  .card-notes-title {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+
+  .card-notes-content {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .note-line {
+    padding: 8px 10px;
+    margin-bottom: 6px;
   }
 
   .filters-container {
