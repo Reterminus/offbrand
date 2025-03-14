@@ -183,22 +183,25 @@ const CardList = () => {
   };
 
   // Handle card interactions
-  const handleCardInteraction = (id, event) => {
-    if (window.innerWidth <= 768) {
-      // Mobile interaction
-      setActiveCardId(id);
-      setShowMobileOverlay(true);
-      event.stopPropagation();
-    } else {
-      // Desktop interaction
+  const handleMouseEnter = (id) => {
+    if (window.innerWidth > 768) {
       setActiveCardId(id);
     }
   };
 
-  const handleCloseMobileDetail = () => {
-    setActiveCardId(null);
-    setShowNotesForCard(null);
-    setShowMobileOverlay(false);
+  const handleMouseLeave = () => {
+    if (window.innerWidth > 768) {
+      setActiveCardId(null);
+      setShowNotesForCard(null);
+    }
+  };
+
+  const handleCardClick = (id, event) => {
+    if (window.innerWidth <= 768) {
+      setActiveCardId(id);
+      setShowMobileOverlay(true);
+      event.stopPropagation();
+    }
   };
 
   // Set ref for card element
@@ -316,7 +319,10 @@ const CardList = () => {
       {showMobileOverlay && (
         <div 
           className={`mobile-overlay ${showMobileOverlay ? 'active' : ''}`} 
-          onClick={handleCloseMobileDetail} 
+          onClick={() => {
+            setActiveCardId(null);
+            setShowMobileOverlay(false);
+          }} 
         />
       )}
 
@@ -335,7 +341,9 @@ const CardList = () => {
               className="card-container" 
               key={card._id}
               ref={(el) => setCardRef(card._id, el)}
-              onClick={(e) => handleCardInteraction(card._id, e)}
+              onMouseEnter={() => handleMouseEnter(card._id)}
+              onMouseLeave={handleMouseLeave}
+              onClick={(e) => handleCardClick(card._id, e)}
               style={{ zIndex: activeCardId === card._id ? 1000 : 1 }}
             >
               <div className="card">
