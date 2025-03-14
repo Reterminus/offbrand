@@ -78,15 +78,77 @@
   padding: 0 15px;
 }
 
+.card-container {
+  position: relative;
+  height: auto;
+  perspective: 1000px;
+  z-index: 1;
+  transition: z-index 0.01s 0.01s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card {
+  position: relative;
+  width: auto;
+  height: auto;
+  max-height: 350px;
+  transition: transform 0.3s;
+  cursor: pointer;
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+  overflow: visible;
+}
+
+.card-image {
+  height: 350px;
+  width: auto;
+  object-fit: contain;
+}
+
+.card-detail {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 400px;
+  background-color: #2d2d2d;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  pointer-events: none;
+  max-height: none;
+  color: #e0e0e0;
+  z-index: 1000;
+}
+
+.card-container:hover .card-detail {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
 /* Mobile-specific styles */
 @media (max-width: 768px) {
   .card-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    padding: 0 10px;
   }
 
   .card-container {
-    height: 250px;
+    height: auto;
+    aspect-ratio: 2/3;
+  }
+
+  .card-image {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
   }
 
   .card-detail {
@@ -100,46 +162,30 @@
     overflow-y: auto;
     z-index: 2000;
     right: auto !important;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
   }
 
-  .card-notes {
+  .mobile-overlay {
     position: fixed;
-    left: 50% !important;
-    top: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    width: 90% !important;
-    max-width: 350px;
-    max-height: 80vh;
-    overflow-y: auto;
-    z-index: 2100;
-    right: auto !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1999;
+    display: none;
   }
 
-  .filters-container {
-    flex-direction: column;
-    padding: 10px;
+  .mobile-overlay.active {
+    display: block;
   }
 
-  .search-container {
-    width: 100%;
-  }
-
-  .filter-container {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .class-filter,
-  .rarity-filter,
-  .set-filter {
-    min-width: 0;
-    flex: 1;
-    margin: 5px;
-  }
-
-  .clear-filters {
-    width: 100%;
-    margin-top: 10px;
+  .card-container:hover .card-detail {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
   }
 }
 
@@ -211,44 +257,14 @@
   font-size: 14px;
 }
 
-.card-container {
-  position: relative;
-  height: auto;
-  perspective: 1000px;
-  z-index: 1;
-  transition: z-index 0.01s 0.01s;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .card-container:hover {
   z-index: 1000;
   transition: z-index 0.01s;
 }
 
-.card {
-  position: relative;
-  width: auto;
-  height: auto;
-  max-height: 350px;
-  transition: transform 0.3s;
-  cursor: pointer;
-  background: none;
-  box-shadow: none;
-  border-radius: 0;
-  overflow: visible;
-}
-
 .card:hover {
   transform: translateY(-5px);
   filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.2));
-}
-
-.card-image {
-  height: 350px;
-  width: auto;
-  object-fit: contain;
 }
 
 .token-label {
@@ -263,23 +279,6 @@
   font-weight: bold;
   z-index: 5;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.card-detail {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 400px;
-  background-color: #2d2d2d;
-  padding: 25px;
-  border-radius: 10px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s, visibility 0.3s;
-  pointer-events: none;
-  max-height: none;
-  color: #e0e0e0;
 }
 
 .card-notes {
@@ -356,11 +355,6 @@
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-}
-
-.card-container:hover .card-detail {
-  opacity: 1;
-  visibility: visible;
 }
 
 .card-title {
