@@ -193,7 +193,8 @@ const CardList = () => {
   // Handle mouse enter/leave for cards
   const handleMouseEnter = (id) => {
     setActiveCardId(id);
-    if (window.innerWidth <= 768) {
+    // Only show mobile overlay if we're on mobile and a card detail is being shown
+    if (window.innerWidth <= 768 && activeCardId === id) {
       setShowMobileOverlay(true);
     }
   };
@@ -202,7 +203,6 @@ const CardList = () => {
     if (window.innerWidth > 768) {
       setActiveCardId(null);
       setShowNotesForCard(null);
-    } else {
       setShowMobileOverlay(false);
     }
   };
@@ -263,6 +263,13 @@ const CardList = () => {
     setShowNotesForCard(null);
     setShowMobileOverlay(false);
   };
+
+  // Add effect to handle mobile overlay state
+  useEffect(() => {
+    if (window.innerWidth <= 768) {
+      setShowMobileOverlay(activeCardId !== null);
+    }
+  }, [activeCardId]);
 
   if (loading) {
     return <div className="loading">Loading cards...</div>;
