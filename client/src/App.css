@@ -85,6 +85,23 @@
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     column-gap: 8px;
     row-gap: 4px;
+    position: relative;
+  }
+
+  /* Background overlay for mobile */
+  .mobile-background-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1500;
+  }
+
+  .mobile-background-overlay.active {
+    display: block;
   }
 
   .card-container {
@@ -102,6 +119,20 @@
   .card-image {
     max-width: 100%;
     max-height: 100%;
+  }
+
+  /* Override hover behavior for mobile */
+  .card-container:hover .card-detail {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  /* Show card detail when activeCardId matches */
+  .card-container[data-active="true"] .card-detail {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
   }
 
   .card-detail {
@@ -147,6 +178,24 @@
   .card-detail .card-description {
     font-size: 14px;
     line-height: 1.4;
+  }
+
+  /* Add a close button for mobile */
+  .card-detail-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 2001;
   }
 
   .card-notes {

@@ -18,6 +18,7 @@ const SetDetail = () => {
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const [detailPositions, setDetailPositions] = useState({});
   const [showNotesForCard, setShowNotesForCard] = useState(null);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const cardRefs = useRef({});
   
   // New state for card filtering
@@ -56,9 +57,8 @@ const SetDetail = () => {
 
   // Calculate detail position when window is resized
   useEffect(() => {
-    if (!set || !set.cards || viewMode !== 'grid') return;
-
     const handleResize = () => {
+      setWindowWidth(window.innerWidth);
       const newPositions = {};
       Object.keys(cardRefs.current).forEach(id => {
         const cardElement = cardRefs.current[id];
@@ -82,7 +82,7 @@ const SetDetail = () => {
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [set, viewMode]);
+  }, [set?.cards]);
 
   const handleAddCard = async () => {
     if (!selectedCardId) return;
@@ -129,15 +129,24 @@ const SetDetail = () => {
     }
   };
 
+  // Handle card click for mobile
+  const handleCardClick = (id) => {
+    // For mobile devices, toggle the active card
+    if (windowWidth <= 768) {
+      setActiveCardId(activeCardId === id ? null : id);
+    }
+  };
+
   // Handle mouse enter/leave for cards
-  const handleMouseEnter = (cardId) => {
-    setActiveCardId(cardId);
+  const handleMouseEnter = (id) => {
+    setActiveCardId(id);
   };
 
   const handleMouseLeave = () => {
-    setActiveCardId(null);
-    // Hide notes when mouse leaves the card
-    setShowNotesForCard(null);
+    if (windowWidth > 768) {
+      setActiveCardId(null);
+      setShowNotesForCard(null);
+    }
   };
 
   // Handle double click to show notes
@@ -208,6 +217,12 @@ const SetDetail = () => {
     setSelectedFilterRarity('');
   };
 
+  // Add handler to close mobile detail view
+  const handleCloseMobileDetail = () => {
+    setActiveCardId(null);
+    setShowNotesForCard(null);
+  };
+
   if (loading) {
     return <div className="loading">Loading set details...</div>;
   }
@@ -230,13 +245,13 @@ const SetDetail = () => {
               className={`btn-toggle ${viewMode === 'grid' ? 'active' : ''}`}
               onClick={() => setViewMode('grid')}
             >
-              Grid View
+              Grid
             </button>
             <button 
               className={`btn-toggle ${viewMode === 'list' ? 'active' : ''}`}
               onClick={() => setViewMode('list')}
             >
-              List View
+              List
             </button>
           </div>
         </div>
@@ -247,6 +262,12 @@ const SetDetail = () => {
           <Link to="/sets" className="btn btn-secondary">Back to Sets</Link>
         </div>
       </div>
+
+      {/* Mobile background overlay */}
+      <div 
+        className={`mobile-background-overlay ${activeCardId ? 'active' : ''}`}
+        onClick={handleCloseMobileDetail}
+      ></div>
 
       {set.description && (
         <div className="set-description-box">
@@ -386,8 +407,10 @@ const SetDetail = () => {
               ref={(el) => setCardRef(card._id, el)}
               onMouseEnter={() => handleMouseEnter(card._id)}
               onMouseLeave={handleMouseLeave}
+              onClick={() => handleCardClick(card._id)}
               onDoubleClick={() => handleDoubleClick(card)}
               style={{ zIndex: activeCardId === card._id ? 1000 : 1 }}
+              data-active={activeCardId === card._id ? "true" : "false"}
             >
               <div className="card">
                 <img 
@@ -425,6 +448,17 @@ const SetDetail = () => {
                   right: detailPositions[card._id] === 'left' ? 'calc(100% + 20px)' : 'auto'
                 }}
               >
+                {windowWidth <= 768 && (
+                  <div 
+                    className="card-detail-close"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCloseMobileDetail();
+                    }}
+                  >
+                    ✕
+                  </div>
+                )}
                 <h3 className="card-title">{card.title}</h3>
                 
                 <div className="card-metadata">

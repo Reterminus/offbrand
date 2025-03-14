@@ -19,6 +19,7 @@ const CardList = () => {
   const [selectedRarity, setSelectedRarity] = useState('');
   const [selectedSet, setSelectedSet] = useState('');
   const [showNotesForCard, setShowNotesForCard] = useState(null);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const cardRefs = useRef({});
 
   useEffect(() => {
@@ -105,6 +106,7 @@ const CardList = () => {
   // Calculate detail position when window is resized
   useEffect(() => {
     const handleResize = () => {
+      setWindowWidth(window.innerWidth);
       const newPositions = {};
       Object.keys(cardRefs.current).forEach(id => {
         const cardElement = cardRefs.current[id];
@@ -195,9 +197,17 @@ const CardList = () => {
   };
 
   const handleMouseLeave = () => {
-    if (window.innerWidth > 768) {
+    if (windowWidth > 768) {
       setActiveCardId(null);
       setShowNotesForCard(null);
+    }
+  };
+
+  // Handle card click for mobile
+  const handleCardClick = (id) => {
+    // For mobile devices, toggle the active card
+    if (windowWidth <= 768) {
+      setActiveCardId(activeCardId === id ? null : id);
     }
   };
 
@@ -268,11 +278,21 @@ const CardList = () => {
   return (
     <div className="card-list-page">
       <div className="header">
-        <h1>All Cards</h1>
-        {isAdmin && (
-          <Link to="/create" className="btn">Add Card</Link>
-        )}
+        <div className="header-title">
+          <h1>Card Collection</h1>
+          {isAdmin && (
+            <Link to="/create" className="btn btn-primary">
+              Create New Card
+            </Link>
+          )}
+        </div>
       </div>
+
+      {/* Mobile background overlay */}
+      <div 
+        className={`mobile-background-overlay ${activeCardId ? 'active' : ''}`}
+        onClick={handleCloseMobileDetail}
+      ></div>
 
       <div className="filters-container">
         <div className="search-container">
@@ -343,8 +363,10 @@ const CardList = () => {
               ref={(el) => setCardRef(card._id, el)}
               onMouseEnter={() => handleMouseEnter(card._id)}
               onMouseLeave={handleMouseLeave}
+              onClick={() => handleCardClick(card._id)}
               onDoubleClick={() => handleDoubleClick(card)}
               style={{ zIndex: activeCardId === card._id ? 1000 : 1 }}
+              data-active={activeCardId === card._id ? "true" : "false"}
             >
               <div className="card">
                 <img 
@@ -384,6 +406,17 @@ const CardList = () => {
                   right: detailPositions[card._id] === 'left' ? 'calc(100% + 20px)' : 'auto'
                 }}
               >
+                {windowWidth <= 768 && (
+                  <div 
+                    className="card-detail-close"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCloseMobileDetail();
+                    }}
+                  >
+                    ✕
+                  </div>
+                )}
                 <h3 className="card-title">{card.title}</h3>
                 
                 <div className="card-metadata">
