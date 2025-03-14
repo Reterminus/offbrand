@@ -199,10 +199,9 @@ const CardList = () => {
   };
 
   const handleMouseLeave = () => {
-    if (window.innerWidth > 768) {
-      setActiveCardId(null);
-      setShowNotesForCard(null);
-    }
+    setActiveCardId(null);
+    setShowNotesForCard(null);
+    setShowMobileOverlay(false);
   };
 
   // Handle double click to show notes
