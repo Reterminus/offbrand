@@ -199,9 +199,12 @@ const CardList = () => {
   };
 
   const handleMouseLeave = () => {
-    setActiveCardId(null);
-    setShowNotesForCard(null);
-    setShowMobileOverlay(false);
+    if (window.innerWidth > 768) {
+      setActiveCardId(null);
+      setShowNotesForCard(null);
+    } else {
+      setShowMobileOverlay(false);
+    }
   };
 
   // Handle double click to show notes
@@ -331,7 +334,7 @@ const CardList = () => {
       </div>
 
       {showMobileOverlay && (
-        <div className="mobile-overlay" onClick={handleCloseMobileDetail} />
+        <div className={`mobile-overlay ${showMobileOverlay ? 'show' : ''}`} onClick={handleCloseMobileDetail} />
       )}
 
       {filteredCards.length === 0 ? (
