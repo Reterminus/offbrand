@@ -112,19 +112,8 @@ const CardList = () => {
         if (cardElement) {
           const rect = cardElement.getBoundingClientRect();
           const windowWidth = window.innerWidth;
-          const cardCenter = rect.left + (rect.width / 2);
-          
-          // Calculate how many cards can fit in a row
-          const cardWidth = rect.width;
-          const cardsPerRow = Math.floor(windowWidth / cardWidth);
-          
-          // If we have 3 or fewer cards per row, always show details below the card
-          if (cardsPerRow <= 3) {
-            newPositions[id] = 'bottom';
-          } else {
-            // Otherwise, use the original left/right logic
-            newPositions[id] = cardCenter > windowWidth / 2 ? 'left' : 'right';
-          }
+          // If the card is in the right half of the screen, show detail on the left
+          newPositions[id] = rect.left > windowWidth / 2 ? 'left' : 'right';
         }
       });
       setDetailPositions(newPositions);
@@ -399,11 +388,9 @@ const CardList = () => {
               
               <div 
                 className="card-detail"
-                data-position={detailPositions[card._id]}
                 style={{
-                  opacity: activeCardId === card._id ? 1 : 0,
-                  visibility: activeCardId === card._id ? 'visible' : 'hidden',
-                  pointerEvents: activeCardId === card._id ? 'auto' : 'none'
+                  left: detailPositions[card._id] === 'left' ? 'auto' : 'calc(100% + 20px)',
+                  right: detailPositions[card._id] === 'left' ? 'calc(100% + 20px)' : 'auto'
                 }}
               >
                 <h3 className="card-title">{card.title}</h3>

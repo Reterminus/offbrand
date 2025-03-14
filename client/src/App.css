@@ -83,7 +83,6 @@
   .card-grid {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     gap: 10px;
-    padding: 10px;
   }
 
   .card-container {
@@ -92,7 +91,13 @@
   }
 
   .card {
-    max-height: none;
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  .card-image {
+    max-width: 100%;
+    max-height: 100%;
   }
 
   .card-detail {
@@ -146,6 +151,22 @@
   .clear-filters {
     width: 100%;
     margin-top: 10px;
+  }
+}
+
+/* Add styles for compressed window */
+@media (max-width: 1200px) {
+  .card-detail {
+    position: fixed;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 90% !important;
+    max-width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 2000;
+    right: auto !important;
   }
 }
 
@@ -226,7 +247,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  aspect-ratio: 2/3; /* Maintain card aspect ratio */
+  aspect-ratio: 2/3;
 }
 
 .card-container:hover {
@@ -238,7 +259,6 @@
   position: relative;
   width: 100%;
   height: 100%;
-  max-height: 350px;
   transition: transform 0.3s;
   cursor: pointer;
   background: none;
@@ -277,6 +297,8 @@
 
 .card-detail {
   position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
   width: 400px;
   background-color: #2d2d2d;
   padding: 25px;
@@ -288,25 +310,14 @@
   pointer-events: none;
   max-height: none;
   color: #e0e0e0;
+  z-index: 1000;
 }
 
-/* Position variants for card details */
-.card-detail[data-position="left"] {
-  right: calc(100% + 20px);
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.card-detail[data-position="right"] {
-  left: calc(100% + 20px);
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.card-detail[data-position="bottom"] {
-  left: 50%;
-  top: calc(100% + 20px);
-  transform: translateX(-50%);
+/* Add styles for when detail is visible */
+.card-container:hover .card-detail {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }
 
 .card-notes {
@@ -383,11 +394,6 @@
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-}
-
-.card-container:hover .card-detail {
-  opacity: 1;
-  visibility: visible;
 }
 
 .card-title {
@@ -619,16 +625,6 @@
 
 .btn-secondary:hover {
   background-color: #666;
-}
-
-/* For screens where the card detail might go off-screen */
-@media (max-width: 1200px) {
-  .card-detail {
-    left: 50%;
-    top: -20px;
-    transform: translate(-50%, -100%);
-    width: 450px;
-  }
 }
 
 /* Form Styling */
