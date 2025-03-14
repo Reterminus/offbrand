@@ -106,20 +106,20 @@
 
   /* Override the hover-based display for mobile */
   .card-container .card-detail {
-    position: fixed;
+    position: fixed !important;
     left: 50% !important;
     top: 50% !important;
     transform: translate(-50%, -50%) !important;
     width: 95% !important;
-    max-width: 350px;
-    max-height: 85vh;
-    overflow-y: auto;
-    z-index: 2000;
+    max-width: 350px !important;
+    max-height: 85vh !important;
+    overflow-y: auto !important;
+    z-index: 2000 !important;
     right: auto !important;
-    padding: 15px;
-    border-radius: 8px;
-    background-color: #2d2d2d;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    padding: 15px !important;
+    border-radius: 8px !important;
+    background-color: #2d2d2d !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -196,19 +196,19 @@
 
   /* Override the hover-based display for mobile notes */
   .card-container .card-notes {
-    position: fixed;
+    position: fixed !important;
     left: 50% !important;
     top: 50% !important;
     transform: translate(-50%, -50%) !important;
     width: 95% !important;
-    max-width: 350px;
-    max-height: 85vh;
-    overflow-y: auto;
-    z-index: 2100;
+    max-width: 350px !important;
+    max-height: 85vh !important;
+    overflow-y: auto !important;
+    z-index: 2100 !important;
     right: auto !important;
-    padding: 15px;
-    border-radius: 8px;
-    background-color: #2d2d2d;
+    padding: 15px !important;
+    border-radius: 8px !important;
+    background-color: #2d2d2d !important;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;

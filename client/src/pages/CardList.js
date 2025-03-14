@@ -401,7 +401,7 @@ const CardList = () => {
               
               <div 
                 className="card-detail"
-                style={{
+                style={isMobile ? {} : {
                   left: detailPositions[card._id] === 'left' ? 'auto' : 'calc(100% + 20px)',
                   right: detailPositions[card._id] === 'left' ? 'calc(100% + 20px)' : 'auto'
                 }}
@@ -504,7 +504,7 @@ const CardList = () => {
               {card.notes && card.notes.trim() !== '' && (
                 <div 
                   className={`card-notes ${showNotesForCard === card._id ? 'show' : ''}`}
-                  style={{
+                  style={isMobile ? {} : {
                     left: detailPositions[card._id] === 'left' ? 'auto' : 'calc(100% + 400px)',
                     right: detailPositions[card._id] === 'left' ? 'calc(100% + 400px)' : 'auto'
                   }}
