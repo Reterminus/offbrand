@@ -368,10 +368,18 @@
 }
 
 /* Add styles for when detail is visible */
-.card-container:hover .card-detail {
+.card:hover + .card-detail {
   opacity: 1;
   visibility: visible;
-  pointer-events: auto;
+}
+
+/* Mobile styles override to keep existing behavior */
+@media (max-width: 768px) {
+  .card-container:hover .card-detail {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
 }
 
 .card-notes {
