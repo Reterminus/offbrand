@@ -158,6 +158,7 @@ const EditCard = () => {
     setError(null);
     
     try {
+      console.log('Submitting form data with creator:', formData.creator);
       const data = new FormData();
       data.append('title', formData.title);
       data.append('cardType', formData.cardType);
@@ -167,7 +168,13 @@ const EditCard = () => {
       data.append('rarity', formData.rarity);
       data.append('class', formData.class);
       data.append('notes', formData.notes);
-      data.append('creator', formData.creator);
+      data.append('creator', formData.creator || '');
+      
+      // Log FormData contents
+      console.log('FormData contents:');
+      for (let pair of data.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+      }
       
       // Append fields based on card type
       if (formData.cardType === 'Follower') {
@@ -190,9 +197,11 @@ const EditCard = () => {
         data.append('imageUrl', formData.imageUrl);
       }
       
-      await updateCard(id, data);
+      const response = await updateCard(id, data);
+      console.log('Update response:', response);
       navigate('/');
     } catch (err) {
+      console.error('Error updating card:', err);
       setError('Failed to update card. Please try again.');
       setSubmitting(false);
     }

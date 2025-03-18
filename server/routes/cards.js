@@ -77,6 +77,7 @@ router.post('/', admin, upload.single('image'), async (req, res) => {
       spellDescription,
       amuletDescription,
       notes,
+      creator,
       imageUrl
     } = req.body;
     
@@ -102,6 +103,7 @@ router.post('/', admin, upload.single('image'), async (req, res) => {
       rarity,
       class: cardClass,
       notes: notes || '',
+      creator: creator || '',
       imageUrl: finalImageUrl
     };
     
@@ -131,6 +133,9 @@ router.post('/', admin, upload.single('image'), async (req, res) => {
 // UPDATE a card - admin only
 router.patch('/:id', admin, upload.single('image'), async (req, res) => {
   try {
+    console.log('Received update request for card:', req.params.id);
+    console.log('Request body:', req.body);
+    
     const { 
       title, 
       cardType,
@@ -148,6 +153,7 @@ router.patch('/:id', admin, upload.single('image'), async (req, res) => {
       spellDescription,
       amuletDescription,
       notes,
+      creator,
       imageUrl
     } = req.body;
     
@@ -160,8 +166,11 @@ router.patch('/:id', admin, upload.single('image'), async (req, res) => {
       cost: Number(cost),
       rarity,
       class: cardClass,
-      notes: notes || ''
+      notes: notes || '',
+      creator: creator || ''
     };
+
+    console.log('Update data being applied:', updateData);
     
     // Add type-specific fields
     if (cardType === 'Follower') {
@@ -205,8 +214,10 @@ router.patch('/:id', admin, upload.single('image'), async (req, res) => {
       return res.status(404).json({ message: 'Card not found' });
     }
     
+    console.log('Card updated successfully:', updatedCard);
     res.json(updatedCard);
   } catch (err) {
+    console.error('Error updating card:', err);
     res.status(400).json({ message: err.message });
   }
 });
