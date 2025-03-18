@@ -31,7 +31,7 @@ const CARD_TYPE_ORDER = [
 ];
 
 /**
- * Sort cards by class, then rarity (highest first), then card type, then cost, then alphabetically by title
+ * Sort cards by class, then rarity (highest first), then non-tokens before tokens, then card type, then cost, then alphabetically by title
  * @param {Array} cards - Array of card objects to sort
  * @returns {Array} - Sorted array of cards
  */
@@ -59,6 +59,11 @@ export const sortCards = (cards) => {
     
     if (rarityAIndex !== rarityBIndex) {
       return rarityAIndex - rarityBIndex;
+    }
+
+    // Then sort tokens to the end within their class/rarity group
+    if (a.isToken !== b.isToken) {
+      return a.isToken ? 1 : -1;
     }
     
     // Then sort by card type
