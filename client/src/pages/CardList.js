@@ -18,6 +18,8 @@ const CardList = () => {
   const [selectedClass, setSelectedClass] = useState('');
   const [selectedRarity, setSelectedRarity] = useState('');
   const [selectedSet, setSelectedSet] = useState('');
+  const [selectedCreator, setSelectedCreator] = useState('');
+  const [creators, setCreators] = useState([]);
   const [showNotesForCard, setShowNotesForCard] = useState(null);
   const cardRefs = useRef({});
 
@@ -30,6 +32,12 @@ const CardList = () => {
         ]);
         // Sort cards by class, rarity, and title
         const sortedCards = sortCards(cardsData);
+        // Extract unique creators from cards
+        const uniqueCreators = [...new Set(sortedCards
+          .map(card => card.creator)
+          .filter(creator => creator && creator.trim() !== '')
+          .sort())];
+        setCreators(uniqueCreators);
         setCards(sortedCards);
         setFilteredCards(sortedCards);
         setSets(setsData);
@@ -98,9 +106,14 @@ const CardList = () => {
         result = result.filter(card => selectedSetData.cards.includes(card._id));
       }
     }
+
+    // Filter by creator
+    if (selectedCreator !== '') {
+      result = result.filter(card => card.creator === selectedCreator);
+    }
     
     setFilteredCards(result);
-  }, [searchTerm, selectedClass, selectedRarity, selectedSet, cards, sets]);
+  }, [searchTerm, selectedClass, selectedRarity, selectedSet, selectedCreator, cards, sets]);
 
   // Calculate detail position when window is resized
   useEffect(() => {
@@ -233,12 +246,18 @@ const CardList = () => {
     setSelectedSet(e.target.value);
   };
 
+  // Handle creator filter change
+  const handleCreatorChange = (e) => {
+    setSelectedCreator(e.target.value);
+  };
+
   // Clear all filters
   const handleClearFilters = () => {
     setSearchTerm('');
     setSelectedClass('');
     setSelectedRarity('');
     setSelectedSet('');
+    setSelectedCreator('');
   };
 
   // Class options for the filter dropdown
@@ -315,7 +334,17 @@ const CardList = () => {
               <option key={set._id} value={set._id}>{set.name}</option>
             ))}
           </select>
-          {(searchTerm || selectedClass || selectedRarity || selectedSet) && (
+          <select
+            value={selectedCreator}
+            onChange={handleCreatorChange}
+            className="creator-filter"
+          >
+            <option value="">All Creators</option>
+            {creators.map(creator => (
+              <option key={creator} value={creator}>{creator}</option>
+            ))}
+          </select>
+          {(searchTerm || selectedClass || selectedRarity || selectedSet || selectedCreator) && (
             <button 
               className="btn btn-secondary clear-filters"
               onClick={handleClearFilters}

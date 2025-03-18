@@ -21,6 +21,7 @@ const CreateCard = () => {
     spellDescription: '',
     amuletDescription: '',
     notes: '',
+    creator: '',
     image: null,
     imageUrl: '',
     imageSource: 'url' // Changed default to 'url'
@@ -126,6 +127,7 @@ const CreateCard = () => {
       data.append('rarity', formData.rarity);
       data.append('class', formData.class);
       data.append('notes', formData.notes);
+      data.append('creator', formData.creator);
       
       // Append fields based on card type
       if (formData.cardType === 'Follower') {
@@ -191,6 +193,19 @@ const CreateCard = () => {
             onChange={handleChange}
             placeholder="Enter card title"
             required
+          />
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="creator">Creator</label>
+          <input
+            type="text"
+            id="creator"
+            name="creator"
+            className="form-control"
+            value={formData.creator}
+            onChange={handleChange}
+            placeholder="Enter creator name (optional)"
           />
         </div>
         
