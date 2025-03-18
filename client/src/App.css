@@ -224,71 +224,70 @@
 }
 
 /* Search and Filter Styles */
-.filters-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
+.filters {
   margin: 20px 0;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #2d2d2d;
   padding: 15px;
+  background-color: #2d2d2d;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.search-container {
-  flex: 1;
-  min-width: 250px;
+.search-bar {
+  margin-bottom: 15px;
 }
 
-.search-input {
+.search-bar input {
   width: 100%;
   padding: 10px 15px;
   border: 1px solid #444;
   border-radius: 4px;
   font-size: 16px;
-  transition: border-color 0.3s;
-  background-color: #333;
+  background-color: #1a1a1a;
   color: #e0e0e0;
 }
 
-.search-input:focus {
-  border-color: #4285f4;
+.search-bar input:focus {
   outline: none;
+  border-color: #4285f4;
   box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
 }
 
-.filter-container {
+.filter-group {
   display: flex;
   gap: 10px;
-  align-items: center;
   flex-wrap: wrap;
 }
 
-.class-filter,
-.rarity-filter,
-.set-filter {
-  padding: 10px 15px;
+.filter-group select {
+  padding: 8px 12px;
   border: 1px solid #444;
   border-radius: 4px;
-  font-size: 16px;
-  min-width: 180px;
-  background-color: #333;
+  background-color: #1a1a1a;
   color: #e0e0e0;
+  font-size: 14px;
+  min-width: 150px;
+  cursor: pointer;
 }
 
-.class-filter:focus,
-.rarity-filter:focus,
-.set-filter:focus {
-  border-color: #4285f4;
+.filter-group select:focus {
   outline: none;
+  border-color: #4285f4;
   box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
 }
 
-.clear-filters {
-  padding: 10px 15px;
+.clear-filters-btn {
+  padding: 8px 16px;
+  background-color: #444;
+  color: #e0e0e0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
   font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.clear-filters-btn:hover {
+  background-color: #555;
 }
 
 .card-container {

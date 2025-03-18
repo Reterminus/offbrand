@@ -293,65 +293,48 @@ const CardList = () => {
         )}
       </div>
 
-      <div className="filters-container">
-        <div className="search-container">
+      <div className="filters">
+        <div className="search-bar">
           <input
             type="text"
-            placeholder="Search cards by name or description..."
+            placeholder="Search cards..."
             value={searchTerm}
             onChange={handleSearchChange}
-            className="search-input"
           />
         </div>
-        <div className="filter-container">
-          <select
-            value={selectedClass}
-            onChange={handleClassChange}
-            className="class-filter"
-          >
+        
+        <div className="filter-group">
+          <select value={selectedClass} onChange={handleClassChange}>
             <option value="">All Classes</option>
             {classOptions.map(option => (
               <option key={option} value={option}>{option}</option>
             ))}
           </select>
-          <select
-            value={selectedRarity}
-            onChange={handleRarityChange}
-            className="rarity-filter"
-          >
+          
+          <select value={selectedRarity} onChange={handleRarityChange}>
             <option value="">All Rarities</option>
             {rarityOptions.map(option => (
               <option key={option} value={option}>{option}</option>
             ))}
           </select>
-          <select
-            value={selectedSet}
-            onChange={handleSetChange}
-            className="set-filter"
-          >
+          
+          <select value={selectedSet} onChange={handleSetChange}>
             <option value="">All Sets</option>
             {sets.map(set => (
               <option key={set._id} value={set._id}>{set.name}</option>
             ))}
           </select>
-          <select
-            value={selectedCreator}
-            onChange={handleCreatorChange}
-            className="creator-filter"
-          >
+
+          <select value={selectedCreator} onChange={handleCreatorChange}>
             <option value="">All Creators</option>
             {creators.map(creator => (
               <option key={creator} value={creator}>{creator}</option>
             ))}
           </select>
-          {(searchTerm || selectedClass || selectedRarity || selectedSet || selectedCreator) && (
-            <button 
-              className="btn btn-secondary clear-filters"
-              onClick={handleClearFilters}
-            >
-              Clear Filters
-            </button>
-          )}
+          
+          <button onClick={handleClearFilters} className="clear-filters-btn">
+            Clear Filters
+          </button>
         </div>
       </div>
 
