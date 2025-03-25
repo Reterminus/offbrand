@@ -225,7 +225,9 @@
 }
 
 /* Search and Filter Styles */
-.filters {
+.filters,
+.add-card-filters,
+.keyword-filters {
   margin: 20px 0;
   padding: 15px;
   background-color: #2d2d2d;
@@ -233,11 +235,16 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.search-bar {
+.search-bar,
+.search-container,
+.keyword-search {
   margin-bottom: 15px;
 }
 
-.search-bar input {
+.search-bar input,
+.search-container input,
+.keyword-search input,
+.add-card-filters input {
   width: 100%;
   padding: 10px 15px;
   border: 1px solid #444;
@@ -247,19 +254,27 @@
   color: #e0e0e0;
 }
 
-.search-bar input:focus {
+.search-bar input:focus,
+.search-container input:focus,
+.keyword-search input:focus,
+.add-card-filters input:focus {
   outline: none;
   border-color: #4285f4;
   box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
 }
 
-.filter-group {
+.filter-group,
+.filter-container,
+.keyword-filter-container {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
 }
 
-.filter-group select {
+.filter-group select,
+.filter-container select,
+.keyword-filter-container select,
+.add-card-filters select {
   padding: 8px 12px;
   border: 1px solid #444;
   border-radius: 4px;
@@ -270,13 +285,18 @@
   cursor: pointer;
 }
 
-.filter-group select:focus {
+.filter-group select:focus,
+.filter-container select:focus,
+.keyword-filter-container select:focus,
+.add-card-filters select:focus {
   outline: none;
   border-color: #4285f4;
   box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
 }
 
-.clear-filters-btn {
+.clear-filters-btn,
+.clear-card-filters-btn,
+.clear-keyword-filters-btn {
   padding: 8px 16px;
   background-color: #444;
   color: #e0e0e0;
@@ -287,7 +307,9 @@
   transition: background-color 0.2s;
 }
 
-.clear-filters-btn:hover {
+.clear-filters-btn:hover,
+.clear-card-filters-btn:hover,
+.clear-keyword-filters-btn:hover {
   background-color: #555;
 }
 
@@ -920,10 +942,22 @@
 
 .add-card-filters {
   margin-bottom: 15px;
+  padding: 20px;
+  background-color: #2d2d2d;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border: 1px solid #444;
 }
 
 .add-card-filters .search-container {
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.add-card-filters .search-container input {
+  padding: 12px 15px;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: all 0.3s ease;
 }
 
 .add-card-filters .filter-container {
@@ -934,20 +968,39 @@
   align-items: center;
 }
 
+.add-card-filters .filter-container select {
+  padding: 10px 15px;
+  border-radius: 6px;
+  flex: 1;
+  min-width: 120px;
+}
+
+.add-card-filters h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #e0e0e0;
+  font-size: 18px;
+  border-bottom: 1px solid #444;
+  padding-bottom: 10px;
+}
+
 .card-select {
   flex: 1;
   padding: 10px;
   border-radius: 4px;
   border: 1px solid #444;
-  background-color: #333;
+  background-color: #1a1a1a;
   color: #e0e0e0;
   font-size: 16px;
   min-width: 250px;
+  appearance: auto;
+  height: auto;
 }
 
 .card-select:focus {
   outline: none;
   border-color: #4285f4;
+  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
 }
 
 .add-card-form {
@@ -955,6 +1008,27 @@
   gap: 20px;
   align-items: flex-start;
   flex-wrap: wrap;
+  margin-top: 15px;
+}
+
+.add-card-form button {
+  padding: 10px 20px;
+  background-color: #4285f4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.add-card-form button:hover {
+  background-color: #3367d6;
+}
+
+.add-card-form button:disabled {
+  background-color: #a0c3ff;
+  cursor: not-allowed;
 }
 
 .card-selection-container {
@@ -1613,4 +1687,53 @@
 
 .header .btn:hover {
   background-color: #3367d6;
+}
+
+/* Keyword List Filter Styles */
+.keyword-search-section {
+  margin-bottom: 30px;
+}
+
+.keyword-search {
+  max-width: 100%;
+  position: relative;
+}
+
+.keyword-search input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #444;
+  border-radius: 6px;
+  font-size: 16px;
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.keyword-search input:focus {
+  border-color: #4285f4;
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
+}
+
+.keyword-filter-container {
+  margin-top: 15px;
+  align-items: center;
+}
+
+.keyword-filter-container select {
+  padding: 10px 15px;
+  border-radius: 6px;
+  background-color: #1a1a1a;
+  flex: 1;
+}
+
+.clear-keyword-filters-btn {
+  background-color: #555;
+  padding: 10px 15px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.clear-keyword-filters-btn:hover {
+  background-color: #666;
 } 
