@@ -129,8 +129,10 @@ const CardList = () => {
         if (cardElement) {
           const rect = cardElement.getBoundingClientRect();
           const windowWidth = window.innerWidth;
-          // If the card is in the right half of the screen, show detail on the left
-          newPositions[id] = rect.left > windowWidth / 2 ? 'left' : 'right';
+          // Calculate the center position of the card
+          const cardCenter = rect.left + (rect.width / 2);
+          // If the card's center is in the right half of the screen, show detail on the left
+          newPositions[id] = cardCenter > windowWidth / 2 ? 'left' : 'right';
         }
       });
       setDetailPositions(newPositions);
