@@ -172,12 +172,10 @@ const CreateCard = () => {
       // If a set was selected, add the card to the set
       if (formData.setId) {
         await addCardToSet(formData.setId, createdCard._id);
-        // Navigate to the set detail page
-        navigate(`/sets/${formData.setId}`);
-      } else {
-        // Navigate to the card list page
-        navigate('/');
       }
+      
+      // Always navigate to the main page
+      navigate('/');
     } catch (err) {
       setError('Failed to create card. Please try again.');
       setLoading(false);

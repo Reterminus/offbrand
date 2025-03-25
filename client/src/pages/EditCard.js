@@ -207,12 +207,10 @@ const EditCard = () => {
       // If a set was selected, add the card to the set
       if (formData.setId) {
         await addCardToSet(formData.setId, id);
-        // Navigate to the set detail page
-        navigate(`/sets/${formData.setId}`);
-      } else {
-        // Navigate to the card list page
-        navigate('/');
       }
+      
+      // Always navigate to the main page
+      navigate('/');
     } catch (err) {
       console.error('Error updating card:', err);
       setError('Failed to update card. Please try again.');
