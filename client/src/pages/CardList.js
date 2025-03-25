@@ -159,7 +159,7 @@ const CardList = () => {
         // Re-sort the cards after deletion
         const updatedCards = cards.filter(card => card._id !== id);
         const sortedCards = sortCards(updatedCards);
-        setCards(sorftedCards);
+        setCards(sortedCards);
         setFilteredCards(sortedCards.filter(card => {
           let match = true;
           
