@@ -66,6 +66,11 @@ const CardList = () => {
           return true;
         }
         
+        // Search in card trait
+        if (card.trait && card.trait.toLowerCase().includes(searchTermLower)) {
+          return true;
+        }
+        
         // Search in descriptions based on card type
         if ((!card.cardType || card.cardType === 'Follower') && 
             ((card.unevolvedDescription && card.unevolvedDescription.toLowerCase().includes(searchTermLower)) || 
@@ -154,7 +159,7 @@ const CardList = () => {
         // Re-sort the cards after deletion
         const updatedCards = cards.filter(card => card._id !== id);
         const sortedCards = sortCards(updatedCards);
-        setCards(sortedCards);
+        setCards(sorftedCards);
         setFilteredCards(sortedCards.filter(card => {
           let match = true;
           
@@ -163,6 +168,11 @@ const CardList = () => {
             
             // Check title
             let textMatch = card.title.toLowerCase().includes(searchTermLower);
+
+            // Check trait
+            if (!textMatch && card.trait) {
+              textMatch = card.trait.toLowerCase().includes(searchTermLower);
+            }
             
             // Check descriptions based on card type
             if (!textMatch && (!card.cardType || card.cardType === 'Follower')) {
