@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getCard, updateCard } from '../services/api';
+import { getCard, updateCard, getSets, addCardToSet } from '../services/api';
 
 const EditCard = () => {
   const navigate = useNavigate();
@@ -25,49 +25,59 @@ const EditCard = () => {
     creator: '',
     image: null,
     imageUrl: '',
-    imageSource: 'url' // Default to 'url' since we'll be loading an existing image
+    imageSource: 'url', // Default to 'url' since we'll be loading an existing image
+    setId: '' // Add setId field
   });
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [sets, setSets] = useState([]); // Added state for sets
 
   useEffect(() => {
-    const fetchCard = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const data = await getCard(id);
+        // Fetch card data and sets in parallel
+        const [cardData, setsData] = await Promise.all([
+          getCard(id),
+          getSets()
+        ]);
+        
         setFormData({
-          title: data.title,
-          cardType: data.cardType || 'Follower',
-          trait: data.trait || '',
-          isToken: data.isToken || false,
-          cost: data.cost || 0,
-          rarity: data.rarity || '',
-          class: data.class || '',
-          unevolvedAttack: data.unevolvedAttack || 0,
-          unevolvedDefense: data.unevolvedDefense || 0,
-          evolvedAttack: data.evolvedAttack || 0,
-          evolvedDefense: data.evolvedDefense || 0,
-          unevolvedDescription: data.unevolvedDescription || '',
-          evolvedDescription: data.evolvedDescription || '',
-          spellDescription: data.spellDescription || '',
-          amuletDescription: data.amuletDescription || '',
-          notes: data.notes || '',
-          creator: data.creator || '',
+          title: cardData.title,
+          cardType: cardData.cardType || 'Follower',
+          trait: cardData.trait || '',
+          isToken: cardData.isToken || false,
+          cost: cardData.cost || 0,
+          rarity: cardData.rarity || '',
+          class: cardData.class || '',
+          unevolvedAttack: cardData.unevolvedAttack || 0,
+          unevolvedDefense: cardData.unevolvedDefense || 0,
+          evolvedAttack: cardData.evolvedAttack || 0,
+          evolvedDefense: cardData.evolvedDefense || 0,
+          unevolvedDescription: cardData.unevolvedDescription || '',
+          evolvedDescription: cardData.evolvedDescription || '',
+          spellDescription: cardData.spellDescription || '',
+          amuletDescription: cardData.amuletDescription || '',
+          notes: cardData.notes || '',
+          creator: cardData.creator || '',
           image: null,
-          imageUrl: data.imageUrl || '',
-          imageSource: 'url'
+          imageUrl: cardData.imageUrl || '',
+          imageSource: 'url',
+          setId: '' // Initialize with empty setId
         });
-        setPreview(data.imageUrl);
+        
+        setSets(setsData);
+        setPreview(cardData.imageUrl);
         setLoading(false);
       } catch (err) {
-        setError('Failed to fetch card. Please try again later.');
+        setError('Failed to fetch data. Please try again later.');
         setLoading(false);
       }
     };
 
-    fetchCard();
+    fetchData();
   }, [id]);
 
   const handleChange = (e) => {
@@ -170,12 +180,6 @@ const EditCard = () => {
       data.append('notes', formData.notes);
       data.append('creator', formData.creator || '');
       
-      // Log FormData contents
-      console.log('FormData contents:');
-      for (let pair of data.entries()) {
-        console.log(pair[0] + ': ' + pair[1]);
-      }
-      
       // Append fields based on card type
       if (formData.cardType === 'Follower') {
         data.append('unevolvedAttack', formData.unevolvedAttack);
@@ -197,9 +201,18 @@ const EditCard = () => {
         data.append('imageUrl', formData.imageUrl);
       }
       
+      // Update the card
       const response = await updateCard(id, data);
-      console.log('Update response:', response);
-      navigate('/');
+      
+      // If a set was selected, add the card to the set
+      if (formData.setId) {
+        await addCardToSet(formData.setId, id);
+        // Navigate to the set detail page
+        navigate(`/sets/${formData.setId}`);
+      } else {
+        // Navigate to the card list page
+        navigate('/');
+      }
     } catch (err) {
       console.error('Error updating card:', err);
       setError('Failed to update card. Please try again.');
@@ -221,7 +234,7 @@ const EditCard = () => {
   const cardTypeOptions = ['Follower', 'Spell', 'Amulet'];
 
   if (loading) {
-    return <div className="loading">Loading card details...</div>;
+    return <div className="loading">Loading card...</div>;
   }
 
   return (
@@ -231,7 +244,7 @@ const EditCard = () => {
       </div>
       
       <form className="create-card-form" onSubmit={handleSubmit}>
-        <h2 className="form-title">Update Card Details</h2>
+        <h2 className="form-title">Card Details</h2>
         
         {error && <div className="error">{error}</div>}
         
@@ -258,8 +271,28 @@ const EditCard = () => {
             className="form-control"
             value={formData.creator}
             onChange={handleChange}
-            placeholder="Enter creator name (optional)"
+            placeholder="Card creator's name or username"
           />
+        </div>
+        
+        {/* Add Set Selection */}
+        <div className="form-group">
+          <label htmlFor="setId">Add to Set (Optional)</label>
+          <select
+            id="setId"
+            name="setId"
+            className="form-control"
+            value={formData.setId}
+            onChange={handleChange}
+          >
+            <option value="">-- Select a Set --</option>
+            {sets.map(set => (
+              <option key={set._id} value={set._id}>{set.name}</option>
+            ))}
+          </select>
+          <small className="form-text">
+            If selected, the card will be added to this set after updating.
+          </small>
         </div>
         
         <div className="form-row">

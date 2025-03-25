@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createCard } from '../services/api';
+import { createCard, getSets, addCardToSet } from '../services/api';
 
 const CreateCard = () => {
   const navigate = useNavigate();
@@ -24,11 +24,27 @@ const CreateCard = () => {
     creator: '',
     image: null,
     imageUrl: '',
-    imageSource: 'url' // Changed default to 'url'
+    imageSource: 'url', // Changed default to 'url'
+    setId: '' // Added setId field
   });
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [sets, setSets] = useState([]); // Added state for sets
+
+  // Fetch available sets when component mounts
+  useEffect(() => {
+    const fetchSets = async () => {
+      try {
+        const setsData = await getSets();
+        setSets(setsData);
+      } catch (err) {
+        console.error('Error fetching sets:', err);
+      }
+    };
+    
+    fetchSets();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -150,8 +166,18 @@ const CreateCard = () => {
         data.append('imageUrl', formData.imageUrl);
       }
       
-      await createCard(data);
-      navigate('/');
+      // Create the card
+      const createdCard = await createCard(data);
+      
+      // If a set was selected, add the card to the set
+      if (formData.setId) {
+        await addCardToSet(formData.setId, createdCard._id);
+        // Navigate to the set detail page
+        navigate(`/sets/${formData.setId}`);
+      } else {
+        // Navigate to the card list page
+        navigate('/');
+      }
     } catch (err) {
       setError('Failed to create card. Please try again.');
       setLoading(false);
@@ -205,8 +231,28 @@ const CreateCard = () => {
             className="form-control"
             value={formData.creator}
             onChange={handleChange}
-            placeholder="Enter creator name (optional)"
+            placeholder="Card creator's name or username"
           />
+        </div>
+        
+        {/* Add Set Selection */}
+        <div className="form-group">
+          <label htmlFor="setId">Add to Set (Optional)</label>
+          <select
+            id="setId"
+            name="setId"
+            className="form-control"
+            value={formData.setId}
+            onChange={handleChange}
+          >
+            <option value="">-- Select a Set --</option>
+            {sets.map(set => (
+              <option key={set._id} value={set._id}>{set.name}</option>
+            ))}
+          </select>
+          <small className="form-text">
+            If selected, the card will be added to this set upon creation.
+          </small>
         </div>
         
         <div className="form-row">
