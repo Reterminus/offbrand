@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getCards, deleteCard, getSets } from '../services/api';
 import { sortCards } from '../utils/cardUtils';
+import { formatText } from '../utils/textUtils';
 import { AuthContext } from '../context/AuthContext';
 
 const CardList = () => {
@@ -458,7 +459,7 @@ const CardList = () => {
                         <span>Attack: <span className="attack-value">{card.unevolvedAttack}</span></span>
                         <span>Defense: <span className="defense-value">{card.unevolvedDefense}</span></span>
                       </div>
-                      <p className="card-description">{card.unevolvedDescription}</p>
+                      <p className="card-description">{formatText(card.unevolvedDescription)}</p>
                     </div>
                     
                     <div className="description-section">
@@ -467,7 +468,7 @@ const CardList = () => {
                         <span>Attack: <span className="attack-value">{card.evolvedAttack}</span></span>
                         <span>Defense: <span className="defense-value">{card.evolvedDefense}</span></span>
                       </div>
-                      <p className="card-description">{card.evolvedDescription}</p>
+                      <p className="card-description">{formatText(card.evolvedDescription)}</p>
                     </div>
                   </div>
                 )}
@@ -477,7 +478,7 @@ const CardList = () => {
                   <div className="card-descriptions">
                     <div className="description-section">
                       <h4 className="description-title">Spell Effect</h4>
-                      <p className="card-description">{card.spellDescription}</p>
+                      <p className="card-description">{formatText(card.spellDescription)}</p>
                     </div>
                   </div>
                 )}
@@ -487,7 +488,7 @@ const CardList = () => {
                   <div className="card-descriptions">
                     <div className="description-section">
                       <h4 className="description-title">Amulet Effect</h4>
-                      <p className="card-description">{card.amuletDescription}</p>
+                      <p className="card-description">{formatText(card.amuletDescription)}</p>
                     </div>
                   </div>
                 )}
@@ -506,7 +507,7 @@ const CardList = () => {
                   <div className="card-notes-content">
                     {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
                       <div key={index} className="note-line">
-                        {line}
+                        {formatText(line)}
                       </div>
                     ))}
                   </div>

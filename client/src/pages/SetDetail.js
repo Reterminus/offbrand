@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getSet, getCards, addCardToSet, removeCardFromSet } from '../services/api';
 import { sortCards } from '../utils/cardUtils';
+import { formatText } from '../utils/textUtils';
 import { AuthContext } from '../context/AuthContext';
 
 const SetDetail = () => {
@@ -466,7 +467,7 @@ const SetDetail = () => {
                         <span>Attack: <span className="attack-value">{card.unevolvedAttack}</span></span>
                         <span>Defense: <span className="defense-value">{card.unevolvedDefense}</span></span>
                       </div>
-                      <p className="card-description">{card.unevolvedDescription}</p>
+                      <p className="card-description">{formatText(card.unevolvedDescription)}</p>
                     </div>
                     
                     <div className="description-section">
@@ -475,7 +476,7 @@ const SetDetail = () => {
                         <span>Attack: <span className="attack-value">{card.evolvedAttack}</span></span>
                         <span>Defense: <span className="defense-value">{card.evolvedDefense}</span></span>
                       </div>
-                      <p className="card-description">{card.evolvedDescription}</p>
+                      <p className="card-description">{formatText(card.evolvedDescription)}</p>
                     </div>
                   </div>
                 )}
@@ -485,7 +486,7 @@ const SetDetail = () => {
                   <div className="card-descriptions">
                     <div className="description-section">
                       <h4 className="description-title">Spell Effect</h4>
-                      <p className="card-description">{card.spellDescription}</p>
+                      <p className="card-description">{formatText(card.spellDescription)}</p>
                     </div>
                   </div>
                 )}
@@ -495,7 +496,7 @@ const SetDetail = () => {
                   <div className="card-descriptions">
                     <div className="description-section">
                       <h4 className="description-title">Amulet Effect</h4>
-                      <p className="card-description">{card.amuletDescription}</p>
+                      <p className="card-description">{formatText(card.amuletDescription)}</p>
                     </div>
                   </div>
                 )}
@@ -514,7 +515,7 @@ const SetDetail = () => {
                   <div className="card-notes-content">
                     {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
                       <div key={index} className="note-line">
-                        {line}
+                        {formatText(line)}
                       </div>
                     ))}
                   </div>
@@ -556,12 +557,12 @@ const SetDetail = () => {
                   )}
                   {card.cardType === 'Spell' && (
                     <div>
-                      <span>Spell Effect: {card.spellDescription?.substring(0, 50)}...</span>
+                      <span>Spell Effect: {card.spellDescription?.substring(0, 50) ? formatText(card.spellDescription?.substring(0, 50) + '...') : ''}</span>
                     </div>
                   )}
                   {card.cardType === 'Amulet' && (
                     <div>
-                      <span>Amulet Effect: {card.amuletDescription?.substring(0, 50)}...</span>
+                      <span>Amulet Effect: {card.amuletDescription?.substring(0, 50) ? formatText(card.amuletDescription?.substring(0, 50) + '...') : ''}</span>
                     </div>
                   )}
                 </div>
@@ -573,7 +574,7 @@ const SetDetail = () => {
                     <div className="set-card-notes-content">
                       {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
                         <div key={index} className="note-line">
-                          {line}
+                          {formatText(line)}
                         </div>
                       ))}
                     </div>
