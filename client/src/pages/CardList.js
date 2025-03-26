@@ -478,8 +478,11 @@ const CardList = () => {
                 
                 {/* Spell card details */}
                 {card.cardType === 'Spell' && (
-                  <div className="card-descriptions">
-                    <div className="description-section">
+                  <div className="card-descriptions" style={{ border: 'none', borderBottom: 'none' }}>
+                    <div 
+                      className="description-section spell-section" 
+                      style={{ border: 'none', borderBottom: 'none' }}
+                    >
                       <h4 className="description-title">Spell Effect</h4>
                       <p className="card-description">{formatText(card.spellDescription)}</p>
                     </div>
@@ -488,8 +491,11 @@ const CardList = () => {
                 
                 {/* Amulet card details */}
                 {card.cardType === 'Amulet' && (
-                  <div className="card-descriptions">
-                    <div className="description-section">
+                  <div className="card-descriptions" style={{ border: 'none', borderBottom: 'none' }}>
+                    <div 
+                      className="description-section amulet-section"
+                      style={{ border: 'none', borderBottom: 'none' }}
+                    >
                       <h4 className="description-title">Amulet Effect</h4>
                       <p className="card-description">{formatText(card.amuletDescription)}</p>
                     </div>

@@ -620,6 +620,18 @@
   color: white;
 }
 
+/* Explicitly ensure spell and amulet sections never have a border */
+.spell-section, .amulet-section {
+  border-bottom: none !important;
+  border: none !important;
+}
+
+/* Make sure the card descriptions for spell and amulet have no borders */
+.card-descriptions:has(.spell-section),
+.card-descriptions:has(.amulet-section) {
+  border-bottom: none !important;
+}
+
 /* Description sections */
 .card-descriptions {
   display: flex;
