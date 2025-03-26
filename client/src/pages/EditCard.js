@@ -44,6 +44,9 @@ const EditCard = () => {
           getSets()
         ]);
         
+        // Find which set (if any) this card belongs to
+        const cardSetId = findCardSetId(setsData, id);
+        
         setFormData({
           title: cardData.title,
           cardType: cardData.cardType || 'Follower',
@@ -65,7 +68,7 @@ const EditCard = () => {
           image: null,
           imageUrl: cardData.imageUrl || '',
           imageSource: 'url',
-          setId: '' // Initialize with empty setId
+          setId: cardSetId || '' // Initialize with the set ID if found
         });
         
         setSets(setsData);
@@ -79,6 +82,28 @@ const EditCard = () => {
 
     fetchData();
   }, [id]);
+
+  // Helper function to find which set the card belongs to
+  const findCardSetId = (setsData, cardId) => {
+    if (!setsData || !cardId) return null;
+    
+    // Look through all sets to find one that contains this card
+    for (const set of setsData) {
+      if (set.cards && Array.isArray(set.cards)) {
+        // Check if the card ID is in the set's cards array
+        // We need to use toString() for proper comparison since MongoDB IDs might be stored differently
+        const cardInSet = set.cards.some(setCardId => 
+          setCardId.toString() === cardId.toString() || setCardId === cardId
+        );
+        
+        if (cardInSet) {
+          return set._id;
+        }
+      }
+    }
+    
+    return null;
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
