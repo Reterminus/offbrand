@@ -519,7 +519,12 @@ const CardList = () => {
                           >
                             <div className="keyword-overlay">
                               <h5 className="keyword-title">{keyword.title}</h5>
-                              <p className="keyword-description">{keyword.description}</p>
+                              <div className="keyword-description-scrollable">
+                                <p className="keyword-description">{keyword.description}</p>
+                              </div>
+                              <div className="keyword-expand-button" title="Expand keyword">
+                                <i className="expand-icon">+</i>
+                              </div>
                             </div>
                           </div>
                         ))}

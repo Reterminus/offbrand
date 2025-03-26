@@ -677,25 +677,57 @@ const EditCard = () => {
           )}
         </div>
         
-        {/* Add keywords field to the form */}
+        {/* Replace the existing keyword selection with a more intuitive interface */}
         <div className="form-group">
-          <label>Keywords:</label>
-          <select 
-            multiple
-            name="keywords" 
-            value={formData.keywords}
-            onChange={handleKeywordChange}
-            className="form-control"
-          >
+          <label className="form-label">Keywords:</label>
+          <div className="keywords-container">
             {keywords.map(keyword => (
-              <option key={keyword._id} value={keyword._id}>
-                {keyword.title}
-              </option>
+              <div key={keyword._id} className="keyword-selection-item">
+                <div className="keyword-checkbox-wrapper">
+                  <input
+                    type="checkbox"
+                    id={`keyword-${keyword._id}`}
+                    checked={formData.keywords.includes(keyword._id)}
+                    onChange={() => {
+                      // Toggle this keyword in the selected keywords
+                      const newKeywords = formData.keywords.includes(keyword._id)
+                        ? formData.keywords.filter(id => id !== keyword._id)
+                        : [...formData.keywords, keyword._id];
+                      
+                      setFormData({
+                        ...formData,
+                        keywords: newKeywords
+                      });
+                    }}
+                    className="keyword-checkbox"
+                  />
+                  <label htmlFor={`keyword-${keyword._id}`} className="keyword-label">
+                    {keyword.title}
+                  </label>
+                </div>
+                <div 
+                  className="keyword-preview-banner"
+                  style={{
+                    backgroundImage: `url(${keyword.imageUrl})`,
+                    backgroundPosition: keyword.imagePosition || '50% 50%',
+                    backgroundSize: 'cover'
+                  }}
+                >
+                  <div className="keyword-preview-overlay">
+                    <div className="keyword-preview-content">
+                      <h5 className="keyword-preview-title">{keyword.title}</h5>
+                      <p className="keyword-preview-description">{keyword.description}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             ))}
-          </select>
-          <small className="form-text text-muted">
-            Hold Ctrl (or Cmd on Mac) to select multiple keywords.
-          </small>
+          </div>
+          {keywords.length === 0 && (
+            <div className="no-keywords-message">
+              No keywords available. <a href="/keywords/create">Create keywords</a> to add them to cards.
+            </div>
+          )}
         </div>
         
         <div className="form-actions">
