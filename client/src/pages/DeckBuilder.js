@@ -233,8 +233,8 @@ const DeckBuilder = () => {
       // Set to export view before capturing
       setExportView(true);
       
-      // Small delay to ensure the DOM has updated
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Small delay to ensure the DOM has updated and images are loaded
+      await new Promise(resolve => setTimeout(resolve, 300));
       
       const canvas = await html2canvas(deckRef.current, {
         backgroundColor: '#1a1a1a',
@@ -448,6 +448,13 @@ const DeckBuilder = () => {
                         className="deck-card export-card"
                       >
                         <div className="export-card-count">{count}x</div>
+                        <div className="export-card-thumbnail">
+                          <img 
+                            src={card.imageUrl} 
+                            alt={card.title} 
+                            className="mini-card-image" 
+                          />
+                        </div>
                         <div className="deck-card-info">
                           <div className="deck-card-cost">{card.cost}</div>
                           <div className="deck-card-title">{card.title}</div>
