@@ -1853,9 +1853,6 @@
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  position: relative;
-  overflow: visible;
-  z-index: 1;
 }
 
 .card-browser h2 {
@@ -1873,9 +1870,7 @@
   margin-top: 20px;
   max-height: 700px;
   overflow-y: auto;
-  overflow-x: hidden;
   padding-right: 10px;
-  position: relative;
 }
 
 /* Scrollbar styling for card browser */
@@ -1896,51 +1891,16 @@
 .browsable-card {
   position: relative;
   border-radius: 8px;
-  overflow: visible;
+  overflow: hidden;
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: transform 0.2s;
   background-color: #222;
-  z-index: 1;
 }
 
 .browsable-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  z-index: 2;
-}
-
-.browsable-card .card-detail {
-  position: absolute;
-  top: 0;
-  background-color: #2d2d2d;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  z-index: 2000;
-  width: 300px;
-  pointer-events: none;
-  transition: opacity 0.3s, visibility 0.3s;
-}
-
-.browsable-card .card-detail .card-title {
-  font-size: 18px;
-  margin-bottom: 10px;
-}
-
-.browsable-card .card-detail .card-metadata {
-  margin-bottom: 15px;
-  padding-bottom: 10px;
-}
-
-.browsable-card .card-detail .description-title {
-  font-size: 14px;
-  margin-bottom: 6px;
-}
-
-.browsable-card .card-detail .card-description {
-  font-size: 14px;
-  line-height: 1.4;
 }
 
 .card-count-badge {
@@ -2455,18 +2415,150 @@
   gap: 10px;
 }
 
-/* Mobile detail view styling */
-@media (max-width: 768px) {
-  .browsable-card .card-detail {
-    position: fixed;
-    left: 50% !important;
-    top: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    width: 95% !important;
-    max-width: 350px;
-    max-height: 85vh;
-    overflow-y: auto;
-    z-index: 2000;
-    right: auto !important;
-  }
+/* Card Detail Preview in Deck Builder */
+.deck-card-detail-preview {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 350px;
+  background-color: #2d2d2d;
+  border-radius: 10px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  max-height: 60vh;
+  overflow-y: auto;
+  opacity: 0.95;
+}
+
+.preview-card-detail {
+  padding: 15px;
+}
+
+.preview-card-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0 0 12px 0;
+  color: #e0e0e0;
+}
+
+.preview-card-metadata {
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #444;
+}
+
+.preview-card-metadata-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.preview-card-cost {
+  display: inline-block;
+  width: 26px;
+  height: 26px;
+  background-color: #98dc1f;
+  color: black;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 26px;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.preview-card-class {
+  font-weight: 600;
+}
+
+.preview-card-class[title="Neutral"] { color: #d3d3d3; }
+.preview-card-class[title="Forestcraft"] { color: #90EE90; }
+.preview-card-class[title="Swordcraft"] { color: #FFD700; }
+.preview-card-class[title="Runecraft"] { color: #4169E1; }
+.preview-card-class[title="Dragoncraft"] { color: #FF8C00; }
+.preview-card-class[title="Shadowcraft"] { color: #BA55D3; }
+.preview-card-class[title="Bloodcraft"] { color: #CD5C5C; }
+.preview-card-class[title="Havencraft"] { color: #FFFFFF; }
+.preview-card-class[title="Portalcraft"] { color: #00FFFF; }
+
+.preview-card-rarity {
+  font-weight: 600;
+}
+
+.preview-card-rarity-bronze { color: #cd7f32; }
+.preview-card-rarity-silver { color: #a9a9a9; }
+.preview-card-rarity-gold { color: #ffd700; }
+.preview-card-rarity-legendary {
+  background: linear-gradient(to right, #ff00ff, #00ffff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+}
+
+.preview-card-trait, .preview-card-token-badge {
+  font-size: 13px;
+  color: #b0b0b0;
+}
+
+.preview-card-type-badge {
+  font-size: 13px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  background-color: #444;
+}
+
+.preview-card-type-badge.follower { background-color: #5c6bc0; }
+.preview-card-type-badge.spell { background-color: #26a69a; }
+.preview-card-type-badge.amulet { background-color: #ec407a; }
+
+.preview-card-descriptions {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.preview-description-section {
+  padding-bottom: 10px;
+}
+
+.preview-description-section.follower-section {
+  border-bottom: 1px dashed #444;
+}
+
+.preview-description-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #e0e0e0;
+}
+
+.preview-stats-row {
+  display: flex;
+  justify-content: flex-start;
+  gap: 15px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #b0b0b0;
+}
+
+.preview-attack-value {
+  color: #ff6b6b;
+  font-weight: bold;
+}
+
+.preview-defense-value {
+  color: #4dabf7;
+  font-weight: bold;
+}
+
+.preview-card-description {
+  font-size: 13px;
+  line-height: 1.4;
+  color: #d0d0d0;
+}
+
+/* Hide the detail preview when exporting */
+.export-view ~ .deck-card-detail-preview {
+  display: none;
 } 
