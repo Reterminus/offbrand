@@ -1962,6 +1962,12 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+/* Export view styles */
+.current-deck.export-view {
+  background-color: #222;
+  min-height: 800px;
+}
+
 .deck-header h2 {
   color: #e0e0e0;
   margin-top: 0;
@@ -2041,6 +2047,12 @@
   padding-right: 10px;
 }
 
+/* Export view - no max height for better capture */
+.export-view .deck-cards {
+  max-height: none;
+  overflow-y: visible;
+}
+
 .deck-cards::-webkit-scrollbar {
   width: 8px;
 }
@@ -2066,6 +2078,44 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+/* Export Card List */
+.export-list {
+  background-color: #222;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.export-card {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  background-color: #333;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.export-card:last-child {
+  margin-bottom: 0;
+}
+
+.export-card:hover {
+  background-color: #333;
+}
+
+.export-card:hover::after {
+  content: '';
+  display: none;
+}
+
+.export-card-count {
+  font-weight: bold;
+  font-size: 16px;
+  color: #fff;
+  margin-right: 15px;
+  min-width: 30px;
 }
 
 .deck-card {
@@ -2125,6 +2175,11 @@
   font-size: 14px;
   color: #e0e0e0;
   flex: 1;
+}
+
+.export-card .deck-card-title {
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .deck-card-class {

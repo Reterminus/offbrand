@@ -12,6 +12,8 @@ const DeckBuilder = () => {
   const [selectedClass, setSelectedClass] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCost, setSelectedCost] = useState('');
+  const [selectedCardType, setSelectedCardType] = useState('');
+  const [exportView, setExportView] = useState(false);
   const deckRef = useRef(null);
   const [exportingDeck, setExportingDeck] = useState(false);
 
@@ -21,8 +23,10 @@ const DeckBuilder = () => {
       try {
         setLoading(true);
         const cardsData = await getCards();
-        setCards(cardsData);
-        setFilteredCards(cardsData);
+        // Filter out token cards
+        const nonTokenCards = cardsData.filter(card => !card.isToken);
+        setCards(nonTokenCards);
+        setFilteredCards(nonTokenCards);
         setLoading(false);
       } catch (err) {
         setError('Failed to fetch cards. Please try again later.');
@@ -42,6 +46,13 @@ const DeckBuilder = () => {
     // Filter by class (allow the selected class and Neutral)
     if (selectedClass) {
       result = result.filter(card => card.class === selectedClass || card.class === 'Neutral');
+    }
+
+    // Filter by card type (class/neutral)
+    if (selectedCardType === 'class' && selectedClass) {
+      result = result.filter(card => card.class === selectedClass);
+    } else if (selectedCardType === 'neutral') {
+      result = result.filter(card => card.class === 'Neutral');
     }
 
     // Filter by cost
@@ -93,7 +104,7 @@ const DeckBuilder = () => {
     }
 
     setFilteredCards(result);
-  }, [selectedClass, selectedCost, searchTerm, cards]);
+  }, [selectedClass, selectedCost, searchTerm, selectedCardType, cards]);
 
   // Filter for class selection (first selection screen)
   const classOptions = [
@@ -159,10 +170,16 @@ const DeckBuilder = () => {
     setSelectedCost(e.target.value);
   };
 
+  // Handle card type filter (class/neutral)
+  const handleCardTypeChange = (e) => {
+    setSelectedCardType(e.target.value);
+  };
+
   // Handle clearing filters
   const clearFilters = () => {
     setSearchTerm('');
     setSelectedCost('');
+    setSelectedCardType('');
   };
 
   // Count cards in deck by cost for the mana curve
@@ -177,12 +194,47 @@ const DeckBuilder = () => {
     return curve;
   };
 
+  // Group cards in deck by name and count for optimization
+  const getGroupedDeckCards = () => {
+    const grouped = {};
+    
+    deck.forEach(card => {
+      if (!grouped[card._id]) {
+        grouped[card._id] = {
+          card,
+          count: 1
+        };
+      } else {
+        grouped[card._id].count++;
+      }
+    });
+    
+    // Convert to array and sort by cost and then name
+    return Object.values(grouped).sort((a, b) => {
+      if (a.card.cost !== b.card.cost) {
+        return a.card.cost - b.card.cost;
+      }
+      return a.card.title.localeCompare(b.card.title);
+    });
+  };
+
+  // Toggle export view
+  const toggleExportView = () => {
+    setExportView(!exportView);
+  };
+
   // Export deck as image
   const exportDeck = async () => {
     if (!deckRef.current) return;
     
     try {
       setExportingDeck(true);
+
+      // Set to export view before capturing
+      setExportView(true);
+      
+      // Small delay to ensure the DOM has updated
+      await new Promise(resolve => setTimeout(resolve, 100));
       
       const canvas = await html2canvas(deckRef.current, {
         backgroundColor: '#1a1a1a',
@@ -197,10 +249,13 @@ const DeckBuilder = () => {
       link.download = `${selectedClass || 'Shadowverse'}_Deck_${new Date().toISOString().split('T')[0]}.png`;
       link.click();
       
+      // Reset back to normal view
+      setExportView(false);
       setExportingDeck(false);
     } catch (err) {
       console.error('Error exporting deck:', err);
       alert('Failed to export deck as image. Please try again.');
+      setExportView(false);
       setExportingDeck(false);
     }
   };
@@ -241,6 +296,7 @@ const DeckBuilder = () => {
 
   // Card counts for the view
   const cardCounts = getCardCounts();
+  const groupedDeckCards = getGroupedDeckCards();
 
   return (
     <div className="deck-builder-page">
@@ -305,6 +361,13 @@ const DeckBuilder = () => {
                     <option value="10">10+</option>
                   </select>
                   
+                  {/* New filter for class/neutral */}
+                  <select value={selectedCardType} onChange={handleCardTypeChange}>
+                    <option value="">All Cards</option>
+                    <option value="class">{selectedClass} Cards</option>
+                    <option value="neutral">Neutral Cards</option>
+                  </select>
+                  
                   <button onClick={clearFilters} className="clear-filters-btn">
                     Clear Filters
                   </button>
@@ -339,7 +402,7 @@ const DeckBuilder = () => {
             </div>
             
             {/* Current Deck */}
-            <div className="current-deck" ref={deckRef}>
+            <div className={`current-deck ${exportView ? 'export-view' : ''}`} ref={deckRef}>
               <div className="deck-header">
                 <h2>{selectedClass} Deck ({deck.length}/40)</h2>
                 
@@ -355,18 +418,20 @@ const DeckBuilder = () => {
                   </div>
                 </div>
                 
-                <div className="mana-curve">
-                  {getManaCurve().map((count, cost) => (
-                    <div key={cost} className="mana-bar">
-                      <div 
-                        className="mana-bar-fill" 
-                        style={{ height: `${Math.min(100, count * 10)}%` }}
-                      ></div>
-                      <div className="mana-cost">{cost === 10 ? "10+" : cost}</div>
-                      <div className="mana-count">{count}</div>
-                    </div>
-                  ))}
-                </div>
+                {!exportView && (
+                  <div className="mana-curve">
+                    {getManaCurve().map((count, cost) => (
+                      <div key={cost} className="mana-bar">
+                        <div 
+                          className="mana-bar-fill" 
+                          style={{ height: `${Math.min(100, count * 10)}%` }}
+                        ></div>
+                        <div className="mana-cost">{cost === 10 ? "10+" : cost}</div>
+                        <div className="mana-count">{count}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               
               <div className="deck-cards">
@@ -374,7 +439,27 @@ const DeckBuilder = () => {
                   <div className="empty-deck">
                     <p>Your deck is empty. Click on cards in the browser to add them.</p>
                   </div>
+                ) : exportView ? (
+                  // Optimized view for export - group cards by count
+                  <div className="deck-card-list export-list">
+                    {groupedDeckCards.map(({ card, count }) => (
+                      <div 
+                        key={`export-${card._id}`} 
+                        className="deck-card export-card"
+                      >
+                        <div className="export-card-count">{count}x</div>
+                        <div className="deck-card-info">
+                          <div className="deck-card-cost">{card.cost}</div>
+                          <div className="deck-card-title">{card.title}</div>
+                          <div className={`deck-card-class ${card.class.toLowerCase()}`}>
+                            {card.class}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 ) : (
+                  // Normal view for building - show all cards individually
                   <div className="deck-card-list">
                     {deck.sort((a, b) => {
                       // Sort by cost, then by card title
