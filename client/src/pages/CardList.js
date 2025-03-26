@@ -492,30 +492,24 @@ const CardList = () => {
                     </div>
                   </div>
                 )}
-              </div>
-              
-              {/* Notes popup */}
-              {card.notes && card.notes.trim() !== '' && (
-                <div 
-                  className={`card-notes ${showNotesForCard === card._id ? 'show' : ''}`}
-                  style={{
-                    top: 'auto',
-                    bottom: detailPositions[card._id] === 'left' ? 'auto' : '-20px',
-                    left: detailPositions[card._id] === 'left' ? 'auto' : '0',
-                    right: detailPositions[card._id] === 'left' ? '0' : 'auto',
-                    transform: 'translateY(100%)'
-                  }}
-                >
-                  <h3 className="card-notes-title">{card.title} Details</h3>
-                  <div className="card-notes-content">
-                    {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
-                      <div key={index} className="note-line">
-                        {formatText(line)}
-                      </div>
-                    ))}
+                
+                {/* Notes section inside the detail window */}
+                {card.notes && card.notes.trim() !== '' && (
+                  <div 
+                    className={`card-notes-section ${showNotesForCard === card._id ? 'show' : ''}`}
+                  >
+                    <div className="card-notes-divider"></div>
+                    <h4 className="card-notes-title">{card.title} Details</h4>
+                    <div className="card-notes-content">
+                      {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
+                        <div key={index} className="note-line">
+                          {formatText(line)}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           ))}
         </div>

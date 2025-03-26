@@ -1736,4 +1736,33 @@
 
 .clear-keyword-filters-btn:hover {
   background-color: #666;
+}
+
+.card-notes-section {
+  margin-top: 20px;
+  display: none;
+}
+
+.card-notes-section.show {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+.card-notes-divider {
+  height: 1px;
+  background-color: #444;
+  margin: 15px 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.card-notes-section .card-notes-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #e0e0e0;
+  padding-bottom: 8px;
 } 
