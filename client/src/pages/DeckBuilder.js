@@ -16,6 +16,9 @@ const DeckBuilder = () => {
   const [exportView, setExportView] = useState(false);
   const deckRef = useRef(null);
   const [exportingDeck, setExportingDeck] = useState(false);
+  const [activeCardId, setActiveCardId] = useState(null);
+  const [detailPositions, setDetailPositions] = useState({});
+  const cardRefs = useRef({});
 
   // Fetch all cards on component mount
   useEffect(() => {
@@ -284,6 +287,57 @@ const DeckBuilder = () => {
     return counts;
   };
 
+  // Calculate detail position when window is resized
+  useEffect(() => {
+    const handleResize = () => {
+      const newPositions = {};
+      Object.keys(cardRefs.current).forEach(id => {
+        const cardElement = cardRefs.current[id];
+        if (cardElement) {
+          const rect = cardElement.getBoundingClientRect();
+          const windowWidth = window.innerWidth;
+          // Calculate the center position of the card
+          const cardCenter = rect.left + (rect.width / 2);
+          // If the card's center is in the right half of the screen, show detail on the left
+          newPositions[id] = cardCenter > windowWidth / 2 ? 'left' : 'right';
+        }
+      });
+      setDetailPositions(newPositions);
+    };
+
+    // Initial calculation
+    handleResize();
+
+    // Add event listener for window resize
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [filteredCards]);
+
+  // Handle mouse enter/leave for card detail
+  const handleMouseEnter = (id) => {
+    setActiveCardId(id);
+  };
+
+  const handleMouseLeave = () => {
+    if (window.innerWidth > 768) {
+      setActiveCardId(null);
+    }
+  };
+
+  // Set ref for card element
+  const setCardRef = (id, element) => {
+    cardRefs.current[id] = element;
+  };
+
+  // Prevent event propagation to avoid triggering parent events
+  const handleButtonClick = (e) => {
+    e.stopPropagation();
+  };
+
   // If still loading
   if (loading) {
     return <div className="loading">Loading cards...</div>;
@@ -379,7 +433,14 @@ const DeckBuilder = () => {
                   <div 
                     key={card._id} 
                     className="browsable-card"
-                    onClick={() => addCardToDeck(card)}
+                    ref={(el) => setCardRef(card._id, el)}
+                    onMouseEnter={() => handleMouseEnter(card._id)}
+                    onMouseLeave={handleMouseLeave}
+                    onClick={(e) => {
+                      handleButtonClick(e);
+                      addCardToDeck(card);
+                    }}
+                    style={{ zIndex: activeCardId === card._id ? 1000 : 1 }}
                   >
                     <div className="card-count-badge">
                       {cardCounts[card._id] || 0}/3
@@ -395,6 +456,101 @@ const DeckBuilder = () => {
                       <div className={`card-class-small ${card.class.toLowerCase()}`}>
                         {card.class}
                       </div>
+                    </div>
+                    
+                    {/* Card Detail Window */}
+                    <div 
+                      className="card-detail"
+                      style={{
+                        left: detailPositions[card._id] === 'left' ? 'auto' : 'calc(100% + 20px)',
+                        right: detailPositions[card._id] === 'left' ? 'calc(100% + 20px)' : 'auto',
+                        opacity: activeCardId === card._id ? 1 : 0,
+                        visibility: activeCardId === card._id ? 'visible' : 'hidden'
+                      }}
+                    >
+                      <h3 className="card-title">{card.title}</h3>
+                      
+                      <div className="card-metadata">
+                        <div className="card-metadata-row">
+                          <div>
+                            <span className="card-cost">{card.cost}</span>
+                            <span className="card-class" title={card.class}>{card.class}</span>
+                          </div>
+                          <span className={`card-rarity card-rarity-${card.rarity.toLowerCase()}`}>{card.rarity}</span>
+                        </div>
+                        
+                        <div className="card-metadata-row">
+                          <div>
+                            {card.trait && (
+                              <span className="card-trait">
+                                Trait: {card.trait}
+                              </span>
+                            )}
+                            {card.isToken && !card.trait && (
+                              <span className="card-token-badge">
+                                Token
+                              </span>
+                            )}
+                          </div>
+                          <span className={`card-type-badge ${card.cardType?.toLowerCase() || 'follower'}`}>
+                            {card.cardType || 'Follower'}
+                          </span>
+                        </div>
+                        
+                        {card.trait && card.isToken && (
+                          <div className="card-metadata-row token-row">
+                            <div>
+                              <span className="card-token-badge">
+                                Token
+                              </span>
+                            </div>
+                            <div></div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Follower card details */}
+                      {(!card.cardType || card.cardType === 'Follower') && (
+                        <div className="card-descriptions">
+                          <div className="description-section follower-section">
+                            <h4 className="description-title">Unevolved</h4>
+                            <div className="stats-row">
+                              <span>Attack: <span className="attack-value">{card.unevolvedAttack}</span></span>
+                              <span>Defense: <span className="defense-value">{card.unevolvedDefense}</span></span>
+                            </div>
+                            <p className="card-description">{formatText(card.unevolvedDescription)}</p>
+                          </div>
+                          
+                          <div className="description-section">
+                            <h4 className="description-title">Evolved</h4>
+                            <div className="stats-row">
+                              <span>Attack: <span className="attack-value">{card.evolvedAttack}</span></span>
+                              <span>Defense: <span className="defense-value">{card.evolvedDefense}</span></span>
+                            </div>
+                            <p className="card-description">{formatText(card.evolvedDescription)}</p>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Spell card details */}
+                      {card.cardType === 'Spell' && (
+                        <div className="card-descriptions">
+                          <div className="description-section spell-section" style={{ border: 'none', borderBottom: 'none' }}>
+                            <h4 className="description-title">Spell Effect</h4>
+                            <p className="card-description">{formatText(card.spellDescription)}</p>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Amulet card details */}
+                      {card.cardType === 'Amulet' && (
+                        <div className="card-descriptions">
+                          <div className="description-section amulet-section" style={{ border: 'none', borderBottom: 'none' }}>
+                            <h4 className="description-title">Amulet Effect</h4>
+                            <p className="card-description">{formatText(card.amuletDescription)}</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

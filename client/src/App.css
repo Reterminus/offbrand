@@ -1891,7 +1891,7 @@
 .browsable-card {
   position: relative;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: visible;
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: transform 0.2s;
@@ -1901,6 +1901,35 @@
 .browsable-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.browsable-card .card-detail {
+  position: absolute;
+  top: 0;
+  background-color: #2d2d2d;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  width: 400px;
+  pointer-events: none;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+/* Mobile detail view styling */
+@media (max-width: 768px) {
+  .browsable-card .card-detail {
+    position: fixed;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 95% !important;
+    max-width: 350px;
+    max-height: 85vh;
+    overflow-y: auto;
+    z-index: 2000;
+    right: auto !important;
+  }
 }
 
 .card-count-badge {
