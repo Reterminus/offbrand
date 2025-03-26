@@ -150,9 +150,9 @@ const DeckBuilder = () => {
     setDeck(newDeck);
 
     // If the deck is now empty, reset the selected class
-    if (newDeck.length === 0) {
+    /*if (newDeck.length === 0) {
       setSelectedClass('');
-    }
+    }*/
   };
 
   // Handle class selection
@@ -437,7 +437,7 @@ const DeckBuilder = () => {
               <div className="deck-cards">
                 {deck.length === 0 ? (
                   <div className="empty-deck">
-                    <p>Your deck is empty. Click on cards in the browser to add them.</p>
+                    <p>empty deck lmao.</p>
                   </div>
                 ) : exportView ? (
                   // Optimized view for export - group cards by count
