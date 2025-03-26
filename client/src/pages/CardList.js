@@ -456,7 +456,7 @@ const CardList = () => {
                 {/* Follower card details */}
                 {(!card.cardType || card.cardType === 'Follower') && (
                   <div className="card-descriptions">
-                    <div className="description-section">
+                    <div className="description-section follower-section">
                       <h4 className="description-title">Unevolved</h4>
                       <div className="stats-row">
                         <span>Attack: <span className="attack-value">{card.unevolvedAttack}</span></span>
