@@ -1234,24 +1234,6 @@
   gap: 8px;
 }
 
-/* Keywords in set list view */
-.set-card-keywords {
-  margin-bottom: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.keyword-banner.list-view {
-  border-radius: 8px;
-  width: 100%;
-}
-
-/* Add margin to separate keyword banners from the notes content */
-.set-card-notes .set-card-notes-title {
-  margin-top: 15px;
-}
-
 /* Login Page Styles */
 .login-page {
   display: flex;

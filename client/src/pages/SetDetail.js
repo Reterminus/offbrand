@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getSet, getCards, addCardToSet, removeCardFromSet, getKeywords } from '../services/api';
+import { getSet, getCards, addCardToSet, removeCardFromSet } from '../services/api';
 import { sortCards } from '../utils/cardUtils';
 import { formatText } from '../utils/textUtils';
 import { AuthContext } from '../context/AuthContext';
@@ -11,7 +11,6 @@ const SetDetail = () => {
   const { isAdmin } = useContext(AuthContext);
   const [set, setSet] = useState(null);
   const [allCards, setAllCards] = useState([]);
-  const [keywords, setKeywords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCardId, setSelectedCardId] = useState('');
@@ -31,10 +30,9 @@ const SetDetail = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [setData, cardsData, keywordsData] = await Promise.all([
+        const [setData, cardsData] = await Promise.all([
           getSet(id),
-          getCards(),
-          getKeywords()
+          getCards()
         ]);
         
         // Sort the cards in the set
@@ -47,7 +45,6 @@ const SetDetail = () => {
         
         setSet(setData);
         setAllCards(sortedAllCards);
-        setKeywords(keywordsData);
         setLoading(false);
       } catch (err) {
         setError('Failed to fetch data. Please try again later.');
@@ -464,7 +461,7 @@ const SetDetail = () => {
                 {/* Follower card details */}
                 {(!card.cardType || card.cardType === 'Follower') && (
                   <div className="card-descriptions">
-                    <div className="description-section follower-section">
+                    <div className="description-section">
                       <h4 className="description-title">Unevolved</h4>
                       <div className="stats-row">
                         <span>Attack: <span className="attack-value">{card.unevolvedAttack}</span></span>
@@ -486,11 +483,8 @@ const SetDetail = () => {
                 
                 {/* Spell card details */}
                 {card.cardType === 'Spell' && (
-                  <div className="card-descriptions" style={{ border: 'none', borderBottom: 'none' }}>
-                    <div 
-                      className="description-section spell-section" 
-                      style={{ border: 'none', borderBottom: 'none' }}
-                    >
+                  <div className="card-descriptions">
+                    <div className="description-section">
                       <h4 className="description-title">Spell Effect</h4>
                       <p className="card-description">{formatText(card.spellDescription)}</p>
                     </div>
@@ -499,11 +493,8 @@ const SetDetail = () => {
                 
                 {/* Amulet card details */}
                 {card.cardType === 'Amulet' && (
-                  <div className="card-descriptions" style={{ border: 'none', borderBottom: 'none' }}>
-                    <div 
-                      className="description-section amulet-section"
-                      style={{ border: 'none', borderBottom: 'none' }}
-                    >
+                  <div className="card-descriptions">
+                    <div className="description-section">
                       <h4 className="description-title">Amulet Effect</h4>
                       <p className="card-description">{formatText(card.amuletDescription)}</p>
                     </div>
@@ -511,55 +502,25 @@ const SetDetail = () => {
                 )}
               </div>
               
-              {/* Notes popup - replace with updated notes + keywords section */}
-              {(card.notes && card.notes.trim() !== '') || (card.keywords && card.keywords.length > 0) ? (
+              {/* Notes popup */}
+              {card.notes && card.notes.trim() !== '' && (
                 <div 
-                  className={`card-notes-section ${showNotesForCard === card._id ? 'show' : ''}`}
+                  className={`card-notes ${showNotesForCard === card._id ? 'show' : ''}`}
                   style={{
-                    left: detailPositions[card._id] === 'left' ? 'auto' : 'calc(100% + 20px)',
-                    right: detailPositions[card._id] === 'left' ? 'calc(100% + 20px)' : 'auto'
+                    left: detailPositions[card._id] === 'left' ? 'auto' : 'calc(100% + 400px)',
+                    right: detailPositions[card._id] === 'left' ? 'calc(100% + 400px)' : 'auto'
                   }}
                 >
-                  <div className="card-notes-divider"></div>
-                  
-                  {/* Keywords section */}
-                  {card.keywords && card.keywords.length > 0 && (
-                    <div className="card-keywords">
-                      {card.keywords.map(keyword => (
-                        <div 
-                          key={keyword._id} 
-                          className="keyword-banner"
-                        >
-                          <div 
-                            className="keyword-overlay"
-                            style={{
-                              backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5)), url(${keyword.imageUrl})`,
-                              backgroundPosition: keyword.imagePosition || '50% 50%',
-                              backgroundSize: 'cover'
-                            }}
-                          >
-                            <h5 className="keyword-title">{keyword.title}</h5>
-                            <div className="keyword-description-scrollable">
-                              <p className="keyword-description">{keyword.description}</p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  
-                  {/* Notes content */}
-                  {card.notes && card.notes.trim() !== '' && (
-                    <div className="card-notes-content">
-                      {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
-                        <div key={index} className="note-line">
-                          {formatText(line)}
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  <h3 className="card-notes-title">{card.title} Details</h3>
+                  <div className="card-notes-content">
+                    {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
+                      <div key={index} className="note-line">
+                        {formatText(line)}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              ) : null}
+              )}
             </div>
           ))}
         </div>
@@ -607,49 +568,18 @@ const SetDetail = () => {
                 </div>
 
                 {/* Integrated notes section for list view */}
-                {(card.notes && card.notes.trim() !== '') || (card.keywords && card.keywords.length > 0) ? (
+                {card.notes && card.notes.trim() !== '' && (
                   <div className="set-card-notes">
-                    {/* Keywords section */}
-                    {card.keywords && card.keywords.length > 0 && (
-                      <div className="set-card-keywords">
-                        {card.keywords.map(keyword => (
-                          <div 
-                            key={keyword._id} 
-                            className="keyword-banner list-view"
-                          >
-                            <div 
-                              className="keyword-overlay"
-                              style={{
-                                backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5)), url(${keyword.imageUrl})`,
-                                backgroundPosition: keyword.imagePosition || '50% 50%',
-                                backgroundSize: 'cover'
-                              }}
-                            >
-                              <h5 className="keyword-title">{keyword.title}</h5>
-                              <div className="keyword-description-scrollable">
-                                <p className="keyword-description">{keyword.description}</p>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    
-                    {/* Notes content */}
-                    {card.notes && card.notes.trim() !== '' && (
-                      <>
-                        <h4 className="set-card-notes-title">{card.title} Details:</h4>
-                        <div className="set-card-notes-content">
-                          {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
-                            <div key={index} className="note-line">
-                              {formatText(line)}
-                            </div>
-                          ))}
+                    <h4 className="set-card-notes-title">{card.title} Details:</h4>
+                    <div className="set-card-notes-content">
+                      {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
+                        <div key={index} className="note-line">
+                          {formatText(line)}
                         </div>
-                      </>
-                    )}
+                      ))}
+                    </div>
                   </div>
-                ) : null}
+                )}
 
                 {isAdmin && (
                   <div className="set-card-actions">
