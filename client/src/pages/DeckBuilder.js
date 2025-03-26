@@ -14,6 +14,8 @@ const DeckBuilder = () => {
   const [selectedCost, setSelectedCost] = useState('');
   const [selectedCardType, setSelectedCardType] = useState('');
   const [exportView, setExportView] = useState(false);
+  const [hoveredCard, setHoveredCard] = useState(null); // State for tracking hovered card
+  const [detailPosition, setDetailPosition] = useState({ top: 0, left: 0 }); // Position of detail window
   const deckRef = useRef(null);
   const [exportingDeck, setExportingDeck] = useState(false);
 
@@ -180,6 +182,48 @@ const DeckBuilder = () => {
     setSearchTerm('');
     setSelectedCost('');
     setSelectedCardType('');
+  };
+
+  // Handle card hover for details
+  const handleCardHover = (card, event) => {
+    setHoveredCard(card);
+    
+    const cardElement = event.currentTarget;
+    const rect = cardElement.getBoundingClientRect();
+    const scrollY = window.scrollY;
+    
+    // Determine whether to show detail on left or right
+    const windowWidth = window.innerWidth;
+    const detailWidth = 450; // Width of detail window
+    
+    let left, top;
+    
+    if (rect.right + detailWidth > windowWidth) {
+      // Show on left
+      left = rect.left - detailWidth - 10;
+    } else {
+      // Show on right
+      left = rect.right + 10;
+    }
+    
+    // Center vertically with the card
+    top = rect.top + scrollY - (450 / 2) + (rect.height / 2);
+    
+    // Ensure the detail stays within viewport vertically
+    const detailHeight = 600; // Approximate max height of detail
+    if (top + detailHeight > document.body.scrollHeight) {
+      top = document.body.scrollHeight - detailHeight - 20;
+    }
+    if (top < scrollY) {
+      top = scrollY + 20;
+    }
+    
+    setDetailPosition({ top, left });
+  };
+
+  // Handle card hover end
+  const handleCardHoverEnd = () => {
+    setHoveredCard(null);
   };
 
   // Count cards in deck by cost for the mana curve
@@ -378,24 +422,118 @@ const DeckBuilder = () => {
                 {filteredCards.map(card => (
                   <div 
                     key={card._id} 
-                    className="browsable-card"
-                    onClick={() => addCardToDeck(card)}
+                    className="card-container"
                   >
-                    <div className="card-count-badge">
-                      {cardCounts[card._id] || 0}/3
-                    </div>
-                    <img 
-                      src={card.imageUrl} 
-                      alt={card.title} 
-                      className="card-thumbnail" 
-                    />
-                    <div className="card-info">
-                      <div className="card-cost-badge">{card.cost}</div>
-                      <div className="card-title-small">{card.title}</div>
-                      <div className={`card-class-small ${card.class.toLowerCase()}`}>
-                        {card.class}
+                    <div
+                      className="browsable-card"
+                      onClick={() => addCardToDeck(card)}
+                      onMouseEnter={(e) => handleCardHover(card, e)}
+                      onMouseLeave={handleCardHoverEnd}
+                    >
+                      <div className="card-count-badge">
+                        {cardCounts[card._id] || 0}/3
+                      </div>
+                      <img 
+                        src={card.imageUrl} 
+                        alt={card.title} 
+                        className="card-thumbnail" 
+                      />
+                      <div className="card-info">
+                        <div className="card-cost-badge">{card.cost}</div>
+                        <div className="card-title-small">{card.title}</div>
+                        <div className={`card-class-small ${card.class.toLowerCase()}`}>
+                          {card.class}
+                        </div>
                       </div>
                     </div>
+                    
+                    {/* Card Detail Window */}
+                    {hoveredCard && hoveredCard._id === card._id && (
+                      <div 
+                        className="card-detail" 
+                        style={{
+                          opacity: 1,
+                          visibility: 'visible',
+                          top: `${detailPosition.top}px`,
+                          left: `${detailPosition.left}px`,
+                          right: 'auto'
+                        }}
+                      >
+                        <div className="card-title">{card.title}</div>
+                        
+                        <div className="card-metadata">
+                          <div className="card-metadata-row">
+                            <span>
+                              <span className={`card-type-badge ${card.cardType ? card.cardType.toLowerCase() : 'follower'}`}>
+                                {card.cardType || 'Follower'}
+                              </span>
+                            </span>
+                            <span className="card-class" title={card.class}>
+                              {card.class}
+                            </span>
+                          </div>
+                          
+                          <div className="card-metadata-row">
+                            <span>
+                              Cost: <span className="cost-label">{card.cost}</span>
+                            </span>
+                            <span className={`card-rarity card-rarity-${card.rarity ? card.rarity.toLowerCase() : ''}`}>
+                              {card.rarity}
+                            </span>
+                          </div>
+                          
+                          {card.trait && (
+                            <div className="card-trait">
+                              Trait: {card.trait}
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="card-descriptions">
+                          {(!card.cardType || card.cardType === 'Follower') && (
+                            <>
+                              <div className="description-section">
+                                <div className="stats-row">
+                                  <span>
+                                    <span className="attack-label">Attack:</span> <span className="attack-value">{card.unevolvedAttack || '?'}</span>
+                                  </span>
+                                  <span>
+                                    <span className="defense-label">Defense:</span> <span className="defense-value">{card.unevolvedDefense || '?'}</span>
+                                  </span>
+                                </div>
+                                <div className="description-title">Unevolved</div>
+                                <div className="card-description">{formatText(card.unevolvedDescription || '')}</div>
+                              </div>
+                              
+                              <div className="description-section">
+                                <div className="stats-row">
+                                  <span>
+                                    <span className="attack-label">Attack:</span> <span className="attack-value">{card.evolvedAttack || '?'}</span>
+                                  </span>
+                                  <span>
+                                    <span className="defense-label">Defense:</span> <span className="defense-value">{card.evolvedDefense || '?'}</span>
+                                  </span>
+                                </div>
+                                <div className="description-title">Evolved</div>
+                                <div className="card-description">{formatText(card.evolvedDescription || '')}</div>
+                              </div>
+                            </>
+                          )}
+                          
+                          {card.cardType === 'Spell' && (
+                            <div className="description-section">
+                              <div className="card-description">{formatText(card.spellDescription || '')}</div>
+                            </div>
+                          )}
+                          
+                          {card.cardType === 'Amulet' && (
+                            <div className="description-section">
+                              <div className="card-description">{formatText(card.amuletDescription || '')}</div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -475,21 +613,115 @@ const DeckBuilder = () => {
                     }).map((card, index) => (
                       <div 
                         key={`${card._id}-${index}`} 
-                        className="deck-card"
-                        onClick={() => removeCardFromDeck(index)}
+                        className="card-container"
                       >
-                        <img 
-                          src={card.imageUrl} 
-                          alt={card.title} 
-                          className="deck-card-thumbnail" 
-                        />
-                        <div className="deck-card-info">
-                          <div className="deck-card-cost">{card.cost}</div>
-                          <div className="deck-card-title">{card.title}</div>
-                          <div className={`deck-card-class ${card.class.toLowerCase()}`}>
-                            {card.class}
+                        <div 
+                          className="deck-card"
+                          onClick={() => removeCardFromDeck(index)}
+                          onMouseEnter={(e) => handleCardHover(card, e)}
+                          onMouseLeave={handleCardHoverEnd}
+                        >
+                          <img 
+                            src={card.imageUrl} 
+                            alt={card.title} 
+                            className="deck-card-thumbnail" 
+                          />
+                          <div className="deck-card-info">
+                            <div className="deck-card-cost">{card.cost}</div>
+                            <div className="deck-card-title">{card.title}</div>
+                            <div className={`deck-card-class ${card.class.toLowerCase()}`}>
+                              {card.class}
+                            </div>
                           </div>
                         </div>
+                        
+                        {/* Card Detail Window */}
+                        {hoveredCard && hoveredCard._id === card._id && (
+                          <div 
+                            className="card-detail" 
+                            style={{
+                              opacity: 1,
+                              visibility: 'visible',
+                              top: `${detailPosition.top}px`,
+                              left: `${detailPosition.left}px`,
+                              right: 'auto'
+                            }}
+                          >
+                            <div className="card-title">{card.title}</div>
+                            
+                            <div className="card-metadata">
+                              <div className="card-metadata-row">
+                                <span>
+                                  <span className={`card-type-badge ${card.cardType ? card.cardType.toLowerCase() : 'follower'}`}>
+                                    {card.cardType || 'Follower'}
+                                  </span>
+                                </span>
+                                <span className="card-class" title={card.class}>
+                                  {card.class}
+                                </span>
+                              </div>
+                              
+                              <div className="card-metadata-row">
+                                <span>
+                                  Cost: <span className="cost-label">{card.cost}</span>
+                                </span>
+                                <span className={`card-rarity card-rarity-${card.rarity ? card.rarity.toLowerCase() : ''}`}>
+                                  {card.rarity}
+                                </span>
+                              </div>
+                              
+                              {card.trait && (
+                                <div className="card-trait">
+                                  Trait: {card.trait}
+                                </div>
+                              )}
+                            </div>
+                            
+                            <div className="card-descriptions">
+                              {(!card.cardType || card.cardType === 'Follower') && (
+                                <>
+                                  <div className="description-section">
+                                    <div className="stats-row">
+                                      <span>
+                                        <span className="attack-label">Attack:</span> <span className="attack-value">{card.unevolvedAttack || '?'}</span>
+                                      </span>
+                                      <span>
+                                        <span className="defense-label">Defense:</span> <span className="defense-value">{card.unevolvedDefense || '?'}</span>
+                                      </span>
+                                    </div>
+                                    <div className="description-title">Unevolved</div>
+                                    <div className="card-description">{formatText(card.unevolvedDescription || '')}</div>
+                                  </div>
+                                  
+                                  <div className="description-section">
+                                    <div className="stats-row">
+                                      <span>
+                                        <span className="attack-label">Attack:</span> <span className="attack-value">{card.evolvedAttack || '?'}</span>
+                                      </span>
+                                      <span>
+                                        <span className="defense-label">Defense:</span> <span className="defense-value">{card.evolvedDefense || '?'}</span>
+                                      </span>
+                                    </div>
+                                    <div className="description-title">Evolved</div>
+                                    <div className="card-description">{formatText(card.evolvedDescription || '')}</div>
+                                  </div>
+                                </>
+                              )}
+                              
+                              {card.cardType === 'Spell' && (
+                                <div className="description-section">
+                                  <div className="card-description">{formatText(card.spellDescription || '')}</div>
+                                </div>
+                              )}
+                              
+                              {card.cardType === 'Amulet' && (
+                                <div className="description-section">
+                                  <div className="card-description">{formatText(card.amuletDescription || '')}</div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
