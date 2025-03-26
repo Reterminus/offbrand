@@ -296,10 +296,17 @@ const DeckBuilder = () => {
         if (cardElement) {
           const rect = cardElement.getBoundingClientRect();
           const windowWidth = window.innerWidth;
-          // Calculate the center position of the card
+          
+          // Calculate center of card
           const cardCenter = rect.left + (rect.width / 2);
-          // If the card's center is in the right half of the screen, show detail on the left
-          newPositions[id] = cardCenter > windowWidth / 2 ? 'left' : 'right';
+          
+          // Calculate threshold - use 40% of window width instead of 50%
+          // This gives preference to showing details on the right
+          const threshold = windowWidth * 0.4;
+          
+          // If card is in the left 40% of the screen, show detail on right (default)
+          // Otherwise show detail on left
+          newPositions[id] = cardCenter > threshold ? 'left' : 'right';
         }
       });
       setDetailPositions(newPositions);
@@ -462,8 +469,8 @@ const DeckBuilder = () => {
                     <div 
                       className="card-detail"
                       style={{
-                        left: detailPositions[card._id] === 'left' ? 'auto' : 'calc(100% + 20px)',
-                        right: detailPositions[card._id] === 'left' ? 'calc(100% + 20px)' : 'auto',
+                        left: detailPositions[card._id] === 'left' ? 'auto' : 'calc(100% + 10px)',
+                        right: detailPositions[card._id] === 'left' ? 'calc(100% + 10px)' : 'auto',
                         opacity: activeCardId === card._id ? 1 : 0,
                         visibility: activeCardId === card._id ? 'visible' : 'hidden'
                       }}
