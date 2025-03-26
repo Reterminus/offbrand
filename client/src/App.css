@@ -2222,30 +2222,15 @@
 .deck-card-class.havencraft { color: #FFFFFF; }
 .deck-card-class.portalcraft { color: #00FFFF; }
 
-/* Keyword banners in notes */
-.card-keywords {
-  margin-bottom: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
+/* Improved keyword banners in card details */
 .keyword-banner {
   position: relative;
   border-radius: 8px;
-  height: 90px; /* Slightly taller to fit more content */
+  height: auto;
+  min-height: 80px;
   overflow: hidden;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  transition: height 0.3s ease-in-out;
-}
-
-.keyword-banner:hover {
-  height: auto;
-  max-height: 200px;
-}
-
-.keyword-banner:hover .keyword-expand-button {
-  opacity: 0;
+  margin-bottom: 12px;
 }
 
 .keyword-overlay {
@@ -2256,7 +2241,7 @@
   bottom: 0;
   background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5));
   color: white;
-  padding: 10px 15px;
+  padding: 15px;
   display: flex;
   flex-direction: column;
 }
@@ -2264,19 +2249,19 @@
 .keyword-title {
   font-size: 18px;
   font-weight: bold;
-  margin: 0 0 8px 0;
+  margin: 0 0 10px 0;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
 }
 
 .keyword-description-scrollable {
-  overflow: hidden;
+  overflow: visible;
   position: relative;
 }
 
 .keyword-description {
   font-size: 14px;
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.5;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
@@ -2405,4 +2390,12 @@
 
 .no-keywords-message a:hover {
   text-decoration: underline;
+}
+
+/* Keyword banners in notes */
+.card-keywords {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 } 

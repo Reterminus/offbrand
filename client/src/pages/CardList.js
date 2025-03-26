@@ -502,7 +502,6 @@ const CardList = () => {
                     className={`card-notes-section ${showNotesForCard === card._id ? 'show' : ''}`}
                   >
                     <div className="card-notes-divider"></div>
-                    <h4 className="card-notes-title">{card.title} Details</h4>
                     
                     {/* Keywords section */}
                     {card.keywords && card.keywords.length > 0 && (
@@ -521,9 +520,6 @@ const CardList = () => {
                               <h5 className="keyword-title">{keyword.title}</h5>
                               <div className="keyword-description-scrollable">
                                 <p className="keyword-description">{keyword.description}</p>
-                              </div>
-                              <div className="keyword-expand-button" title="Expand keyword">
-                                <i className="expand-icon">+</i>
                               </div>
                             </div>
                           </div>
