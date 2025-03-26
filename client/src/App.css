@@ -1855,6 +1855,7 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   position: relative;
   overflow: visible;
+  z-index: 1;
 }
 
 .card-browser h2 {
@@ -1900,11 +1901,13 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: transform 0.2s;
   background-color: #222;
+  z-index: 1;
 }
 
 .browsable-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  z-index: 2;
 }
 
 .browsable-card .card-detail {
@@ -1914,8 +1917,8 @@
   padding: 15px;
   border-radius: 10px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  z-index: 1500;
-  width: 350px;
+  z-index: 2000;
+  width: 300px;
   pointer-events: none;
   transition: opacity 0.3s, visibility 0.3s;
 }

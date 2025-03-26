@@ -447,7 +447,7 @@ const DeckBuilder = () => {
                       handleButtonClick(e);
                       addCardToDeck(card);
                     }}
-                    style={{ zIndex: activeCardId === card._id ? 1000 : 1 }}
+                    style={{ zIndex: activeCardId === card._id ? 50 : 1 }}
                   >
                     <div className="card-count-badge">
                       {cardCounts[card._id] || 0}/3
@@ -472,7 +472,8 @@ const DeckBuilder = () => {
                         left: detailPositions[card._id] === 'left' ? 'auto' : 'calc(100% + 10px)',
                         right: detailPositions[card._id] === 'left' ? 'calc(100% + 10px)' : 'auto',
                         opacity: activeCardId === card._id ? 1 : 0,
-                        visibility: activeCardId === card._id ? 'visible' : 'hidden'
+                        visibility: activeCardId === card._id ? 'visible' : 'hidden',
+                        zIndex: 2000
                       }}
                     >
                       <h3 className="card-title">{card.title}</h3>
