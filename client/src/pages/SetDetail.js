@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getSet, getCards, addCardToSet, removeCardFromSet } from '../services/api';
+import { getSet, getCards, addCardToSet, removeCardFromSet, getKeywords } from '../services/api';
 import { sortCards } from '../utils/cardUtils';
-import { formatText } from '../utils/textUtils';
+import { formatText, findKeywordsInText } from '../utils/textUtils';
 import { AuthContext } from '../context/AuthContext';
+import KeywordBanner from '../components/KeywordBanner';
 
 const SetDetail = () => {
   const { id } = useParams();
@@ -11,6 +12,7 @@ const SetDetail = () => {
   const { isAdmin } = useContext(AuthContext);
   const [set, setSet] = useState(null);
   const [allCards, setAllCards] = useState([]);
+  const [keywords, setKeywords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCardId, setSelectedCardId] = useState('');
@@ -29,10 +31,10 @@ const SetDetail = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true);
-        const [setData, cardsData] = await Promise.all([
+        const [setData, cardsData, keywordsData] = await Promise.all([
           getSet(id),
-          getCards()
+          getCards(),
+          getKeywords()
         ]);
         
         // Sort the cards in the set
@@ -40,18 +42,16 @@ const SetDetail = () => {
           setData.cards = sortCards(setData.cards);
         }
         
-        // Sort all cards for the dropdown
-        const sortedAllCards = sortCards(cardsData);
-        
         setSet(setData);
-        setAllCards(sortedAllCards);
+        setAllCards(cardsData);
+        setKeywords(keywordsData);
         setLoading(false);
       } catch (err) {
-        setError('Failed to fetch data. Please try again later.');
+        setError(`Failed to fetch set data: ${err.message}`);
         setLoading(false);
       }
     };
-
+    
     fetchData();
   }, [id]);
 
@@ -209,6 +209,12 @@ const SetDetail = () => {
     setCardSearchTerm('');
     setSelectedFilterClass('');
     setSelectedFilterRarity('');
+  };
+
+  // Find keywords in a card's notes
+  const getCardKeywords = (card) => {
+    if (!card.notes || !keywords.length) return [];
+    return findKeywordsInText(card.notes, keywords);
   };
 
   if (loading) {
@@ -512,10 +518,20 @@ const SetDetail = () => {
                   }}
                 >
                   <h3 className="card-notes-title">{card.title} Details</h3>
+                  
+                  {/* Add keyword banners if matching keywords are found */}
+                  {getCardKeywords(card).length > 0 && (
+                    <div className="keyword-banners-container">
+                      {getCardKeywords(card).map(keyword => (
+                        <KeywordBanner key={keyword._id} keyword={keyword} />
+                      ))}
+                    </div>
+                  )}
+                  
                   <div className="card-notes-content">
                     {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
                       <div key={index} className="note-line">
-                        {formatText(line)}
+                        {formatText(line, keywords)}
                       </div>
                     ))}
                   </div>
@@ -571,10 +587,20 @@ const SetDetail = () => {
                 {card.notes && card.notes.trim() !== '' && (
                   <div className="set-card-notes">
                     <h4 className="set-card-notes-title">{card.title} Details:</h4>
+                    
+                    {/* Add keyword banners if matching keywords are found */}
+                    {getCardKeywords(card).length > 0 && (
+                      <div className="keyword-banners-container">
+                        {getCardKeywords(card).map(keyword => (
+                          <KeywordBanner key={keyword._id} keyword={keyword} />
+                        ))}
+                      </div>
+                    )}
+                    
                     <div className="set-card-notes-content">
                       {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
                         <div key={index} className="note-line">
-                          {formatText(line)}
+                          {formatText(line, keywords)}
                         </div>
                       ))}
                     </div>

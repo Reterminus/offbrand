@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getCards, deleteCard, getSets } from '../services/api';
+import { getCards, deleteCard, getSets, getKeywords } from '../services/api';
 import { sortCards } from '../utils/cardUtils';
-import { formatText } from '../utils/textUtils';
+import { formatText, findKeywordsInText } from '../utils/textUtils';
 import { AuthContext } from '../context/AuthContext';
+import KeywordBanner from '../components/KeywordBanner';
 
 const CardList = () => {
   const navigate = useNavigate();
   const { isAdmin } = useContext(AuthContext);
   const [cards, setCards] = useState([]);
   const [sets, setSets] = useState([]);
+  const [keywords, setKeywords] = useState([]);
   const [filteredCards, setFilteredCards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -27,9 +29,10 @@ const CardList = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [cardsData, setsData] = await Promise.all([
+        const [cardsData, setsData, keywordsData] = await Promise.all([
           getCards(),
-          getSets()
+          getSets(),
+          getKeywords()
         ]);
         // Sort cards by class, rarity, and title
         const sortedCards = sortCards(cardsData);
@@ -42,6 +45,7 @@ const CardList = () => {
         setCards(sortedCards);
         setFilteredCards(sortedCards);
         setSets(setsData);
+        setKeywords(keywordsData);
         setLoading(false);
       } catch (err) {
         setError('Failed to fetch data. Please try again later.');
@@ -289,6 +293,12 @@ const CardList = () => {
     setShowNotesForCard(null);
   };
 
+  // Find keywords in a card's notes
+  const getCardKeywords = (card) => {
+    if (!card.notes || !keywords.length) return [];
+    return findKeywordsInText(card.notes, keywords);
+  };
+
   if (loading) {
     return <div className="loading">Loading cards...</div>;
   }
@@ -500,10 +510,20 @@ const CardList = () => {
                   >
                     <div className="card-notes-divider"></div>
                     <h4 className="card-notes-title">{card.title} Details</h4>
+
+                    {/* Add keyword banners if matching keywords are found */}
+                    {getCardKeywords(card).length > 0 && (
+                      <div className="keyword-banners-container">
+                        {getCardKeywords(card).map(keyword => (
+                          <KeywordBanner key={keyword._id} keyword={keyword} />
+                        ))}
+                      </div>
+                    )}
+
                     <div className="card-notes-content">
                       {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
                         <div key={index} className="note-line">
-                          {formatText(line)}
+                          {formatText(line, keywords)}
                         </div>
                       ))}
                     </div>
