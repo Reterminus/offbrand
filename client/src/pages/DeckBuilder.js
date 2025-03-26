@@ -437,7 +437,7 @@ const DeckBuilder = () => {
               <div className="deck-cards">
                 {deck.length === 0 ? (
                   <div className="empty-deck">
-                    <p>empty deck lmao.</p>
+                    <p>empty deck lmao</p>
                   </div>
                 ) : exportView ? (
                   // Optimized view for export - group cards by count
