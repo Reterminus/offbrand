@@ -375,21 +375,131 @@
 }
 
 .card-detail {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 450px; /*detail window width*/
-  background-color: #2d2d2d;
-  padding: 25px;
-  border-radius: 10px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s, visibility 0.3s;
-  pointer-events: none;
-  max-height: none;
-  color: #e0e0e0;
+  position: fixed;
   z-index: 1000;
+  width: 350px;
+  max-width: 90vw;
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  padding: 15px;
+  color: #e0e0e0;
+  border: 1px solid #444;
+  pointer-events: none;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.card-detail .card-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #444;
+  color: #ffffff;
+}
+
+.card-detail .card-metadata {
+  margin-bottom: 15px;
+}
+
+.card-metadata-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.card-type-badge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  display: inline-block;
+}
+
+.card-type-badge.follower {
+  background-color: #3d5afe;
+}
+
+.card-type-badge.spell {
+  background-color: #00bfa5;
+}
+
+.card-type-badge.amulet {
+  background-color: #ff9100;
+}
+
+.card-class {
+  font-size: 14px;
+}
+
+.cost-label {
+  color: #98dc1f;
+  font-weight: bold;
+}
+
+.card-rarity {
+  font-size: 14px;
+}
+
+.card-rarity-bronze { color: #cd7f32; }
+.card-rarity-silver { color: #c0c0c0; }
+.card-rarity-gold { color: #ffd700; }
+.card-rarity-legendary { color: #ff8c00; }
+
+.card-trait {
+  font-style: italic;
+  color: #bbb;
+  margin-top: 5px;
+  font-size: 14px;
+}
+
+.card-descriptions {
+  font-size: 14px;
+}
+
+.description-section {
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #333;
+}
+
+.description-section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: flex-start;
+  gap: 20px;
+  margin-bottom: 8px;
+}
+
+.attack-label, .defense-label {
+  font-weight: bold;
+  color: #aaa;
+}
+
+.attack-value {
+  color: #ff5252;
+  font-weight: bold;
+}
+
+.defense-value {
+  color: #2196f3;
+  font-weight: bold;
+}
+
+.description-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #ddd;
+}
+
+.card-description {
+  line-height: 1.4;
+  color: #bbb;
 }
 
 /* Add styles for when detail is visible */

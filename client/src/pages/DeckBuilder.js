@@ -14,10 +14,11 @@ const DeckBuilder = () => {
   const [selectedCost, setSelectedCost] = useState('');
   const [selectedCardType, setSelectedCardType] = useState('');
   const [exportView, setExportView] = useState(false);
-  const [hoveredCard, setHoveredCard] = useState(null); // State for tracking hovered card
-  const [detailPosition, setDetailPosition] = useState({ top: 0, left: 0 }); // Position of detail window
+  const [hoveredCard, setHoveredCard] = useState(null);
+  const [detailPosition, setDetailPosition] = useState({ top: 0, left: 0 });
   const deckRef = useRef(null);
   const [exportingDeck, setExportingDeck] = useState(false);
+  const hoverTimerRef = useRef(null); // Ref to store the hover timer
 
   // Fetch all cards on component mount
   useEffect(() => {
@@ -37,6 +38,15 @@ const DeckBuilder = () => {
     };
 
     fetchCards();
+  }, []);
+
+  // Clear the hover timer when component unmounts
+  useEffect(() => {
+    return () => {
+      if (hoverTimerRef.current) {
+        clearTimeout(hoverTimerRef.current);
+      }
+    };
   }, []);
 
   // Filter cards when filters or search term changes
@@ -184,45 +194,58 @@ const DeckBuilder = () => {
     setSelectedCardType('');
   };
 
-  // Handle card hover for details
+  // Handle card hover start - with delay
   const handleCardHover = (card, event) => {
-    setHoveredCard(card);
-    
-    const cardElement = event.currentTarget;
-    const rect = cardElement.getBoundingClientRect();
-    const scrollY = window.scrollY;
-    
-    // Determine whether to show detail on left or right
-    const windowWidth = window.innerWidth;
-    const detailWidth = 450; // Width of detail window
-    
-    let left, top;
-    
-    if (rect.right + detailWidth > windowWidth) {
-      // Show on left
-      left = rect.left - detailWidth - 10;
-    } else {
-      // Show on right
-      left = rect.right + 10;
+    // Clear any existing timer
+    if (hoverTimerRef.current) {
+      clearTimeout(hoverTimerRef.current);
     }
     
-    // Center vertically with the card
-    top = rect.top + scrollY - (450 / 2) + (rect.height / 2);
-    
-    // Ensure the detail stays within viewport vertically
-    const detailHeight = 600; // Approximate max height of detail
-    if (top + detailHeight > document.body.scrollHeight) {
-      top = document.body.scrollHeight - detailHeight - 20;
-    }
-    if (top < scrollY) {
-      top = scrollY + 20;
-    }
-    
-    setDetailPosition({ top, left });
+    // Set a timer for 1 second before showing the detail
+    hoverTimerRef.current = setTimeout(() => {
+      setHoveredCard(card);
+      
+      const cardElement = event.currentTarget;
+      const rect = cardElement.getBoundingClientRect();
+      
+      // Determine whether to show detail on left or right
+      const windowWidth = window.innerWidth;
+      const detailWidth = 350; // Width of detail window
+      
+      let left, top;
+      
+      if (rect.right + detailWidth + 20 > windowWidth) {
+        // Show on left
+        left = rect.left - detailWidth - 10;
+        if (left < 10) left = 10; // Prevent it from going off-screen to the left
+      } else {
+        // Show on right
+        left = rect.right + 10;
+      }
+      
+      // Position vertically
+      top = rect.top + window.scrollY;
+      
+      // Ensure the detail stays within viewport vertically
+      const windowHeight = window.innerHeight;
+      const detailHeight = 450; // Approximate height of detail
+      
+      if (top + detailHeight > window.scrollY + windowHeight) {
+        top = window.scrollY + windowHeight - detailHeight - 20;
+      }
+      
+      setDetailPosition({ top, left });
+    }, 1000); // 1 second delay
   };
 
   // Handle card hover end
   const handleCardHoverEnd = () => {
+    // Clear the timer if it exists
+    if (hoverTimerRef.current) {
+      clearTimeout(hoverTimerRef.current);
+      hoverTimerRef.current = null;
+    }
+    
     setHoveredCard(null);
   };
 
@@ -446,94 +469,6 @@ const DeckBuilder = () => {
                         </div>
                       </div>
                     </div>
-                    
-                    {/* Card Detail Window */}
-                    {hoveredCard && hoveredCard._id === card._id && (
-                      <div 
-                        className="card-detail" 
-                        style={{
-                          opacity: 1,
-                          visibility: 'visible',
-                          top: `${detailPosition.top}px`,
-                          left: `${detailPosition.left}px`,
-                          right: 'auto'
-                        }}
-                      >
-                        <div className="card-title">{card.title}</div>
-                        
-                        <div className="card-metadata">
-                          <div className="card-metadata-row">
-                            <span>
-                              <span className={`card-type-badge ${card.cardType ? card.cardType.toLowerCase() : 'follower'}`}>
-                                {card.cardType || 'Follower'}
-                              </span>
-                            </span>
-                            <span className="card-class" title={card.class}>
-                              {card.class}
-                            </span>
-                          </div>
-                          
-                          <div className="card-metadata-row">
-                            <span>
-                              Cost: <span className="cost-label">{card.cost}</span>
-                            </span>
-                            <span className={`card-rarity card-rarity-${card.rarity ? card.rarity.toLowerCase() : ''}`}>
-                              {card.rarity}
-                            </span>
-                          </div>
-                          
-                          {card.trait && (
-                            <div className="card-trait">
-                              Trait: {card.trait}
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div className="card-descriptions">
-                          {(!card.cardType || card.cardType === 'Follower') && (
-                            <>
-                              <div className="description-section">
-                                <div className="stats-row">
-                                  <span>
-                                    <span className="attack-label">Attack:</span> <span className="attack-value">{card.unevolvedAttack || '?'}</span>
-                                  </span>
-                                  <span>
-                                    <span className="defense-label">Defense:</span> <span className="defense-value">{card.unevolvedDefense || '?'}</span>
-                                  </span>
-                                </div>
-                                <div className="description-title">Unevolved</div>
-                                <div className="card-description">{formatText(card.unevolvedDescription || '')}</div>
-                              </div>
-                              
-                              <div className="description-section">
-                                <div className="stats-row">
-                                  <span>
-                                    <span className="attack-label">Attack:</span> <span className="attack-value">{card.evolvedAttack || '?'}</span>
-                                  </span>
-                                  <span>
-                                    <span className="defense-label">Defense:</span> <span className="defense-value">{card.evolvedDefense || '?'}</span>
-                                  </span>
-                                </div>
-                                <div className="description-title">Evolved</div>
-                                <div className="card-description">{formatText(card.evolvedDescription || '')}</div>
-                              </div>
-                            </>
-                          )}
-                          
-                          {card.cardType === 'Spell' && (
-                            <div className="description-section">
-                              <div className="card-description">{formatText(card.spellDescription || '')}</div>
-                            </div>
-                          )}
-                          
-                          {card.cardType === 'Amulet' && (
-                            <div className="description-section">
-                              <div className="card-description">{formatText(card.amuletDescription || '')}</div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
@@ -634,100 +569,97 @@ const DeckBuilder = () => {
                             </div>
                           </div>
                         </div>
-                        
-                        {/* Card Detail Window */}
-                        {hoveredCard && hoveredCard._id === card._id && (
-                          <div 
-                            className="card-detail" 
-                            style={{
-                              opacity: 1,
-                              visibility: 'visible',
-                              top: `${detailPosition.top}px`,
-                              left: `${detailPosition.left}px`,
-                              right: 'auto'
-                            }}
-                          >
-                            <div className="card-title">{card.title}</div>
-                            
-                            <div className="card-metadata">
-                              <div className="card-metadata-row">
-                                <span>
-                                  <span className={`card-type-badge ${card.cardType ? card.cardType.toLowerCase() : 'follower'}`}>
-                                    {card.cardType || 'Follower'}
-                                  </span>
-                                </span>
-                                <span className="card-class" title={card.class}>
-                                  {card.class}
-                                </span>
-                              </div>
-                              
-                              <div className="card-metadata-row">
-                                <span>
-                                  Cost: <span className="cost-label">{card.cost}</span>
-                                </span>
-                                <span className={`card-rarity card-rarity-${card.rarity ? card.rarity.toLowerCase() : ''}`}>
-                                  {card.rarity}
-                                </span>
-                              </div>
-                              
-                              {card.trait && (
-                                <div className="card-trait">
-                                  Trait: {card.trait}
-                                </div>
-                              )}
-                            </div>
-                            
-                            <div className="card-descriptions">
-                              {(!card.cardType || card.cardType === 'Follower') && (
-                                <>
-                                  <div className="description-section">
-                                    <div className="stats-row">
-                                      <span>
-                                        <span className="attack-label">Attack:</span> <span className="attack-value">{card.unevolvedAttack || '?'}</span>
-                                      </span>
-                                      <span>
-                                        <span className="defense-label">Defense:</span> <span className="defense-value">{card.unevolvedDefense || '?'}</span>
-                                      </span>
-                                    </div>
-                                    <div className="description-title">Unevolved</div>
-                                    <div className="card-description">{formatText(card.unevolvedDescription || '')}</div>
-                                  </div>
-                                  
-                                  <div className="description-section">
-                                    <div className="stats-row">
-                                      <span>
-                                        <span className="attack-label">Attack:</span> <span className="attack-value">{card.evolvedAttack || '?'}</span>
-                                      </span>
-                                      <span>
-                                        <span className="defense-label">Defense:</span> <span className="defense-value">{card.evolvedDefense || '?'}</span>
-                                      </span>
-                                    </div>
-                                    <div className="description-title">Evolved</div>
-                                    <div className="card-description">{formatText(card.evolvedDescription || '')}</div>
-                                  </div>
-                                </>
-                              )}
-                              
-                              {card.cardType === 'Spell' && (
-                                <div className="description-section">
-                                  <div className="card-description">{formatText(card.spellDescription || '')}</div>
-                                </div>
-                              )}
-                              
-                              {card.cardType === 'Amulet' && (
-                                <div className="description-section">
-                                  <div className="card-description">{formatText(card.amuletDescription || '')}</div>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
                       </div>
                     ))}
                   </div>
                 )}
               </div>
             </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Card Detail Window (moved outside of card containers) */}
+      {hoveredCard && (
+        <div 
+          className="card-detail" 
+          style={{
+            top: `${detailPosition.top}px`,
+            left: `${detailPosition.left}px`
+          }}
+        >
+          <div className="card-title">{hoveredCard.title}</div>
+          
+          <div className="card-metadata">
+            <div className="card-metadata-row">
+              <span>
+                <span className={`card-type-badge ${hoveredCard.cardType ? hoveredCard.cardType.toLowerCase() : 'follower'}`}>
+                  {hoveredCard.cardType || 'Follower'}
+                </span>
+              </span>
+              <span className="card-class" title={hoveredCard.class}>
+                {hoveredCard.class}
+              </span>
+            </div>
+            
+            <div className="card-metadata-row">
+              <span>
+                Cost: <span className="cost-label">{hoveredCard.cost}</span>
+              </span>
+              <span className={`card-rarity card-rarity-${hoveredCard.rarity ? hoveredCard.rarity.toLowerCase() : ''}`}>
+                {hoveredCard.rarity}
+              </span>
+            </div>
+            
+            {hoveredCard.trait && (
+              <div className="card-trait">
+                Trait: {hoveredCard.trait}
+              </div>
+            )}
+          </div>
+          
+          <div className="card-descriptions">
+            {(!hoveredCard.cardType || hoveredCard.cardType === 'Follower') && (
+              <>
+                <div className="description-section">
+                  <div className="stats-row">
+                    <span>
+                      <span className="attack-label">Attack:</span> <span className="attack-value">{hoveredCard.unevolvedAttack || '?'}</span>
+                    </span>
+                    <span>
+                      <span className="defense-label">Defense:</span> <span className="defense-value">{hoveredCard.unevolvedDefense || '?'}</span>
+                    </span>
+                  </div>
+                  <div className="description-title">Unevolved</div>
+                  <div className="card-description">{formatText(hoveredCard.unevolvedDescription || '')}</div>
+                </div>
+                
+                <div className="description-section">
+                  <div className="stats-row">
+                    <span>
+                      <span className="attack-label">Attack:</span> <span className="attack-value">{hoveredCard.evolvedAttack || '?'}</span>
+                    </span>
+                    <span>
+                      <span className="defense-label">Defense:</span> <span className="defense-value">{hoveredCard.evolvedDefense || '?'}</span>
+                    </span>
+                  </div>
+                  <div className="description-title">Evolved</div>
+                  <div className="card-description">{formatText(hoveredCard.evolvedDescription || '')}</div>
+                </div>
+              </>
+            )}
+            
+            {hoveredCard.cardType === 'Spell' && (
+              <div className="description-section">
+                <div className="card-description">{formatText(hoveredCard.spellDescription || '')}</div>
+              </div>
+            )}
+            
+            {hoveredCard.cardType === 'Amulet' && (
+              <div className="description-section">
+                <div className="card-description">{formatText(hoveredCard.amuletDescription || '')}</div>
+              </div>
+            )}
           </div>
         </div>
       )}
