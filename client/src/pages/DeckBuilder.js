@@ -116,8 +116,19 @@ const DeckBuilder = () => {
 
   // Handle clicking on a card to view details
   const handleCardDetailView = (card, e) => {
+    e.preventDefault();
     e.stopPropagation(); // Prevent adding to deck when viewing details
     setSelectedCardDetails(card);
+  };
+
+  // Close the card detail view when clicking outside
+  const handleDetailClose = () => {
+    setSelectedCardDetails(null);
+  };
+
+  // Prevent events from propagating to parent elements
+  const handleDetailClick = (e) => {
+    e.stopPropagation();
   };
 
   // Handle adding a card to the deck
@@ -514,18 +525,27 @@ const DeckBuilder = () => {
 
           {/* Card Detail Panel */}
           {selectedCardDetails && (
-            <div className="deck-builder-card-detail">
-              <div className="detail-header">
+            <div 
+              className="deck-builder-card-detail"
+              onClick={handleDetailClose}
+            >
+              <div 
+                className="detail-header"
+                onClick={handleDetailClick}
+              >
                 <h3 className="card-title">{selectedCardDetails.title}</h3>
                 <button 
                   className="close-detail-btn" 
-                  onClick={() => setSelectedCardDetails(null)}
+                  onClick={handleDetailClose}
                 >
                   ×
                 </button>
               </div>
               
-              <div className="card-detail-content">
+              <div 
+                className="card-detail-content"
+                onClick={handleDetailClick}
+              >
                 <div className="card-detail-image">
                   <img 
                     src={selectedCardDetails.imageUrl} 
@@ -586,7 +606,7 @@ const DeckBuilder = () => {
                           <span>Attack: <span className="attack-value">{selectedCardDetails.unevolvedAttack}</span></span>
                           <span>Defense: <span className="defense-value">{selectedCardDetails.unevolvedDefense}</span></span>
                         </div>
-                        <p className="card-description">{formatText(selectedCardDetails.unevolvedDescription)}</p>
+                        <p className="card-description" dangerouslySetInnerHTML={{ __html: formatText(selectedCardDetails.unevolvedDescription) }}></p>
                       </div>
                       
                       <div className="description-section">
@@ -595,7 +615,7 @@ const DeckBuilder = () => {
                           <span>Attack: <span className="attack-value">{selectedCardDetails.evolvedAttack}</span></span>
                           <span>Defense: <span className="defense-value">{selectedCardDetails.evolvedDefense}</span></span>
                         </div>
-                        <p className="card-description">{formatText(selectedCardDetails.evolvedDescription)}</p>
+                        <p className="card-description" dangerouslySetInnerHTML={{ __html: formatText(selectedCardDetails.evolvedDescription) }}></p>
                       </div>
                     </div>
                   )}
@@ -605,7 +625,7 @@ const DeckBuilder = () => {
                     <div className="card-descriptions">
                       <div className="description-section spell-section" style={{ border: 'none', borderBottom: 'none' }}>
                         <h4 className="description-title">Spell Effect</h4>
-                        <p className="card-description">{formatText(selectedCardDetails.spellDescription)}</p>
+                        <p className="card-description" dangerouslySetInnerHTML={{ __html: formatText(selectedCardDetails.spellDescription) }}></p>
                       </div>
                     </div>
                   )}
@@ -615,7 +635,7 @@ const DeckBuilder = () => {
                     <div className="card-descriptions">
                       <div className="description-section amulet-section" style={{ border: 'none', borderBottom: 'none' }}>
                         <h4 className="description-title">Amulet Effect</h4>
-                        <p className="card-description">{formatText(selectedCardDetails.amuletDescription)}</p>
+                        <p className="card-description" dangerouslySetInnerHTML={{ __html: formatText(selectedCardDetails.amuletDescription) }}></p>
                       </div>
                     </div>
                   )}
@@ -623,7 +643,8 @@ const DeckBuilder = () => {
                   <div className="detail-actions">
                     <button 
                       className="add-to-deck-btn"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         addCardToDeck(selectedCardDetails);
                         // You may choose to close the detail view after adding or keep it open
                         // setSelectedCardDetails(null);

@@ -1853,6 +1853,9 @@
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: visible;
+  z-index: 1;
 }
 
 .card-browser h2 {
@@ -1870,7 +1873,9 @@
   margin-top: 20px;
   max-height: 700px;
   overflow-y: auto;
+  overflow-x: hidden;
   padding-right: 10px;
+  position: relative;
 }
 
 /* Scrollbar styling for card browser */
@@ -1891,16 +1896,51 @@
 .browsable-card {
   position: relative;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: visible;
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: transform 0.2s;
   background-color: #222;
+  z-index: 1;
 }
 
 .browsable-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  z-index: 2;
+}
+
+.browsable-card .card-detail {
+  position: absolute;
+  top: 0;
+  background-color: #2d2d2d;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 2000;
+  width: 300px;
+  pointer-events: none;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.browsable-card .card-detail .card-title {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.browsable-card .card-detail .card-metadata {
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+}
+
+.browsable-card .card-detail .description-title {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.browsable-card .card-detail .card-description {
+  font-size: 14px;
+  line-height: 1.4;
 }
 
 .card-count-badge {
@@ -2424,109 +2464,118 @@
   position: absolute;
   bottom: 5px;
   right: 5px;
-  width: 22px;
-  height: 22px;
-  background-color: rgba(66, 133, 244, 0.8);
+  background-color: rgba(0, 0, 0, 0.7);
   color: white;
   border: none;
   border-radius: 50%;
-  font-size: 14px;
-  line-height: 1;
-  cursor: pointer;
-  z-index: 5;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
   padding: 0;
-  transition: all 0.2s;
+  transition: background-color 0.2s;
+  z-index: 10;
 }
 
 .view-details-btn:hover {
-  background-color: rgba(66, 133, 244, 1);
-  transform: scale(1.1);
+  background-color: rgba(50, 50, 50, 0.9);
 }
 
 .deck-builder-card-detail {
-  background-color: #2d2d2d;
-  border-radius: 10px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-  margin-top: 20px;
-  overflow: hidden;
-  max-width: 1400px;
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
 }
 
 .detail-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 15px;
-  background-color: #333;
-  border-bottom: 1px solid #444;
+  width: 100%;
+  max-width: 800px;
+  background-color: #2a2a2a;
+  padding: 10px 15px;
+  border-radius: 8px 8px 0 0;
 }
 
 .detail-header h3 {
   margin: 0;
-  color: #e0e0e0;
-  font-size: 20px;
+  color: white;
+  font-size: 18px;
 }
 
 .close-detail-btn {
-  background: none;
-  border: none;
+  background-color: transparent;
   color: #aaa;
+  border: none;
   font-size: 24px;
   cursor: pointer;
-  padding: 0;
-  line-height: 1;
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.2s;
+  border-radius: 50%;
+  transition: all 0.2s;
 }
 
 .close-detail-btn:hover {
-  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .card-detail-content {
   display: flex;
-  padding: 20px;
+  width: 100%;
+  max-width: 800px;
+  background-color: #1a1a1a;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
 }
 
 .card-detail-image {
-  flex: 0 0 250px;
-  margin-right: 30px;
+  flex: 0 0 40%;
+  padding: 15px;
 }
 
 .card-detail-image img {
   width: 100%;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .card-detail-info {
   flex: 1;
-  max-width: 700px;
+  padding: 15px;
+  overflow-y: auto;
 }
 
 .detail-actions {
-  margin-top: 25px;
+  margin-top: 15px;
   display: flex;
   justify-content: flex-end;
 }
 
 .add-to-deck-btn {
-  padding: 12px 24px;
   background-color: #4285f4;
   color: white;
   border: none;
-  border-radius: 6px;
-  font-size: 16px;
-  font-weight: 500;
+  padding: 8px 15px;
+  border-radius: 4px;
   cursor: pointer;
+  font-weight: 600;
   transition: background-color 0.2s;
 }
 
@@ -2537,17 +2586,18 @@
 .add-to-deck-btn:disabled {
   background-color: #666;
   cursor: not-allowed;
-  opacity: 0.7;
 }
 
-@media (max-width: 1000px) {
+/* Mobile responsive layout */
+@media (max-width: 768px) {
   .card-detail-content {
     flex-direction: column;
   }
   
   .card-detail-image {
-    margin-right: 0;
-    margin-bottom: 20px;
     flex: 0 0 auto;
+    margin-bottom: 20px;
+    max-width: 200px;
+    margin: 0 auto;
   }
 } 
