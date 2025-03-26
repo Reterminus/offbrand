@@ -14,11 +14,8 @@ const DeckBuilder = () => {
   const [selectedCost, setSelectedCost] = useState('');
   const [selectedCardType, setSelectedCardType] = useState('');
   const [exportView, setExportView] = useState(false);
-  const [hoveredCard, setHoveredCard] = useState(null);
-  const [detailPosition, setDetailPosition] = useState({ top: 0, left: 0 });
   const deckRef = useRef(null);
   const [exportingDeck, setExportingDeck] = useState(false);
-  const hoverTimerRef = useRef(null); // Ref to store the hover timer
 
   // Fetch all cards on component mount
   useEffect(() => {
@@ -38,15 +35,6 @@ const DeckBuilder = () => {
     };
 
     fetchCards();
-  }, []);
-
-  // Clear the hover timer when component unmounts
-  useEffect(() => {
-    return () => {
-      if (hoverTimerRef.current) {
-        clearTimeout(hoverTimerRef.current);
-      }
-    };
   }, []);
 
   // Filter cards when filters or search term changes
@@ -192,61 +180,6 @@ const DeckBuilder = () => {
     setSearchTerm('');
     setSelectedCost('');
     setSelectedCardType('');
-  };
-
-  // Handle card hover start - with delay
-  const handleCardHover = (card, event) => {
-    // Clear any existing timer
-    if (hoverTimerRef.current) {
-      clearTimeout(hoverTimerRef.current);
-    }
-    
-    // Set a timer for 1 second before showing the detail
-    hoverTimerRef.current = setTimeout(() => {
-      setHoveredCard(card);
-      
-      const cardElement = event.currentTarget;
-      const rect = cardElement.getBoundingClientRect();
-      
-      // Determine whether to show detail on left or right
-      const windowWidth = window.innerWidth;
-      const detailWidth = 350; // Width of detail window
-      
-      let left, top;
-      
-      if (rect.right + detailWidth + 20 > windowWidth) {
-        // Show on left
-        left = rect.left - detailWidth - 10;
-        if (left < 10) left = 10; // Prevent it from going off-screen to the left
-      } else {
-        // Show on right
-        left = rect.right + 10;
-      }
-      
-      // Position vertically
-      top = rect.top + window.scrollY;
-      
-      // Ensure the detail stays within viewport vertically
-      const windowHeight = window.innerHeight;
-      const detailHeight = 450; // Approximate height of detail
-      
-      if (top + detailHeight > window.scrollY + windowHeight) {
-        top = window.scrollY + windowHeight - detailHeight - 20;
-      }
-      
-      setDetailPosition({ top, left });
-    }, 1000); // 1 second delay
-  };
-
-  // Handle card hover end
-  const handleCardHoverEnd = () => {
-    // Clear the timer if it exists
-    if (hoverTimerRef.current) {
-      clearTimeout(hoverTimerRef.current);
-      hoverTimerRef.current = null;
-    }
-    
-    setHoveredCard(null);
   };
 
   // Count cards in deck by cost for the mana curve
@@ -445,28 +378,22 @@ const DeckBuilder = () => {
                 {filteredCards.map(card => (
                   <div 
                     key={card._id} 
-                    className="card-container"
+                    className="browsable-card"
+                    onClick={() => addCardToDeck(card)}
                   >
-                    <div
-                      className="browsable-card"
-                      onClick={() => addCardToDeck(card)}
-                      onMouseEnter={(e) => handleCardHover(card, e)}
-                      onMouseLeave={handleCardHoverEnd}
-                    >
-                      <div className="card-count-badge">
-                        {cardCounts[card._id] || 0}/3
-                      </div>
-                      <img 
-                        src={card.imageUrl} 
-                        alt={card.title} 
-                        className="card-thumbnail" 
-                      />
-                      <div className="card-info">
-                        <div className="card-cost-badge">{card.cost}</div>
-                        <div className="card-title-small">{card.title}</div>
-                        <div className={`card-class-small ${card.class.toLowerCase()}`}>
-                          {card.class}
-                        </div>
+                    <div className="card-count-badge">
+                      {cardCounts[card._id] || 0}/3
+                    </div>
+                    <img 
+                      src={card.imageUrl} 
+                      alt={card.title} 
+                      className="card-thumbnail" 
+                    />
+                    <div className="card-info">
+                      <div className="card-cost-badge">{card.cost}</div>
+                      <div className="card-title-small">{card.title}</div>
+                      <div className={`card-class-small ${card.class.toLowerCase()}`}>
+                        {card.class}
                       </div>
                     </div>
                   </div>
@@ -548,25 +475,19 @@ const DeckBuilder = () => {
                     }).map((card, index) => (
                       <div 
                         key={`${card._id}-${index}`} 
-                        className="card-container"
+                        className="deck-card"
+                        onClick={() => removeCardFromDeck(index)}
                       >
-                        <div 
-                          className="deck-card"
-                          onClick={() => removeCardFromDeck(index)}
-                          onMouseEnter={(e) => handleCardHover(card, e)}
-                          onMouseLeave={handleCardHoverEnd}
-                        >
-                          <img 
-                            src={card.imageUrl} 
-                            alt={card.title} 
-                            className="deck-card-thumbnail" 
-                          />
-                          <div className="deck-card-info">
-                            <div className="deck-card-cost">{card.cost}</div>
-                            <div className="deck-card-title">{card.title}</div>
-                            <div className={`deck-card-class ${card.class.toLowerCase()}`}>
-                              {card.class}
-                            </div>
+                        <img 
+                          src={card.imageUrl} 
+                          alt={card.title} 
+                          className="deck-card-thumbnail" 
+                        />
+                        <div className="deck-card-info">
+                          <div className="deck-card-cost">{card.cost}</div>
+                          <div className="deck-card-title">{card.title}</div>
+                          <div className={`deck-card-class ${card.class.toLowerCase()}`}>
+                            {card.class}
                           </div>
                         </div>
                       </div>
@@ -575,91 +496,6 @@ const DeckBuilder = () => {
                 )}
               </div>
             </div>
-          </div>
-        </div>
-      )}
-      
-      {/* Card Detail Window (moved outside of card containers) */}
-      {hoveredCard && (
-        <div 
-          className="card-detail" 
-          style={{
-            top: `${detailPosition.top}px`,
-            left: `${detailPosition.left}px`
-          }}
-        >
-          <div className="card-title">{hoveredCard.title}</div>
-          
-          <div className="card-metadata">
-            <div className="card-metadata-row">
-              <span>
-                <span className={`card-type-badge ${hoveredCard.cardType ? hoveredCard.cardType.toLowerCase() : 'follower'}`}>
-                  {hoveredCard.cardType || 'Follower'}
-                </span>
-              </span>
-              <span className="card-class" title={hoveredCard.class}>
-                {hoveredCard.class}
-              </span>
-            </div>
-            
-            <div className="card-metadata-row">
-              <span>
-                Cost: <span className="cost-label">{hoveredCard.cost}</span>
-              </span>
-              <span className={`card-rarity card-rarity-${hoveredCard.rarity ? hoveredCard.rarity.toLowerCase() : ''}`}>
-                {hoveredCard.rarity}
-              </span>
-            </div>
-            
-            {hoveredCard.trait && (
-              <div className="card-trait">
-                Trait: {hoveredCard.trait}
-              </div>
-            )}
-          </div>
-          
-          <div className="card-descriptions">
-            {(!hoveredCard.cardType || hoveredCard.cardType === 'Follower') && (
-              <>
-                <div className="description-section">
-                  <div className="stats-row">
-                    <span>
-                      <span className="attack-label">Attack:</span> <span className="attack-value">{hoveredCard.unevolvedAttack || '?'}</span>
-                    </span>
-                    <span>
-                      <span className="defense-label">Defense:</span> <span className="defense-value">{hoveredCard.unevolvedDefense || '?'}</span>
-                    </span>
-                  </div>
-                  <div className="description-title">Unevolved</div>
-                  <div className="card-description">{formatText(hoveredCard.unevolvedDescription || '')}</div>
-                </div>
-                
-                <div className="description-section">
-                  <div className="stats-row">
-                    <span>
-                      <span className="attack-label">Attack:</span> <span className="attack-value">{hoveredCard.evolvedAttack || '?'}</span>
-                    </span>
-                    <span>
-                      <span className="defense-label">Defense:</span> <span className="defense-value">{hoveredCard.evolvedDefense || '?'}</span>
-                    </span>
-                  </div>
-                  <div className="description-title">Evolved</div>
-                  <div className="card-description">{formatText(hoveredCard.evolvedDescription || '')}</div>
-                </div>
-              </>
-            )}
-            
-            {hoveredCard.cardType === 'Spell' && (
-              <div className="description-section">
-                <div className="card-description">{formatText(hoveredCard.spellDescription || '')}</div>
-              </div>
-            )}
-            
-            {hoveredCard.cardType === 'Amulet' && (
-              <div className="description-section">
-                <div className="card-description">{formatText(hoveredCard.amuletDescription || '')}</div>
-              </div>
-            )}
           </div>
         </div>
       )}
