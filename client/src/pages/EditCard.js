@@ -229,9 +229,20 @@ const EditCard = () => {
       // Update the card
       const response = await updateCard(id, data);
       
-      // If a set was selected, add the card to the set
+      // Handle set assignment
       if (formData.setId) {
-        await addCardToSet(formData.setId, id);
+        // Find if the card is already in this set
+        const selectedSet = sets.find(set => set._id === formData.setId);
+        const cardAlreadyInSet = selectedSet && selectedSet.cards && 
+          Array.isArray(selectedSet.cards) &&
+          selectedSet.cards.some(setCardId => 
+            setCardId.toString() === id.toString() || setCardId === id
+          );
+        
+        // Only add the card to the set if it's not already there
+        if (!cardAlreadyInSet) {
+          await addCardToSet(formData.setId, id);
+        }
       }
       
       // Always navigate to the main page
