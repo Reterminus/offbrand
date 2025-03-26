@@ -499,8 +499,10 @@ const CardList = () => {
                 <div 
                   className={`card-notes ${showNotesForCard === card._id ? 'show' : ''}`}
                   style={{
-                    left: detailPositions[card._id] === 'left' ? 'auto' : 'calc(100% + 400px)',
-                    right: detailPositions[card._id] === 'left' ? 'calc(100% + 400px)' : 'auto'
+                    left: detailPositions[card._id] === 'left' ? 'auto' : 'calc(100% + 20px)',
+                    right: detailPositions[card._id] === 'left' ? 'calc(100% + 20px)' : 'auto',
+                    top: 'auto', // Reset any top positioning
+                    bottom: 'calc(-120% - 20px)' // Position below the detail window
                   }}
                 >
                   <h3 className="card-notes-title">{card.title} Details</h3>

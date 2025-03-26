@@ -153,11 +153,12 @@
   .card-notes {
     position: fixed;
     left: 50% !important;
-    top: 50% !important;
-    transform: translate(-50%, -50%) !important;
+    top: auto !important;
+    bottom: 10% !important;
+    transform: translateX(-50%) !important;
     width: 95% !important;
     max-width: 350px;
-    max-height: 85vh;
+    max-height: 40vh;
     overflow-y: auto;
     z-index: 2100;
     right: auto !important;
@@ -409,18 +410,19 @@
 
 .card-notes {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 350px;
   background-color: #2d2d2d;
-  padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  z-index: 1200;
+  width: 350px;
   opacity: 0;
   visibility: hidden;
-  z-index: 1200;
   pointer-events: none;
   transition: opacity 0.2s, visibility 0.2s;
+  transform: translateY(0);
+  max-height: 300px;
+  overflow-y: auto;
   color: #e0e0e0;
 }
 
