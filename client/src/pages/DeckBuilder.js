@@ -16,7 +16,7 @@ const DeckBuilder = () => {
   const [exportView, setExportView] = useState(false);
   const deckRef = useRef(null);
   const [exportingDeck, setExportingDeck] = useState(false);
-  const [hoveredCard, setHoveredCard] = useState(null);
+  const [selectedCardDetails, setSelectedCardDetails] = useState(null);
 
   // Fetch all cards on component mount
   useEffect(() => {
@@ -113,6 +113,12 @@ const DeckBuilder = () => {
     'Dragoncraft', 'Shadowcraft', 'Bloodcraft', 
     'Havencraft', 'Portalcraft'
   ];
+
+  // Handle clicking on a card to view details
+  const handleCardDetailView = (card, e) => {
+    e.stopPropagation(); // Prevent adding to deck when viewing details
+    setSelectedCardDetails(card);
+  };
 
   // Handle adding a card to the deck
   const addCardToDeck = (card) => {
@@ -285,15 +291,6 @@ const DeckBuilder = () => {
     return counts;
   };
 
-  // Handle mouse enter/leave for cards
-  const handleCardMouseEnter = (card) => {
-    setHoveredCard(card);
-  };
-
-  const handleCardMouseLeave = () => {
-    setHoveredCard(null);
-  };
-
   // If still loading
   if (loading) {
     return <div className="loading">Loading cards...</div>;
@@ -390,8 +387,6 @@ const DeckBuilder = () => {
                     key={card._id} 
                     className="browsable-card"
                     onClick={() => addCardToDeck(card)}
-                    onMouseEnter={() => handleCardMouseEnter(card)}
-                    onMouseLeave={handleCardMouseLeave}
                   >
                     <div className="card-count-badge">
                       {cardCounts[card._id] || 0}/3
@@ -408,6 +403,13 @@ const DeckBuilder = () => {
                         {card.class}
                       </div>
                     </div>
+                    <button 
+                      className="view-details-btn"
+                      onClick={(e) => handleCardDetailView(card, e)}
+                      title="View card details"
+                    >
+                      ℹ
+                    </button>
                   </div>
                 ))}
               </div>
@@ -509,94 +511,129 @@ const DeckBuilder = () => {
               </div>
             </div>
           </div>
-          
-          {/* Card Detail Preview */}
-          {hoveredCard && (
-            <div className="deck-card-detail-preview">
-              <div className="preview-card-detail">
-                <h3 className="preview-card-title">{hoveredCard.title}</h3>
-                
-                <div className="preview-card-metadata">
-                  <div className="preview-card-metadata-row">
-                    <div>
-                      <span className="preview-card-cost">{hoveredCard.cost}</span>
-                      <span className="preview-card-class" title={hoveredCard.class}>{hoveredCard.class}</span>
-                    </div>
-                    <span className={`preview-card-rarity preview-card-rarity-${hoveredCard.rarity.toLowerCase()}`}>{hoveredCard.rarity}</span>
-                  </div>
-                  
-                  <div className="preview-card-metadata-row">
-                    <div>
-                      {hoveredCard.trait && (
-                        <span className="preview-card-trait">
-                          Trait: {hoveredCard.trait}
-                        </span>
-                      )}
-                      {hoveredCard.isToken && !hoveredCard.trait && (
-                        <span className="preview-card-token-badge">
-                          Token
-                        </span>
-                      )}
-                    </div>
-                    <span className={`preview-card-type-badge ${hoveredCard.cardType?.toLowerCase() || 'follower'}`}>
-                      {hoveredCard.cardType || 'Follower'}
-                    </span>
-                  </div>
-                  
-                  {hoveredCard.trait && hoveredCard.isToken && (
-                    <div className="preview-card-metadata-row token-row">
-                      <div>
-                        <span className="preview-card-token-badge">
-                          Token
-                        </span>
-                      </div>
-                      <div></div>
-                    </div>
-                  )}
+
+          {/* Card Detail Panel */}
+          {selectedCardDetails && (
+            <div className="deck-builder-card-detail">
+              <div className="detail-header">
+                <h3 className="card-title">{selectedCardDetails.title}</h3>
+                <button 
+                  className="close-detail-btn" 
+                  onClick={() => setSelectedCardDetails(null)}
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className="card-detail-content">
+                <div className="card-detail-image">
+                  <img 
+                    src={selectedCardDetails.imageUrl} 
+                    alt={selectedCardDetails.title} 
+                  />
                 </div>
                 
-                {/* Follower card details */}
-                {(!hoveredCard.cardType || hoveredCard.cardType === 'Follower') && (
-                  <div className="preview-card-descriptions">
-                    <div className="preview-description-section follower-section">
-                      <h4 className="preview-description-title">Unevolved</h4>
-                      <div className="preview-stats-row">
-                        <span>Attack: <span className="preview-attack-value">{hoveredCard.unevolvedAttack}</span></span>
-                        <span>Defense: <span className="preview-defense-value">{hoveredCard.unevolvedDefense}</span></span>
+                <div className="card-detail-info">
+                  <div className="card-metadata">
+                    <div className="card-metadata-row">
+                      <div>
+                        <span className="card-cost">{selectedCardDetails.cost}</span>
+                        <span className="card-class" title={selectedCardDetails.class}>
+                          {selectedCardDetails.class}
+                        </span>
                       </div>
-                      <p className="preview-card-description">{formatText(hoveredCard.unevolvedDescription)}</p>
+                      <span className={`card-rarity card-rarity-${selectedCardDetails.rarity.toLowerCase()}`}>
+                        {selectedCardDetails.rarity}
+                      </span>
                     </div>
                     
-                    <div className="preview-description-section">
-                      <h4 className="preview-description-title">Evolved</h4>
-                      <div className="preview-stats-row">
-                        <span>Attack: <span className="preview-attack-value">{hoveredCard.evolvedAttack}</span></span>
-                        <span>Defense: <span className="preview-defense-value">{hoveredCard.evolvedDefense}</span></span>
+                    <div className="card-metadata-row">
+                      <div>
+                        {selectedCardDetails.trait && (
+                          <span className="card-trait">
+                            Trait: {selectedCardDetails.trait}
+                          </span>
+                        )}
+                        {selectedCardDetails.isToken && !selectedCardDetails.trait && (
+                          <span className="card-token-badge">
+                            Token
+                          </span>
+                        )}
                       </div>
-                      <p className="preview-card-description">{formatText(hoveredCard.evolvedDescription)}</p>
+                      <span className={`card-type-badge ${selectedCardDetails.cardType?.toLowerCase() || 'follower'}`}>
+                        {selectedCardDetails.cardType || 'Follower'}
+                      </span>
                     </div>
+                    
+                    {selectedCardDetails.trait && selectedCardDetails.isToken && (
+                      <div className="card-metadata-row token-row">
+                        <div>
+                          <span className="card-token-badge">
+                            Token
+                          </span>
+                        </div>
+                        <div></div>
+                      </div>
+                    )}
                   </div>
-                )}
-                
-                {/* Spell card details */}
-                {hoveredCard.cardType === 'Spell' && (
-                  <div className="preview-card-descriptions">
-                    <div className="preview-description-section spell-section">
-                      <h4 className="preview-description-title">Spell Effect</h4>
-                      <p className="preview-card-description">{formatText(hoveredCard.spellDescription)}</p>
+                  
+                  {/* Follower card details */}
+                  {(!selectedCardDetails.cardType || selectedCardDetails.cardType === 'Follower') && (
+                    <div className="card-descriptions">
+                      <div className="description-section follower-section">
+                        <h4 className="description-title">Unevolved</h4>
+                        <div className="stats-row">
+                          <span>Attack: <span className="attack-value">{selectedCardDetails.unevolvedAttack}</span></span>
+                          <span>Defense: <span className="defense-value">{selectedCardDetails.unevolvedDefense}</span></span>
+                        </div>
+                        <p className="card-description">{formatText(selectedCardDetails.unevolvedDescription)}</p>
+                      </div>
+                      
+                      <div className="description-section">
+                        <h4 className="description-title">Evolved</h4>
+                        <div className="stats-row">
+                          <span>Attack: <span className="attack-value">{selectedCardDetails.evolvedAttack}</span></span>
+                          <span>Defense: <span className="defense-value">{selectedCardDetails.evolvedDefense}</span></span>
+                        </div>
+                        <p className="card-description">{formatText(selectedCardDetails.evolvedDescription)}</p>
+                      </div>
                     </div>
-                  </div>
-                )}
-                
-                {/* Amulet card details */}
-                {hoveredCard.cardType === 'Amulet' && (
-                  <div className="preview-card-descriptions">
-                    <div className="preview-description-section amulet-section">
-                      <h4 className="preview-description-title">Amulet Effect</h4>
-                      <p className="preview-card-description">{formatText(hoveredCard.amuletDescription)}</p>
+                  )}
+                  
+                  {/* Spell card details */}
+                  {selectedCardDetails.cardType === 'Spell' && (
+                    <div className="card-descriptions">
+                      <div className="description-section spell-section" style={{ border: 'none', borderBottom: 'none' }}>
+                        <h4 className="description-title">Spell Effect</h4>
+                        <p className="card-description">{formatText(selectedCardDetails.spellDescription)}</p>
+                      </div>
                     </div>
+                  )}
+                  
+                  {/* Amulet card details */}
+                  {selectedCardDetails.cardType === 'Amulet' && (
+                    <div className="card-descriptions">
+                      <div className="description-section amulet-section" style={{ border: 'none', borderBottom: 'none' }}>
+                        <h4 className="description-title">Amulet Effect</h4>
+                        <p className="card-description">{formatText(selectedCardDetails.amuletDescription)}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="detail-actions">
+                    <button 
+                      className="add-to-deck-btn"
+                      onClick={() => {
+                        addCardToDeck(selectedCardDetails);
+                        // You may choose to close the detail view after adding or keep it open
+                        // setSelectedCardDetails(null);
+                      }}
+                      disabled={deck.filter(c => c._id === selectedCardDetails._id).length >= 3 || deck.length >= 40}
+                    >
+                      Add to Deck ({deck.filter(c => c._id === selectedCardDetails._id).length}/3)
+                    </button>
                   </div>
-                )}
+                </div>
               </div>
             </div>
           )}
