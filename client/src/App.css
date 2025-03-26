@@ -631,7 +631,8 @@
   padding-bottom: 15px;
 }
 
-.description-section:first-child {
+/* Only apply the dotted border to the first section in Follower cards */
+.card-descriptions div:first-child.description-section {
   border-bottom: 1px dashed #444;
 }
 
