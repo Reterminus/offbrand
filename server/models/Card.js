@@ -37,6 +37,10 @@ const CardSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  keywords: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Keyword'
+  }],
   unevolvedAttack: {
     type: Number,
     default: 0

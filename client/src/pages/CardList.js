@@ -2,9 +2,8 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getCards, deleteCard, getSets, getKeywords } from '../services/api';
 import { sortCards } from '../utils/cardUtils';
-import { formatText, findKeywordsInText } from '../utils/textUtils';
+import { formatText } from '../utils/textUtils';
 import { AuthContext } from '../context/AuthContext';
-import KeywordBanner from '../components/KeywordBanner';
 
 const CardList = () => {
   const navigate = useNavigate();
@@ -293,12 +292,6 @@ const CardList = () => {
     setShowNotesForCard(null);
   };
 
-  // Find keywords in a card's notes
-  const getCardKeywords = (card) => {
-    if (!card.notes || !keywords.length) return [];
-    return findKeywordsInText(card.notes, keywords);
-  };
-
   if (loading) {
     return <div className="loading">Loading cards...</div>;
   }
@@ -504,31 +497,47 @@ const CardList = () => {
                 )}
                 
                 {/* Notes section inside the detail window */}
-                {card.notes && card.notes.trim() !== '' && (
+                {(card.notes && card.notes.trim() !== '') || (card.keywords && card.keywords.length > 0) ? (
                   <div 
                     className={`card-notes-section ${showNotesForCard === card._id ? 'show' : ''}`}
                   >
                     <div className="card-notes-divider"></div>
                     <h4 className="card-notes-title">{card.title} Details</h4>
-
-                    {/* Add keyword banners if matching keywords are found */}
-                    {getCardKeywords(card).length > 0 && (
-                      <div className="keyword-banners-container">
-                        {getCardKeywords(card).map(keyword => (
-                          <KeywordBanner key={keyword._id} keyword={keyword} />
+                    
+                    {/* Keywords section */}
+                    {card.keywords && card.keywords.length > 0 && (
+                      <div className="card-keywords">
+                        {card.keywords.map(keyword => (
+                          <div 
+                            key={keyword._id} 
+                            className="keyword-banner"
+                            style={{
+                              backgroundImage: `url(${keyword.imageUrl})`,
+                              backgroundPosition: keyword.imagePosition || '50% 50%',
+                              backgroundSize: 'cover'
+                            }}
+                          >
+                            <div className="keyword-overlay">
+                              <h5 className="keyword-title">{keyword.title}</h5>
+                              <p className="keyword-description">{keyword.description}</p>
+                            </div>
+                          </div>
                         ))}
                       </div>
                     )}
-
-                    <div className="card-notes-content">
-                      {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
-                        <div key={index} className="note-line">
-                          {formatText(line, keywords)}
-                        </div>
-                      ))}
-                    </div>
+                    
+                    {/* Notes content */}
+                    {card.notes && card.notes.trim() !== '' && (
+                      <div className="card-notes-content">
+                        {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
+                          <div key={index} className="note-line">
+                            {formatText(line)}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                )}
+                ) : null}
               </div>
             </div>
           ))}

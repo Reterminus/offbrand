@@ -39,7 +39,7 @@ const upload = multer({
 // GET all cards - public
 router.get('/', async (req, res) => {
   try {
-    const cards = await Card.find().sort({ createdAt: -1 });
+    const cards = await Card.find().sort({ createdAt: -1 }).populate('keywords');
     res.json(cards);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -49,7 +49,7 @@ router.get('/', async (req, res) => {
 // GET a single card - public
 router.get('/:id', async (req, res) => {
   try {
-    const card = await Card.findById(req.params.id);
+    const card = await Card.findById(req.params.id).populate('keywords');
     if (!card) return res.status(404).json({ message: 'Card not found' });
     res.json(card);
   } catch (err) {
@@ -78,7 +78,8 @@ router.post('/', admin, upload.single('image'), async (req, res) => {
       amuletDescription,
       notes,
       creator,
-      imageUrl
+      imageUrl,
+      keywords
     } = req.body;
     
     let finalImageUrl = imageUrl;
@@ -106,6 +107,11 @@ router.post('/', admin, upload.single('image'), async (req, res) => {
       creator: creator || '',
       imageUrl: finalImageUrl
     };
+    
+    // Add keywords if provided
+    if (keywords) {
+      cardData.keywords = Array.isArray(keywords) ? keywords : JSON.parse(keywords);
+    }
     
     // Add type-specific fields
     if (cardType === 'Follower') {
@@ -154,7 +160,8 @@ router.patch('/:id', admin, upload.single('image'), async (req, res) => {
       amuletDescription,
       notes,
       creator,
-      imageUrl
+      imageUrl,
+      keywords
     } = req.body;
     
     // Create base update object
@@ -184,6 +191,11 @@ router.patch('/:id', admin, upload.single('image'), async (req, res) => {
       updateData.spellDescription = spellDescription || '';
     } else if (cardType === 'Amulet') {
       updateData.amuletDescription = amuletDescription || '';
+    }
+    
+    // Add keywords if provided
+    if (keywords) {
+      updateData.keywords = Array.isArray(keywords) ? keywords : JSON.parse(keywords);
     }
     
     // Handle image update

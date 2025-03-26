@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getCard, updateCard, getSets, addCardToSet } from '../services/api';
+import { getCard, updateCard, getSets, addCardToSet, getKeywords } from '../services/api';
 
 const EditCard = () => {
   const navigate = useNavigate();
@@ -26,26 +26,33 @@ const EditCard = () => {
     image: null,
     imageUrl: '',
     imageSource: 'url', // Default to 'url' since we'll be loading an existing image
-    setId: '' // Add setId field
+    setId: '',
+    keywords: []
   });
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
-  const [sets, setSets] = useState([]); // Added state for sets
+  const [sets, setSets] = useState([]);
+  const [keywords, setKeywords] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Fetch card data and sets in parallel
-        const [cardData, setsData] = await Promise.all([
+        // Fetch card data, sets, and keywords in parallel
+        const [cardData, setsData, keywordsData] = await Promise.all([
           getCard(id),
-          getSets()
+          getSets(),
+          getKeywords()
         ]);
         
         // Find which set (if any) this card belongs to
         const cardSetId = findCardSetId(setsData, id);
+        
+        // Extract keyword IDs from the card data
+        const keywordIds = cardData.keywords ? 
+          cardData.keywords.map(keyword => keyword._id) : [];
         
         setFormData({
           title: cardData.title,
@@ -68,13 +75,16 @@ const EditCard = () => {
           image: null,
           imageUrl: cardData.imageUrl || '',
           imageSource: 'url',
-          setId: cardSetId || '' // Initialize with the set ID if found
+          setId: cardSetId || '',
+          keywords: keywordIds
         });
         
         setSets(setsData);
+        setKeywords(keywordsData);
         setPreview(cardData.imageUrl);
         setLoading(false);
       } catch (err) {
+        console.error('Error fetching data:', err);
         setError('Failed to fetch data. Please try again later.');
         setLoading(false);
       }
@@ -164,6 +174,14 @@ const EditCard = () => {
     setPreview(source === 'url' ? formData.imageUrl : null);
   };
 
+  const handleKeywordChange = (e) => {
+    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+    setFormData({
+      ...formData,
+      keywords: selectedOptions
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -224,6 +242,11 @@ const EditCard = () => {
         data.append('image', formData.image);
       } else if (formData.imageSource === 'url' && formData.imageUrl) {
         data.append('imageUrl', formData.imageUrl);
+      }
+      
+      // Append keywords if selected
+      if (formData.keywords.length > 0) {
+        data.append('keywords', JSON.stringify(formData.keywords));
       }
       
       // Update the card
@@ -652,6 +675,27 @@ const EditCard = () => {
           ) : (
             <div className="image-preview-text">No image available</div>
           )}
+        </div>
+        
+        {/* Add keywords field to the form */}
+        <div className="form-group">
+          <label>Keywords:</label>
+          <select 
+            multiple
+            name="keywords" 
+            value={formData.keywords}
+            onChange={handleKeywordChange}
+            className="form-control"
+          >
+            {keywords.map(keyword => (
+              <option key={keyword._id} value={keyword._id}>
+                {keyword.title}
+              </option>
+            ))}
+          </select>
+          <small className="form-text text-muted">
+            Hold Ctrl (or Cmd on Mac) to select multiple keywords.
+          </small>
         </div>
         
         <div className="form-actions">
