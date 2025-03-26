@@ -11,6 +11,7 @@ import SetDetail from './pages/SetDetail';
 import KeywordList from './pages/KeywordList';
 import CreateKeyword from './pages/CreateKeyword';
 import EditKeyword from './pages/EditKeyword';
+import DeckBuilder from './pages/DeckBuilder';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
@@ -29,6 +30,7 @@ function App() {
               <Route path="/sets" element={<SetList />} />
               <Route path="/sets/:id" element={<SetDetail />} />
               <Route path="/keywords" element={<KeywordList />} />
+              <Route path="/deck-builder" element={<DeckBuilder />} />
               <Route path="/login" element={<Login />} />
               
               {/* Admin-only routes */}

@@ -25,6 +25,9 @@ const Navbar = () => {
           <Link to="/keywords" className="navbar-link">
             Keywords
           </Link>
+          <Link to="/deck-builder" className="navbar-link">
+            Deck Builder
+          </Link>
           
           {/* Admin-only links */}
           {isAdmin && (
