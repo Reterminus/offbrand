@@ -396,12 +396,6 @@
 .card:hover + .card-detail {
   opacity: 1;
   visibility: visible;
-  animation: fadeDetailIn 0.3s ease;
-}
-
-@keyframes fadeDetailIn {
-  0% { opacity: 0; transform: translateY(-10px) translateX(0); }
-  100% { opacity: 1; transform: translateY(0) translateX(0); }
 }
 
 /* Mobile styles override to keep existing behavior */
@@ -2622,13 +2616,6 @@
   align-items: center;
   padding: 15px;
   overflow-y: auto;
-  backdrop-filter: blur(3px);
-  animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
 }
 
 .mobile-card-detail {
@@ -2636,17 +2623,11 @@
   border-radius: 10px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
   width: 100%;
-  max-width: 550px;
+  max-width: 450px;
   max-height: 90vh;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  animation: slideUp 0.3s ease;
-}
-
-@keyframes slideUp {
-  0% { transform: translateY(20px); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
 }
 
 .mobile-card-detail .detail-header {
@@ -2793,36 +2774,27 @@
 .mobile-detail-actions .btn {
   min-width: 80px;
   padding: 8px 15px;
-} 
+}
 
-/* Make cards in portrait mode have a pointer cursor to indicate they're clickable */
-@media (max-width: 1200px) {
-  .card-container {
-    cursor: pointer;
-  }
-  
-  /* Hide the hover-based card details completely for portrait mode */
+/* Ensure the original detail doesn't show in portrait orientation on any device */
+@media (max-width: 768px), (orientation: portrait) {
   .card-detail {
     display: none !important;
   }
-  
-  /* Ensure the original flyout animation is disabled ONLY in portrait mode */
-  .card:hover + .card-detail {
-    animation: none;
-    opacity: 0;
-    visibility: hidden;
-  }
 }
 
-/* Mobile Card Detail Overlay Close Button */
-.mobile-card-detail-overlay::before {
-  content: 'Click outside to close';
+/* Mobile/portrait detail view styling for all devices */
+.mobile-card-detail-overlay {
   position: fixed;
-  bottom: 15px;
+  top: 0;
   left: 0;
   right: 0;
-  text-align: center;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 14px;
-  pointer-events: none;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  overflow-y: auto;
 }

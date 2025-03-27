@@ -130,12 +130,17 @@ const CardList = () => {
     const handleResize = () => {
       const newPositions = {};
       const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+      const isPortrait = windowWidth <= windowHeight;
       
-      // Update mobile view state - consider both mobile devices and portrait orientation on PC
-      const isPortraitMode = windowWidth <= 1200;
-      setIsMobileView(isPortraitMode);
+      // Update mobile view state
+      setIsMobileView(windowWidth <= 768);
       
-      // We still calculate positions for desktop landscape mode
+      // In portrait mode, clear active card to prevent flickering
+      if (isPortrait && activeCardId) {
+        setActiveCardId(null);
+      }
+      
       Object.keys(cardRefs.current).forEach(id => {
         const cardElement = cardRefs.current[id];
         if (cardElement) {
@@ -159,7 +164,7 @@ const CardList = () => {
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [filteredCards]);
+  }, [filteredCards, activeCardId]);
 
   const handleEdit = (id) => {
     navigate(`/edit/${id}`);
@@ -227,27 +232,25 @@ const CardList = () => {
 
   // Handle mouse enter/leave for cards
   const handleMouseEnter = (id) => {
-    // Only set active card on hover if not in portrait/mobile mode
-    // In portrait mode, we'll require a click instead
-    if (!isMobileView) {
+    // Only activate hover behavior in landscape mode
+    if (!isMobileView && window.innerWidth > window.innerHeight) {
       setActiveCardId(id);
     }
   };
 
   const handleMouseLeave = () => {
-    // Only clear active card on mouse leave if not in portrait/mobile mode
-    if (!isMobileView) {
+    // Only deactivate hover behavior in landscape mode
+    if (!isMobileView && window.innerWidth > window.innerHeight) {
       setActiveCardId(null);
     }
   };
 
-  // Handle card click in portrait/mobile mode
+  // Handle card click to show detail
   const handleCardClick = (id, e) => {
-    // Only handle clicks in portrait/mobile mode
-    if (isMobileView) {
-      // Prevent triggering parent events
-      e.stopPropagation();
-      setActiveCardId(id);
+    // For portrait mode or mobile, show details on click
+    if (isMobileView || window.innerWidth <= window.innerHeight) {
+      e.preventDefault();
+      setActiveCardId(id === activeCardId ? null : id);
     }
   };
 
@@ -432,8 +435,8 @@ const CardList = () => {
                 )}
               </div>
               
-              {/* Desktop Detail View */}
-              {!isMobileView && (
+              {/* Desktop Landscape Detail View */}
+              {!isMobileView && window.innerWidth > window.innerHeight && (
                 <div 
                   className="card-detail"
                   style={{
@@ -583,8 +586,8 @@ const CardList = () => {
         </div>
       )}
 
-      {/* Mobile Card Detail Panel - similar to DeckBuilder */}
-      {isMobileView && activeCardId && filteredCards.length > 0 && (
+      {/* Portrait/Mobile Card Detail Panel */}
+      {activeCardId && (isMobileView || window.innerWidth <= window.innerHeight) && filteredCards.length > 0 && (
         <div 
           className="mobile-card-detail-overlay"
           onClick={handleCloseMobileDetail}
