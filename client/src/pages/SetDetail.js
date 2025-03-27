@@ -16,7 +16,7 @@ const SetDetail = () => {
   const [selectedCardId, setSelectedCardId] = useState('');
   const [addingCard, setAddingCard] = useState(false);
   const [activeCardId, setActiveCardId] = useState(null);
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+  const [viewMode, setViewMode] = useState('list'); // 'grid' or 'list'
   const [detailPositions, setDetailPositions] = useState({});
   const [showNotesForCard, setShowNotesForCard] = useState(null);
   const cardRefs = useRef({});

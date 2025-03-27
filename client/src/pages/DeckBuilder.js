@@ -350,7 +350,25 @@ const DeckBuilder = () => {
         <div className="class-selection">
           <h2>Select a Class</h2>
           <div className="class-grid">
-            {classOptions.map(className => (
+            {/* Top row - First 4 classes */}
+            {classOptions.slice(0, 4).map(className => (
+              <div 
+                key={className} 
+                className="class-card"
+                onClick={() => handleClassSelect(className)}
+              >
+                <div className="class-icon">
+                  <img 
+                    src={classIcons[className]} 
+                    alt={className} 
+                  />
+                </div>
+                <h3>{className}</h3>
+              </div>
+            ))}
+            
+            {/* Bottom row - Last 4 classes */}
+            {classOptions.slice(4).map(className => (
               <div 
                 key={className} 
                 className="class-card"
