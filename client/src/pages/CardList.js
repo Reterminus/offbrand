@@ -23,7 +23,8 @@ const CardList = () => {
   const [selectedCreator, setSelectedCreator] = useState('');
   const [creators, setCreators] = useState([]);
   const [showNotesForCard, setShowNotesForCard] = useState(null);
-  const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 768);
+  const [isMobileView, setIsMobileView] = useState(false);
+  const [selectedCardDetails, setSelectedCardDetails] = useState(null);
   const cardRefs = useRef({});
 
   useEffect(() => {
@@ -125,26 +126,29 @@ const CardList = () => {
     setFilteredCards(result);
   }, [searchTerm, selectedClass, selectedRarity, selectedSet, selectedCreator, cards, sets]);
 
+  // Check if we're in mobile/portrait view
+  useEffect(() => {
+    const checkMobileView = () => {
+      setIsMobileView(window.innerWidth <= 768 || window.innerHeight > window.innerWidth);
+    };
+    
+    checkMobileView();
+    window.addEventListener('resize', checkMobileView);
+    
+    return () => {
+      window.removeEventListener('resize', checkMobileView);
+    };
+  }, []);
+
   // Calculate detail position when window is resized
   useEffect(() => {
     const handleResize = () => {
       const newPositions = {};
-      const windowWidth = window.innerWidth;
-      const windowHeight = window.innerHeight;
-      const isPortrait = windowWidth <= windowHeight;
-      
-      // Update mobile view state
-      setIsMobileView(windowWidth <= 768);
-      
-      // In portrait mode, clear active card to prevent flickering
-      if (isPortrait && activeCardId) {
-        setActiveCardId(null);
-      }
-      
       Object.keys(cardRefs.current).forEach(id => {
         const cardElement = cardRefs.current[id];
         if (cardElement) {
           const rect = cardElement.getBoundingClientRect();
+          const windowWidth = window.innerWidth;
           // Calculate the center position of the card
           const cardCenter = rect.left + (rect.width / 2);
           // If the card's center is in the right half of the screen, show detail on the left
@@ -164,7 +168,7 @@ const CardList = () => {
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [filteredCards, activeCardId]);
+  }, [filteredCards]);
 
   const handleEdit = (id) => {
     navigate(`/edit/${id}`);
@@ -230,33 +234,44 @@ const CardList = () => {
     e.stopPropagation();
   };
 
-  // Handle mouse enter/leave for cards
+  // Handle clicking on a card to view details (for mobile/portrait)
+  const handleCardDetailView = (card, e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation(); // Prevent other handlers from firing
+    }
+    setSelectedCardDetails(card);
+    setShowNotesForCard(card._id);
+  };
+
+  // Close the card detail view
+  const handleDetailClose = () => {
+    setSelectedCardDetails(null);
+    setShowNotesForCard(null);
+  };
+
+  // Prevent events from propagating to parent elements
+  const handleDetailClick = (e) => {
+    e.stopPropagation();
+  };
+
+  // Original mouse enter/leave handlers (for desktop/landscape)
   const handleMouseEnter = (id) => {
-    // Only activate hover behavior in landscape mode
-    if (!isMobileView && window.innerWidth > window.innerHeight) {
+    if (!isMobileView) {
       setActiveCardId(id);
     }
   };
 
   const handleMouseLeave = () => {
-    // Only deactivate hover behavior in landscape mode
-    if (!isMobileView && window.innerWidth > window.innerHeight) {
+    if (!isMobileView) {
       setActiveCardId(null);
-    }
-  };
-
-  // Handle card click to show detail
-  const handleCardClick = (id, e) => {
-    // For portrait mode or mobile, show details on click
-    if (isMobileView || window.innerWidth <= window.innerHeight) {
-      e.preventDefault();
-      setActiveCardId(id === activeCardId ? null : id);
+      setShowNotesForCard(null);
     }
   };
 
   // Handle double click to show notes
   const handleDoubleClick = (card) => {
-    if (card.notes && card.notes.trim() !== '') {
+    if (!isMobileView && card.notes && card.notes.trim() !== '') {
       setShowNotesForCard(card._id);
     }
   };
@@ -309,17 +324,6 @@ const CardList = () => {
 
   // Rarity options for the filter dropdown
   const rarityOptions = ['Bronze', 'Silver', 'Gold', 'Legendary'];
-
-  // Function to handle closing mobile detail view
-  const handleCloseMobileDetail = () => {
-    setActiveCardId(null);
-    setShowNotesForCard(null);
-  };
-  
-  // Prevent events from propagating when in mobile detail view
-  const handleMobileDetailClick = (e) => {
-    e.stopPropagation();
-  };
 
   if (loading) {
     return <div className="loading">Loading cards...</div>;
@@ -400,8 +404,8 @@ const CardList = () => {
               ref={(el) => setCardRef(card._id, el)}
               onMouseEnter={() => handleMouseEnter(card._id)}
               onMouseLeave={handleMouseLeave}
-              onClick={(e) => handleCardClick(card._id, e)}
               onDoubleClick={() => handleDoubleClick(card)}
+              onClick={() => isMobileView && handleCardDetailView(card)}
               style={{ zIndex: activeCardId === card._id ? 1000 : 1 }}
             >
               <div className="card">
@@ -433,10 +437,19 @@ const CardList = () => {
                     </button>
                   </div>
                 )}
+                {isMobileView && (
+                  <button 
+                    className="view-details-btn"
+                    onClick={(e) => handleCardDetailView(card, e)}
+                    title="View card details"
+                  >
+                    ℹ
+                  </button>
+                )}
               </div>
               
-              {/* Desktop Landscape Detail View */}
-              {!isMobileView && window.innerWidth > window.innerHeight && (
+              {/* Desktop/landscape card detail view - shown on hover */}
+              {!isMobileView && (
                 <div 
                   className="card-detail"
                   style={{
@@ -559,7 +572,7 @@ const CardList = () => {
                               >
                                 <h5 className="keyword-title">{keyword.title}</h5>
                                 <div className="keyword-description-scrollable">
-                                  <p className="keyword-description">{keyword.description}</p>
+                                  <p className="keyword-description">{formatText(keyword.description)}</p>
                                 </div>
                               </div>
                             </div>
@@ -586,200 +599,167 @@ const CardList = () => {
         </div>
       )}
 
-      {/* Portrait/Mobile Card Detail Panel */}
-      {activeCardId && (isMobileView || window.innerWidth <= window.innerHeight) && filteredCards.length > 0 && (
+      {/* Mobile/portrait card detail panel - shown when a card is clicked */}
+      {isMobileView && selectedCardDetails && (
         <div 
-          className="mobile-card-detail-overlay"
-          onClick={handleCloseMobileDetail}
+          className="card-list-detail-modal"
+          onClick={handleDetailClose}
         >
           <div 
-            className="mobile-card-detail"
-            onClick={handleMobileDetailClick}
+            className="detail-content"
+            onClick={handleDetailClick}
           >
-            {(() => {
-              const card = filteredCards.find(c => c._id === activeCardId);
-              if (!card) return null;
+            <div className="detail-header">
+              <h3 className="card-title">{selectedCardDetails.title}</h3>
+              <button 
+                className="close-detail-btn" 
+                onClick={handleDetailClose}
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="detail-body">
+              <div className="card-detail-image">
+                <img 
+                  src={selectedCardDetails.imageUrl} 
+                  alt={selectedCardDetails.title} 
+                />
+              </div>
               
-              return (
-                <>
-                  <div className="detail-header">
-                    <h3 className="card-title">{card.title}</h3>
-                    <button 
-                      className="close-detail-btn" 
-                      onClick={handleCloseMobileDetail}
-                    >
-                      ×
-                    </button>
+              <div className="card-detail-info">
+                <div className="card-metadata">
+                  <div className="card-metadata-row">
+                    <div>
+                      <span className="card-cost">{selectedCardDetails.cost}</span>
+                      <span className="card-class" title={selectedCardDetails.class}>
+                        {selectedCardDetails.class}
+                      </span>
+                    </div>
+                    <span className={`card-rarity card-rarity-${selectedCardDetails.rarity.toLowerCase()}`}>
+                      {selectedCardDetails.rarity}
+                    </span>
                   </div>
+                  
+                  <div className="card-metadata-row">
+                    <div>
+                      {selectedCardDetails.trait && (
+                        <span className="card-trait">
+                          Trait: {selectedCardDetails.trait}
+                        </span>
+                      )}
+                      {selectedCardDetails.isToken && !selectedCardDetails.trait && (
+                        <span className="card-token-badge">
+                          Token
+                        </span>
+                      )}
+                    </div>
+                    <span className={`card-type-badge ${selectedCardDetails.cardType?.toLowerCase() || 'follower'}`}>
+                      {selectedCardDetails.cardType || 'Follower'}
+                    </span>
+                  </div>
+                  
+                  {selectedCardDetails.trait && selectedCardDetails.isToken && (
+                    <div className="card-metadata-row token-row">
+                      <div>
+                        <span className="card-token-badge">
+                          Token
+                        </span>
+                      </div>
+                      <div></div>
+                    </div>
+                  )}
+                </div>
                 
-                  <div className="card-detail-content">
-                    <div className="card-detail-image">
-                      <img 
-                        src={card.imageUrl} 
-                        alt={card.title} 
-                      />
+                {/* Follower card details */}
+                {(!selectedCardDetails.cardType || selectedCardDetails.cardType === 'Follower') && (
+                  <div className="card-descriptions">
+                    <div className="description-section follower-section">
+                      <h4 className="description-title">Unevolved</h4>
+                      <div className="stats-row">
+                        <span>Attack: <span className="attack-value">{selectedCardDetails.unevolvedAttack}</span></span>
+                        <span>Defense: <span className="defense-value">{selectedCardDetails.unevolvedDefense}</span></span>
+                      </div>
+                      <p className="card-description">{formatText(selectedCardDetails.unevolvedDescription)}</p>
                     </div>
                     
-                    <div className="card-detail-info">
-                      <div className="card-metadata">
-                        <div className="card-metadata-row">
-                          <div>
-                            <span className="card-cost">{card.cost}</span>
-                            <span className="card-class" title={card.class}>
-                              {card.class}
-                            </span>
-                          </div>
-                          <span className={`card-rarity card-rarity-${card.rarity.toLowerCase()}`}>
-                            {card.rarity}
-                          </span>
-                        </div>
-                        
-                        <div className="card-metadata-row">
-                          <div>
-                            {card.trait && (
-                              <span className="card-trait">
-                                Trait: {card.trait}
-                              </span>
-                            )}
-                            {card.isToken && !card.trait && (
-                              <span className="card-token-badge">
-                                Token
-                              </span>
-                            )}
-                          </div>
-                          <span className={`card-type-badge ${card.cardType?.toLowerCase() || 'follower'}`}>
-                            {card.cardType || 'Follower'}
-                          </span>
-                        </div>
-                        
-                        {card.trait && card.isToken && (
-                          <div className="card-metadata-row token-row">
-                            <div>
-                              <span className="card-token-badge">
-                                Token
-                              </span>
-                            </div>
-                            <div></div>
-                          </div>
-                        )}
+                    <div className="description-section">
+                      <h4 className="description-title">Evolved</h4>
+                      <div className="stats-row">
+                        <span>Attack: <span className="attack-value">{selectedCardDetails.evolvedAttack}</span></span>
+                        <span>Defense: <span className="defense-value">{selectedCardDetails.evolvedDefense}</span></span>
                       </div>
-                      
-                      {/* Follower card details */}
-                      {(!card.cardType || card.cardType === 'Follower') && (
-                        <div className="card-descriptions">
-                          <div className="description-section follower-section">
-                            <h4 className="description-title">Unevolved</h4>
-                            <div className="stats-row">
-                              <span>Attack: <span className="attack-value">{card.unevolvedAttack}</span></span>
-                              <span>Defense: <span className="defense-value">{card.unevolvedDefense}</span></span>
-                            </div>
-                            <p className="card-description">{formatText(card.unevolvedDescription)}</p>
-                          </div>
-                          
-                          <div className="description-section">
-                            <h4 className="description-title">Evolved</h4>
-                            <div className="stats-row">
-                              <span>Attack: <span className="attack-value">{card.evolvedAttack}</span></span>
-                              <span>Defense: <span className="defense-value">{card.evolvedDefense}</span></span>
-                            </div>
-                            <p className="card-description">{formatText(card.evolvedDescription)}</p>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Spell card details */}
-                      {card.cardType === 'Spell' && (
-                        <div className="card-descriptions">
-                          <div className="description-section spell-section" style={{ border: 'none', borderBottom: 'none' }}>
-                            <h4 className="description-title">Spell Effect</h4>
-                            <p className="card-description">{formatText(card.spellDescription)}</p>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Amulet card details */}
-                      {card.cardType === 'Amulet' && (
-                        <div className="card-descriptions">
-                          <div className="description-section amulet-section" style={{ border: 'none', borderBottom: 'none' }}>
-                            <h4 className="description-title">Amulet Effect</h4>
-                            <p className="card-description">{formatText(card.amuletDescription)}</p>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Notes and Keywords section */}
-                      {(card.notes && card.notes.trim() !== '') || (card.keywords && card.keywords.length > 0) && (
-                        <div className="mobile-notes-section">
-                          <div className="mobile-notes-divider"></div>
-                          
-                          {/* Keywords section */}
-                          {card.keywords && card.keywords.length > 0 && (
-                            <div className="card-keywords">
-                              {card.keywords.map(keyword => (
-                                <div 
-                                  key={keyword._id} 
-                                  className="keyword-banner"
-                                >
-                                  <div 
-                                    className="keyword-overlay"
-                                    style={{
-                                      backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5)), url(${keyword.imageUrl})`,
-                                      backgroundPosition: keyword.imagePosition || '50% 50%',
-                                      backgroundSize: 'cover'
-                                    }}
-                                  >
-                                    <h5 className="keyword-title">{keyword.title}</h5>
-                                    <div className="keyword-description-scrollable">
-                                      <p className="keyword-description">{keyword.description}</p>
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                          
-                          {/* Notes content */}
-                          {card.notes && card.notes.trim() !== '' && (
-                            <div className="card-notes-content">
-                              <h4 className="mobile-notes-title">Notes</h4>
-                              {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
-                                <div key={index} className="note-line">
-                                  {formatText(line)}
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                      
-                      {/* Admin actions in mobile view */}
-                      {isAdmin && (
-                        <div className="mobile-detail-actions">
-                          <button 
-                            className="btn btn-edit"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleEdit(card._id);
-                            }}
-                          >
-                            Edit
-                          </button>
-                          <button 
-                            className="btn btn-danger"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDelete(card._id);
-                            }}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      )}
+                      <p className="card-description">{formatText(selectedCardDetails.evolvedDescription)}</p>
                     </div>
                   </div>
-                </>
-              );
-            })()}
+                )}
+                
+                {/* Spell card details */}
+                {selectedCardDetails.cardType === 'Spell' && (
+                  <div className="card-descriptions">
+                    <div className="description-section spell-section" style={{ border: 'none', borderBottom: 'none' }}>
+                      <h4 className="description-title">Spell Effect</h4>
+                      <p className="card-description">{formatText(selectedCardDetails.spellDescription)}</p>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Amulet card details */}
+                {selectedCardDetails.cardType === 'Amulet' && (
+                  <div className="card-descriptions">
+                    <div className="description-section amulet-section" style={{ border: 'none', borderBottom: 'none' }}>
+                      <h4 className="description-title">Amulet Effect</h4>
+                      <p className="card-description">{formatText(selectedCardDetails.amuletDescription)}</p>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Notes and Keywords - included for mobile view */}
+                {(selectedCardDetails.notes && selectedCardDetails.notes.trim() !== '') || 
+                 (selectedCardDetails.keywords && selectedCardDetails.keywords.length > 0) ? (
+                  <div className="card-detail-notes">
+                    {/* Keywords section */}
+                    {selectedCardDetails.keywords && selectedCardDetails.keywords.length > 0 && (
+                      <div className="card-keywords">
+                        <h4 className="card-detail-section-title">Keywords</h4>
+                        {selectedCardDetails.keywords.map(keyword => (
+                          <div 
+                            key={keyword._id} 
+                            className="keyword-banner"
+                          >
+                            <div 
+                              className="keyword-overlay"
+                              style={{
+                                backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5)), url(${keyword.imageUrl})`,
+                                backgroundPosition: keyword.imagePosition || '50% 50%',
+                                backgroundSize: 'cover'
+                              }}
+                            >
+                              <h5 className="keyword-title">{keyword.title}</h5>
+                              <div className="keyword-description-scrollable">
+                                <p className="keyword-description">{formatText(keyword.description)}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {/* Notes content */}
+                    {selectedCardDetails.notes && selectedCardDetails.notes.trim() !== '' && (
+                      <div className="card-notes-content">
+                        <h4 className="card-detail-section-title">Notes</h4>
+                        {selectedCardDetails.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
+                          <div key={index} className="note-line">
+                            {formatText(line)}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : null}
+              </div>
+            </div>
           </div>
         </div>
       )}

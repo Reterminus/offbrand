@@ -2602,199 +2602,311 @@
   }
 }
 
-/* Mobile Card Detail Styles - for CardList */
-.mobile-card-detail-overlay {
+/* Card List Detail Modal (Mobile/Portrait) */
+.card-list-detail-modal {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
-  z-index: 2000;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 1100;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 15px;
+  padding: 20px;
+  box-sizing: border-box;
   overflow-y: auto;
 }
 
-.mobile-card-detail {
-  background-color: var(--card-bg);
+.card-list-detail-modal .detail-content {
+  background-color: #2a2a2a;
   border-radius: 10px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
   width: 100%;
-  max-width: 450px;
+  max-width: 600px;
   max-height: 90vh;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
+  position: relative;
+  color: #fff;
 }
 
-.mobile-card-detail .detail-header {
+.card-list-detail-modal .detail-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 15px;
-  border-bottom: 1px solid var(--border-color);
-  background-color: rgba(0, 0, 0, 0.3);
+  padding: 15px 20px;
+  border-bottom: 1px solid #444;
+  background-color: #222;
+  border-radius: 10px 10px 0 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
-.mobile-card-detail .detail-header h3 {
+.card-list-detail-modal .card-title {
   margin: 0;
-  font-size: 18px;
-  color: var(--text-color-bright);
+  font-size: 1.3rem;
   font-weight: 600;
+  color: #fff;
 }
 
-.mobile-card-detail .close-detail-btn {
+.card-list-detail-modal .close-detail-btn {
   background: none;
   border: none;
-  color: var(--text-color);
+  color: #aaa;
   font-size: 24px;
   cursor: pointer;
   padding: 0 5px;
   line-height: 1;
+  transition: color 0.2s;
 }
 
-.mobile-card-detail .close-detail-btn:hover {
-  color: var(--text-color-bright);
+.card-list-detail-modal .close-detail-btn:hover {
+  color: #fff;
 }
 
-.mobile-card-detail .card-detail-content {
+.card-list-detail-modal .detail-body {
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  padding: 15px;
-  gap: 20px;
 }
 
-.mobile-card-detail .card-detail-image {
-  width: 100%;
-  display: flex;
-  justify-content: center;
+.card-list-detail-modal .card-detail-image {
+  text-align: center;
+  margin-bottom: 20px;
 }
 
-.mobile-card-detail .card-detail-image img {
-  width: 200px;
-  height: auto;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+.card-list-detail-modal .card-detail-image img {
+  max-width: 100%;
+  max-height: 350px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
-.mobile-card-detail .card-detail-info {
-  width: 100%;
+.card-list-detail-modal .card-detail-info {
+  flex: 1;
 }
 
-.mobile-card-detail .card-metadata {
+.card-list-detail-modal .card-metadata {
   margin-bottom: 15px;
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 6px;
   padding: 10px;
+  background-color: #333;
+  border-radius: 8px;
 }
 
-.mobile-card-detail .card-descriptions {
-  margin-top: 10px;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.mobile-card-detail .description-section {
-  padding: 12px;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.mobile-card-detail .description-section:last-child {
-  border-bottom: none;
-}
-
-.mobile-card-detail .description-title {
-  margin: 0 0 10px 0;
-  color: var(--text-color-bright);
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.mobile-card-detail .stats-row {
+.card-list-detail-modal .card-metadata-row {
   display: flex;
   justify-content: space-between;
   margin-bottom: 8px;
-  color: var(--text-color);
-  font-size: 14px;
 }
 
-.mobile-card-detail .attack-value {
-  color: var(--attack-color);
-  font-weight: 600;
+.card-list-detail-modal .card-metadata-row:last-child {
+  margin-bottom: 0;
 }
 
-.mobile-card-detail .defense-value {
-  color: var(--defense-color);
-  font-weight: 600;
+.card-list-detail-modal .card-cost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background-color: #666;
+  border-radius: 50%;
+  margin-right: 10px;
+  font-weight: bold;
 }
 
-.mobile-card-detail .card-description {
+.card-list-detail-modal .card-class,
+.card-list-detail-modal .card-rarity,
+.card-list-detail-modal .card-trait,
+.card-list-detail-modal .card-type-badge,
+.card-list-detail-modal .card-token-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.card-list-detail-modal .card-class {
+  background-color: #444;
+}
+
+.card-list-detail-modal .card-rarity-bronze {
+  background-color: #cd7f32;
+}
+
+.card-list-detail-modal .card-rarity-silver {
+  background-color: #c0c0c0;
+}
+
+.card-list-detail-modal .card-rarity-gold {
+  background-color: #ffd700;
+  color: #000;
+}
+
+.card-list-detail-modal .card-rarity-legendary {
+  background-color: #b9f2ff;
+  color: #000;
+}
+
+.card-list-detail-modal .card-trait {
+  background-color: #4a4a4a;
+}
+
+.card-list-detail-modal .card-token-badge {
+  background-color: #6a3278;
+}
+
+.card-list-detail-modal .card-type-badge {
+  background-color: #555;
+}
+
+.card-list-detail-modal .card-type-badge.follower {
+  background-color: #4a6fa5;
+}
+
+.card-list-detail-modal .card-type-badge.spell {
+  background-color: #7b5ea7;
+}
+
+.card-list-detail-modal .card-type-badge.amulet {
+  background-color: #9b8952;
+}
+
+.card-list-detail-modal .card-descriptions {
+  margin-bottom: 20px;
+}
+
+.card-list-detail-modal .description-section {
+  padding: 15px;
+  background-color: #333;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.card-list-detail-modal .description-section:last-child {
+  margin-bottom: 0;
+}
+
+.card-list-detail-modal .description-title {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #ddd;
+  border-bottom: 1px solid #555;
+  padding-bottom: 5px;
+}
+
+.card-list-detail-modal .stats-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.card-list-detail-modal .attack-value {
+  color: #ff5555;
+  font-weight: bold;
+}
+
+.card-list-detail-modal .defense-value {
+  color: #55aaff;
+  font-weight: bold;
+}
+
+.card-list-detail-modal .card-description {
   margin: 0;
-  color: var(--text-color);
-  font-size: 14px;
   line-height: 1.5;
 }
 
-.mobile-notes-section {
-  margin-top: 20px;
-}
-
-.mobile-notes-divider {
-  height: 1px;
-  background-color: var(--border-color);
-  margin: 0 0 15px 0;
-}
-
-.mobile-notes-title {
-  margin: 0 0 10px 0;
-  color: var(--text-color-bright);
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.mobile-detail-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
-  justify-content: center;
-}
-
-/* Ensure the original detail doesn't show in mobile */
-@media (max-width: 768px) {
-  .card-detail {
-    display: none !important;
-  }
-}
-
-/* Make buttons in mobile detail look better */
-.mobile-detail-actions .btn {
-  min-width: 80px;
-  padding: 8px 15px;
-}
-
-/* Ensure the original detail doesn't show in portrait orientation on any device */
-@media (max-width: 768px), (orientation: portrait) {
-  .card-detail {
-    display: none !important;
-  }
-}
-
-/* Mobile/portrait detail view styling for all devices */
-.mobile-card-detail-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
-  z-index: 2000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.card-list-detail-modal .card-detail-notes {
+  background-color: #333;
+  border-radius: 8px;
   padding: 15px;
+  margin-top: 20px;
+}
+
+.card-list-detail-modal .card-detail-section-title {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #ddd;
+  border-bottom: 1px solid #555;
+  padding-bottom: 5px;
+}
+
+.card-list-detail-modal .card-keywords {
+  margin-bottom: 20px;
+}
+
+.card-list-detail-modal .keyword-banner {
+  margin-bottom: 10px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.card-list-detail-modal .keyword-overlay {
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.card-list-detail-modal .keyword-title {
+  margin: 0 0 10px 0;
+  color: #fff;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.card-list-detail-modal .keyword-description-scrollable {
+  max-height: 100px;
   overflow-y: auto;
 }
+
+.card-list-detail-modal .note-line {
+  margin-bottom: 8px;
+}
+
+/* Info button for mobile view */
+.view-details-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  z-index: 10;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.view-details-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Media queries for responsive layout */
+@media (min-width: 768px) {
+  .card-list-detail-modal .detail-body {
+    flex-direction: row;
+    gap: 20px;
+  }
+  
+  .card-list-detail-modal .card-detail-image {
+    flex: 0 0 40%;
+    margin-bottom: 0;
+  }
+  
+  .card-list-detail-modal .card-detail-info {
+    flex: 0 0 60%;
+  }
+}
+
+/* Show info button only in mobile view */
+@media (min-width: 769px) {
+  .view-details-btn {
+    display: none;
+  }
+} 
