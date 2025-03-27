@@ -552,6 +552,14 @@ const SetDetail = () => {
                 </div>
                 
                 <div className="set-card-content">
+                  {/* Creator info */}
+                  <div className="description-section list-section creator-section">
+                    <h4 className="description-title">Creator</h4>
+                    <p className="card-description">
+                      {card.creator ? card.creator : <span className="no-creator">No creator specified</span>}
+                    </p>
+                  </div>
+                  
                   {/* Follower card details */}
                   {(!card.cardType || card.cardType === 'Follower') && (
                     <div className="card-descriptions list-descriptions">
@@ -592,18 +600,20 @@ const SetDetail = () => {
                   )}
                   
                   {/* Notes section */}
-                  {card.notes && card.notes.trim() !== '' && (
-                    <div className="set-card-notes">
-                      <h4 className="set-card-notes-title">Card Notes:</h4>
-                      <div className="set-card-notes-content">
-                        {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
+                  <div className="description-section list-section notes-section">
+                    <h4 className="description-title">Card Notes</h4>
+                    <div className="card-description">
+                      {card.notes && card.notes.trim() !== '' ? 
+                        card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
                           <div key={index} className="note-line">
                             {formatText(line)}
                           </div>
-                        ))}
-                      </div>
+                        ))
+                        : 
+                        <span className="no-notes">No notes available for this card</span>
+                      }
                     </div>
-                  )}
+                  </div>
                 </div>
 
                 {isAdmin && (
