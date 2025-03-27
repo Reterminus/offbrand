@@ -116,14 +116,14 @@ const DeckBuilder = () => {
 
   // Class icon URLs
   const classIcons = {
-    'Forestcraft': 'https://i.imgur.com/XdskKG1.png',
-    'Swordcraft': 'https://i.imgur.com/Gdd39Ll.png',
-    'Runecraft': 'https://i.imgur.com/9NOQbmJ.png',
-    'Dragoncraft': 'https://i.imgur.com/XxlUx0f.png',
-    'Shadowcraft': 'https://i.imgur.com/GWJpuBJ.png',
-    'Bloodcraft': 'https://i.imgur.com/7B7Kqdx.png',
-    'Havencraft': 'https://i.imgur.com/qkPhbDO.png',
-    'Portalcraft': 'https://i.imgur.com/rYpt6eV.png'
+    'Forestcraft': 'https://i.imgur.com/5jy1gEE.png',
+    'Swordcraft': 'https://i.imgur.com/f0wdoOs.png',
+    'Runecraft': 'https://i.imgur.com/NO0WSFV.png',
+    'Dragoncraft': 'https://i.imgur.com/O6AM8nz.png',
+    'Shadowcraft': 'https://i.imgur.com/XXbSrdK.png',
+    'Bloodcraft': 'https://i.imgur.com/2pfTjrj.png',
+    'Havencraft': 'https://i.imgur.com/xGSGSkT.png',
+    'Portalcraft': 'https://i.imgur.com/p4foy4o.png'
   };
 
   // Handle clicking on a card to view details
