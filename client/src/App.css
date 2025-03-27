@@ -2600,4 +2600,178 @@
     max-width: 200px;
     margin: 0 auto;
   }
+}
+
+/* Mobile Card Detail Styles - for CardList */
+.mobile-card-detail-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  overflow-y: auto;
+}
+
+.mobile-card-detail {
+  background-color: var(--card-bg);
+  border-radius: 10px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 450px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-card-detail .detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.mobile-card-detail .detail-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--text-color-bright);
+  font-weight: 600;
+}
+
+.mobile-card-detail .close-detail-btn {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0 5px;
+  line-height: 1;
+}
+
+.mobile-card-detail .close-detail-btn:hover {
+  color: var(--text-color-bright);
+}
+
+.mobile-card-detail .card-detail-content {
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  gap: 20px;
+}
+
+.mobile-card-detail .card-detail-image {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.mobile-card-detail .card-detail-image img {
+  width: 200px;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.mobile-card-detail .card-detail-info {
+  width: 100%;
+}
+
+.mobile-card-detail .card-metadata {
+  margin-bottom: 15px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 10px;
+}
+
+.mobile-card-detail .card-descriptions {
+  margin-top: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.mobile-card-detail .description-section {
+  padding: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.mobile-card-detail .description-section:last-child {
+  border-bottom: none;
+}
+
+.mobile-card-detail .description-title {
+  margin: 0 0 10px 0;
+  color: var(--text-color-bright);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.mobile-card-detail .stats-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  color: var(--text-color);
+  font-size: 14px;
+}
+
+.mobile-card-detail .attack-value {
+  color: var(--attack-color);
+  font-weight: 600;
+}
+
+.mobile-card-detail .defense-value {
+  color: var(--defense-color);
+  font-weight: 600;
+}
+
+.mobile-card-detail .card-description {
+  margin: 0;
+  color: var(--text-color);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.mobile-notes-section {
+  margin-top: 20px;
+}
+
+.mobile-notes-divider {
+  height: 1px;
+  background-color: var(--border-color);
+  margin: 0 0 15px 0;
+}
+
+.mobile-notes-title {
+  margin: 0 0 10px 0;
+  color: var(--text-color-bright);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.mobile-detail-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  justify-content: center;
+}
+
+/* Ensure the original detail doesn't show in mobile */
+@media (max-width: 768px) {
+  .card-detail {
+    display: none !important;
+  }
+}
+
+/* Make buttons in mobile detail look better */
+.mobile-detail-actions .btn {
+  min-width: 80px;
+  padding: 8px 15px;
 } 
