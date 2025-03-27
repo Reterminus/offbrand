@@ -23,7 +23,8 @@ const CardList = () => {
   const [selectedCreator, setSelectedCreator] = useState('');
   const [creators, setCreators] = useState([]);
   const [showNotesForCard, setShowNotesForCard] = useState(null);
-  const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 768);
+  const [isLandscape, setIsLandscape] = useState(window.innerWidth > 1200);
+  const [isPortraitMode, setIsPortraitMode] = useState(false);
   const cardRefs = useRef({});
 
   useEffect(() => {
@@ -131,8 +132,8 @@ const CardList = () => {
       const newPositions = {};
       const windowWidth = window.innerWidth;
       
-      // Update mobile view state
-      setIsMobileView(windowWidth <= 768);
+      // Update layout mode based on screen width
+      setIsLandscape(windowWidth > 1200);
       
       Object.keys(cardRefs.current).forEach(id => {
         const cardElement = cardRefs.current[id];
@@ -225,28 +226,14 @@ const CardList = () => {
 
   // Handle mouse enter/leave for cards
   const handleMouseEnter = (id) => {
-    setActiveCardId(id);
+    if (isLandscape) {
+      setActiveCardId(id);
+    }
   };
 
   const handleMouseLeave = () => {
-    // Only clear activeCardId in landscape mode (wider screens)
-    // This prevents the blinking issue in portrait mode
-    if (window.innerWidth > window.innerHeight) {
+    if (isLandscape) {
       setActiveCardId(null);
-    }
-  };
-  
-  // Function to handle clicking on a card in portrait mode
-  const handleCardClick = (id) => {
-    // If in portrait mode on desktop
-    if (window.innerWidth <= 768 || window.innerWidth <= window.innerHeight) {
-      if (activeCardId === id) {
-        // If clicking the already active card, close it
-        setActiveCardId(null);
-      } else {
-        // Otherwise, show details for the clicked card
-        setActiveCardId(id);
-      }
     }
   };
 
@@ -306,14 +293,22 @@ const CardList = () => {
   // Rarity options for the filter dropdown
   const rarityOptions = ['Bronze', 'Silver', 'Gold', 'Legendary'];
 
-  // Function to handle closing mobile detail view
-  const handleCloseMobileDetail = () => {
+  // Handle clicking the info button to show card details in portrait mode
+  const handleInfoButtonClick = (e, id) => {
+    e.stopPropagation();
+    setActiveCardId(id);
+    setIsPortraitMode(true);
+  };
+
+  // Function to handle closing detail view
+  const handleCloseDetail = () => {
     setActiveCardId(null);
     setShowNotesForCard(null);
+    setIsPortraitMode(false);
   };
   
-  // Prevent events from propagating when in mobile detail view
-  const handleMobileDetailClick = (e) => {
+  // Prevent events from propagating when in detail view
+  const handleDetailClick = (e) => {
     e.stopPropagation();
   };
 
@@ -396,10 +391,8 @@ const CardList = () => {
               ref={(el) => setCardRef(card._id, el)}
               onMouseEnter={() => handleMouseEnter(card._id)}
               onMouseLeave={handleMouseLeave}
-              onClick={() => handleCardClick(card._id)}
               onDoubleClick={() => handleDoubleClick(card)}
               style={{ zIndex: activeCardId === card._id ? 1000 : 1 }}
-              data-active={activeCardId === card._id}
             >
               <div className="card">
                 <img 
@@ -408,6 +401,15 @@ const CardList = () => {
                   className="card-image" 
                 />
                 {card.isToken && <div className="token-label">Token</div>}
+                {!isLandscape && (
+                  <button 
+                    className="card-info-button"
+                    onClick={(e) => handleInfoButtonClick(e, card._id)}
+                    aria-label="Show card details"
+                  >
+                    ℹ️
+                  </button>
+                )}
                 {isAdmin && (
                   <div className="card-actions">
                     <button 
@@ -432,8 +434,8 @@ const CardList = () => {
                 )}
               </div>
               
-              {/* Desktop Detail View */}
-              {!isMobileView && (
+              {/* Landscape Detail View - only shown in landscape mode with hover */}
+              {isLandscape && activeCardId === card._id && (
                 <div 
                   className="card-detail"
                   style={{
@@ -583,15 +585,15 @@ const CardList = () => {
         </div>
       )}
 
-      {/* Mobile Card Detail Panel - similar to DeckBuilder */}
-      {isMobileView && activeCardId && filteredCards.length > 0 && (
+      {/* Portrait Mode Card Detail Panel - shown for non-landscape mode or when card is clicked */}
+      {(!isLandscape || isPortraitMode) && activeCardId && filteredCards.length > 0 && (
         <div 
           className="mobile-card-detail-overlay"
-          onClick={handleCloseMobileDetail}
+          onClick={handleCloseDetail}
         >
           <div 
             className="mobile-card-detail"
-            onClick={handleMobileDetailClick}
+            onClick={handleDetailClick}
           >
             {(() => {
               const card = filteredCards.find(c => c._id === activeCardId);
@@ -603,7 +605,7 @@ const CardList = () => {
                     <h3 className="card-title">{card.title}</h3>
                     <button 
                       className="close-detail-btn" 
-                      onClick={handleCloseMobileDetail}
+                      onClick={handleCloseDetail}
                     >
                       ×
                     </button>
@@ -749,7 +751,7 @@ const CardList = () => {
                         </div>
                       )}
                       
-                      {/* Admin actions in mobile view */}
+                      {/* Admin actions in detail view */}
                       {isAdmin && (
                         <div className="mobile-detail-actions">
                           <button 

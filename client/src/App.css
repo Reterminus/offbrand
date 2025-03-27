@@ -2776,21 +2776,48 @@
   padding: 8px 15px;
 } 
 
-/* Portrait mode styling - make cards clickable */
-@media (max-width: 768px), (orientation: portrait) {
-  .card-container {
-    cursor: pointer;
-  }
-  
-  /* No auto show on hover in portrait mode */
+/* Card info button for portrait mode */
+.card-info-button {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.6);
+  border: none;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  padding: 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+.card-info-button:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+  transform: scale(1.1);
+}
+
+/* Override hover behavior in portrait mode */
+@media (max-width: 1200px) {
   .card:hover + .card-detail {
     opacity: 0;
     visibility: hidden;
   }
   
-  /* Only show when actively selected */
-  .card-container[data-active="true"] .card-detail {
-    opacity: 1;
-    visibility: visible;
+  .card-container:hover {
+    transform: none;
+  }
+}
+
+/* Ensure that the hover detail only shows in landscape mode */
+@media (max-width: 1200px) {
+  .card-detail {
+    display: none !important;
   }
 }
