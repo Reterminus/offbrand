@@ -114,6 +114,18 @@ const DeckBuilder = () => {
     'Havencraft', 'Portalcraft'
   ];
 
+  // Class icon URLs
+  const classIcons = {
+    'Forestcraft': 'https://i.imgur.com/XdskKG1.png',
+    'Swordcraft': 'https://i.imgur.com/Gdd39Ll.png',
+    'Runecraft': 'https://i.imgur.com/9NOQbmJ.png',
+    'Dragoncraft': 'https://i.imgur.com/XxlUx0f.png',
+    'Shadowcraft': 'https://i.imgur.com/GWJpuBJ.png',
+    'Bloodcraft': 'https://i.imgur.com/7B7Kqdx.png',
+    'Havencraft': 'https://i.imgur.com/qkPhbDO.png',
+    'Portalcraft': 'https://i.imgur.com/rYpt6eV.png'
+  };
+
   // Handle clicking on a card to view details
   const handleCardDetailView = (card, e) => {
     e.preventDefault();
@@ -345,7 +357,10 @@ const DeckBuilder = () => {
                 onClick={() => handleClassSelect(className)}
               >
                 <div className="class-icon">
-                  {/* You could add class icons here */}
+                  <img 
+                    src={classIcons[className]} 
+                    alt={className} 
+                  />
                 </div>
                 <h3>{className}</h3>
               </div>
