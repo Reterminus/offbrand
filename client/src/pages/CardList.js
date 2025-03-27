@@ -27,6 +27,24 @@ const CardList = () => {
   const [selectedCardDetails, setSelectedCardDetails] = useState(null);
   const cardRefs = useRef({});
 
+  // Check if we're in mobile/portrait view
+  useEffect(() => {
+    const checkMobileView = () => {
+      setIsMobileView(window.innerWidth <= 768);
+    };
+    
+    // Initial check
+    checkMobileView();
+    
+    // Add listener for window resize
+    window.addEventListener('resize', checkMobileView);
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('resize', checkMobileView);
+    };
+  }, []);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -126,20 +144,6 @@ const CardList = () => {
     setFilteredCards(result);
   }, [searchTerm, selectedClass, selectedRarity, selectedSet, selectedCreator, cards, sets]);
 
-  // Check if we're in mobile/portrait view
-  useEffect(() => {
-    const checkMobileView = () => {
-      setIsMobileView(window.innerWidth <= 768 || window.innerHeight > window.innerWidth);
-    };
-    
-    checkMobileView();
-    window.addEventListener('resize', checkMobileView);
-    
-    return () => {
-      window.removeEventListener('resize', checkMobileView);
-    };
-  }, []);
-
   // Calculate detail position when window is resized
   useEffect(() => {
     const handleResize = () => {
@@ -169,6 +173,25 @@ const CardList = () => {
       window.removeEventListener('resize', handleResize);
     };
   }, [filteredCards]);
+
+  // Function to show card details in mobile view
+  const handleCardDetailView = (card, e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    setSelectedCardDetails(card);
+  };
+
+  // Close the card detail view
+  const handleDetailClose = () => {
+    setSelectedCardDetails(null);
+  };
+
+  // Prevent events from propagating to parent elements
+  const handleDetailClick = (e) => {
+    e.stopPropagation();
+  };
 
   const handleEdit = (id) => {
     navigate(`/edit/${id}`);
@@ -234,36 +257,13 @@ const CardList = () => {
     e.stopPropagation();
   };
 
-  // Handle clicking on a card to view details (for mobile/portrait)
-  const handleCardDetailView = (card, e) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation(); // Prevent other handlers from firing
-    }
-    setSelectedCardDetails(card);
-    setShowNotesForCard(card._id);
-  };
-
-  // Close the card detail view
-  const handleDetailClose = () => {
-    setSelectedCardDetails(null);
-    setShowNotesForCard(null);
-  };
-
-  // Prevent events from propagating to parent elements
-  const handleDetailClick = (e) => {
-    e.stopPropagation();
-  };
-
-  // Original mouse enter/leave handlers (for desktop/landscape)
+  // Handle mouse enter/leave for cards
   const handleMouseEnter = (id) => {
-    if (!isMobileView) {
-      setActiveCardId(id);
-    }
+    setActiveCardId(id);
   };
 
   const handleMouseLeave = () => {
-    if (!isMobileView) {
+    if (window.innerWidth > 768) {
       setActiveCardId(null);
       setShowNotesForCard(null);
     }
@@ -271,7 +271,7 @@ const CardList = () => {
 
   // Handle double click to show notes
   const handleDoubleClick = (card) => {
-    if (!isMobileView && card.notes && card.notes.trim() !== '') {
+    if (card.notes && card.notes.trim() !== '') {
       setShowNotesForCard(card._id);
     }
   };
@@ -324,6 +324,15 @@ const CardList = () => {
 
   // Rarity options for the filter dropdown
   const rarityOptions = ['Bronze', 'Silver', 'Gold', 'Legendary'];
+
+  // Handle card click - either show details (mobile) or show notes (desktop)
+  const handleCardClick = (card, e) => {
+    if (isMobileView) {
+      handleCardDetailView(card, e);
+    } else {
+      handleDoubleClick(card);
+    }
+  };
 
   if (loading) {
     return <div className="loading">Loading cards...</div>;
@@ -402,10 +411,10 @@ const CardList = () => {
               className="card-container" 
               key={card._id}
               ref={(el) => setCardRef(card._id, el)}
-              onMouseEnter={() => handleMouseEnter(card._id)}
-              onMouseLeave={handleMouseLeave}
-              onDoubleClick={() => handleDoubleClick(card)}
-              onClick={() => isMobileView && handleCardDetailView(card)}
+              onMouseEnter={isMobileView ? null : () => handleMouseEnter(card._id)}
+              onMouseLeave={isMobileView ? null : handleMouseLeave}
+              onClick={isMobileView ? (e) => handleCardClick(card, e) : null}
+              onDoubleClick={isMobileView ? null : () => handleDoubleClick(card)}
               style={{ zIndex: activeCardId === card._id ? 1000 : 1 }}
             >
               <div className="card">
@@ -448,7 +457,7 @@ const CardList = () => {
                 )}
               </div>
               
-              {/* Desktop/landscape card detail view - shown on hover */}
+              {/* Desktop detail window - only shown on non-mobile */}
               {!isMobileView && (
                 <div 
                   className="card-detail"
@@ -572,7 +581,7 @@ const CardList = () => {
                               >
                                 <h5 className="keyword-title">{keyword.title}</h5>
                                 <div className="keyword-description-scrollable">
-                                  <p className="keyword-description">{formatText(keyword.description)}</p>
+                                  <p className="keyword-description">{keyword.description}</p>
                                 </div>
                               </div>
                             </div>
@@ -599,10 +608,10 @@ const CardList = () => {
         </div>
       )}
 
-      {/* Mobile/portrait card detail panel - shown when a card is clicked */}
+      {/* Mobile/Portrait Card Detail Panel - similar to DeckBuilder */}
       {isMobileView && selectedCardDetails && (
         <div 
-          className="card-list-detail-modal"
+          className="mobile-card-detail"
           onClick={handleDetailClose}
         >
           <div 
@@ -714,50 +723,48 @@ const CardList = () => {
                   </div>
                 )}
                 
-                {/* Notes and Keywords - included for mobile view */}
-                {(selectedCardDetails.notes && selectedCardDetails.notes.trim() !== '') || 
-                 (selectedCardDetails.keywords && selectedCardDetails.keywords.length > 0) ? (
-                  <div className="card-detail-notes">
-                    {/* Keywords section */}
-                    {selectedCardDetails.keywords && selectedCardDetails.keywords.length > 0 && (
-                      <div className="card-keywords">
-                        <h4 className="card-detail-section-title">Keywords</h4>
-                        {selectedCardDetails.keywords.map(keyword => (
+                {/* Keywords section */}
+                {selectedCardDetails.keywords && selectedCardDetails.keywords.length > 0 && (
+                  <div className="mobile-card-keywords">
+                    <h4 className="keywords-title">Keywords</h4>
+                    <div className="card-keywords">
+                      {selectedCardDetails.keywords.map(keyword => (
+                        <div 
+                          key={keyword._id} 
+                          className="keyword-banner"
+                        >
                           <div 
-                            key={keyword._id} 
-                            className="keyword-banner"
+                            className="keyword-overlay"
+                            style={{
+                              backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5)), url(${keyword.imageUrl})`,
+                              backgroundPosition: keyword.imagePosition || '50% 50%',
+                              backgroundSize: 'cover'
+                            }}
                           >
-                            <div 
-                              className="keyword-overlay"
-                              style={{
-                                backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5)), url(${keyword.imageUrl})`,
-                                backgroundPosition: keyword.imagePosition || '50% 50%',
-                                backgroundSize: 'cover'
-                              }}
-                            >
-                              <h5 className="keyword-title">{keyword.title}</h5>
-                              <div className="keyword-description-scrollable">
-                                <p className="keyword-description">{formatText(keyword.description)}</p>
-                              </div>
+                            <h5 className="keyword-title">{keyword.title}</h5>
+                            <div className="keyword-description-scrollable">
+                              <p className="keyword-description">{keyword.description}</p>
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    )}
-                    
-                    {/* Notes content */}
-                    {selectedCardDetails.notes && selectedCardDetails.notes.trim() !== '' && (
-                      <div className="card-notes-content">
-                        <h4 className="card-detail-section-title">Notes</h4>
-                        {selectedCardDetails.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
-                          <div key={index} className="note-line">
-                            {formatText(line)}
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                ) : null}
+                )}
+                
+                {/* Notes section */}
+                {selectedCardDetails.notes && selectedCardDetails.notes.trim() !== '' && (
+                  <div className="mobile-card-notes">
+                    <h4 className="notes-title">Notes</h4>
+                    <div className="card-notes-content">
+                      {selectedCardDetails.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
+                        <div key={index} className="note-line">
+                          {formatText(line)}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -2602,327 +2602,311 @@
   }
 }
 
-/* Card List Detail Modal (Mobile/Portrait) */
-.card-list-detail-modal {
+/* Mobile Card Detail View for CardList */
+.mobile-card-detail {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
-  z-index: 1100;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 2000;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
-  box-sizing: border-box;
-  overflow-y: auto;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease-in-out;
 }
 
-.card-list-detail-modal .detail-content {
-  background-color: #1a1a1a;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
-  width: 100%;
+.mobile-card-detail .detail-content {
+  background-color: #2a2a2a;
+  border-radius: 10px;
+  width: 90%;
   max-width: 600px;
   max-height: 90vh;
   overflow-y: auto;
-  position: relative;
-  color: #fff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
-.card-list-detail-modal .detail-header {
+.mobile-card-detail .detail-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background-color: rgba(34, 34, 34, 0.8);
-  backdrop-filter: blur(10px);
-  border-radius: 12px 12px 0 0;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  padding: 1rem;
+  border-bottom: 1px solid #444;
 }
 
-.card-list-detail-modal .card-title {
+.mobile-card-detail .card-title {
   margin: 0;
-  font-size: 1.4rem;
-  font-weight: 600;
+  font-size: 1.5rem;
   color: #fff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
 }
 
-.card-list-detail-modal .close-detail-btn {
+.mobile-card-detail .close-detail-btn {
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 32px;
+  color: #aaa;
+  font-size: 1.8rem;
   cursor: pointer;
-  padding: 0 5px;
-  line-height: 0.8;
-  transition: color 0.2s, transform 0.2s;
-  margin-right: -5px;
-  width: 40px;
-  height: 40px;
+  padding: 0;
+  margin: 0;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
+  transition: all 0.2s ease;
 }
 
-.card-list-detail-modal .close-detail-btn:hover {
-  color: #fff;
+.mobile-card-detail .close-detail-btn:hover {
   background-color: rgba(255, 255, 255, 0.1);
-  transform: scale(1.05);
+  color: #fff;
 }
 
-.card-list-detail-modal .detail-body {
-  padding: 20px;
+.mobile-card-detail .detail-body {
+  padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 15px;
 }
 
-.card-list-detail-modal .card-detail-image {
-  text-align: center;
-  margin-bottom: 10px;
+.mobile-card-detail .card-detail-image {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
 }
 
-.card-list-detail-modal .card-detail-image img {
+.mobile-card-detail .card-detail-image img {
   max-width: 100%;
-  max-height: 350px;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  max-height: 300px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
-.card-list-detail-modal .card-detail-info {
+.mobile-card-detail .card-detail-info {
   flex: 1;
 }
 
-.card-list-detail-modal .card-metadata {
-  margin-bottom: 15px;
-  padding: 12px;
-  background-color: rgba(51, 51, 51, 0.5);
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+.mobile-card-detail .card-metadata {
+  background-color: #333;
+  border-radius: 8px;
+  padding: 0.8rem;
+  margin-bottom: 1rem;
 }
 
-.card-list-detail-modal .card-metadata-row {
+.mobile-card-detail .card-metadata-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 0.5rem;
 }
 
-.card-list-detail-modal .card-metadata-row:last-child {
+.mobile-card-detail .card-metadata-row:last-child {
   margin-bottom: 0;
 }
 
-.card-list-detail-modal .card-cost {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  background-color: #666;
+.mobile-card-detail .card-cost {
+  display: inline-block;
+  background-color: #1e3a8a;
+  color: white;
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+  text-align: center;
   border-radius: 50%;
-  margin-right: 10px;
-  font-weight: bold;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  margin-right: 0.5rem;
 }
 
-.card-list-detail-modal .card-class,
-.card-list-detail-modal .card-rarity,
-.card-list-detail-modal .card-trait,
-.card-list-detail-modal .card-type-badge,
-.card-list-detail-modal .card-token-badge {
-  padding: 4px 10px;
-  border-radius: 6px;
+.mobile-card-detail .card-class {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  background-color: #444;
+  color: white;
+}
+
+.mobile-card-detail .card-trait,
+.mobile-card-detail .card-token-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  background-color: #444;
+  color: white;
   font-size: 0.9rem;
 }
 
-.card-list-detail-modal .card-class {
-  background-color: #444;
+.mobile-card-detail .card-token-badge {
+  background-color: #5a3e2f;
 }
 
-.card-list-detail-modal .card-rarity-bronze {
-  background-color: #cd7f32;
+.mobile-card-detail .card-type-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
 }
 
-.card-list-detail-modal .card-rarity-silver {
-  background-color: #c0c0c0;
+.mobile-card-detail .card-type-badge.follower {
+  background-color: #6b4c9a;
+  color: white;
 }
 
-.card-list-detail-modal .card-rarity-gold {
-  background-color: #ffd700;
-  color: #000;
+.mobile-card-detail .card-type-badge.spell {
+  background-color: #2b7ea1;
+  color: white;
 }
 
-.card-list-detail-modal .card-rarity-legendary {
-  background-color: #b9f2ff;
-  color: #000;
+.mobile-card-detail .card-type-badge.amulet {
+  background-color: #a17b2b;
+  color: white;
 }
 
-.card-list-detail-modal .card-trait {
-  background-color: #4a4a4a;
+.mobile-card-detail .card-descriptions {
+  margin-bottom: 1rem;
 }
 
-.card-list-detail-modal .card-token-badge {
-  background-color: #6a3278;
+.mobile-card-detail .description-section {
+  background-color: #333;
+  border-radius: 8px;
+  padding: 0.8rem;
+  margin-bottom: 0.8rem;
 }
 
-.card-list-detail-modal .card-type-badge {
-  background-color: #555;
-}
-
-.card-list-detail-modal .card-type-badge.follower {
-  background-color: #4a6fa5;
-}
-
-.card-list-detail-modal .card-type-badge.spell {
-  background-color: #7b5ea7;
-}
-
-.card-list-detail-modal .card-type-badge.amulet {
-  background-color: #9b8952;
-}
-
-.card-list-detail-modal .card-descriptions {
-  margin-bottom: 20px;
-}
-
-.card-list-detail-modal .description-section {
-  padding: 15px;
-  background-color: rgba(51, 51, 51, 0.5);
-  border-radius: 10px;
-  margin-bottom: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.card-list-detail-modal .description-section:last-child {
-  margin-bottom: 0;
-}
-
-.card-list-detail-modal .description-title {
+.mobile-card-detail .description-title {
   margin-top: 0;
-  margin-bottom: 10px;
-  color: #eee;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding-bottom: 5px;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  color: #ddd;
 }
 
-.card-list-detail-modal .stats-row {
+.mobile-card-detail .stats-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 0.5rem;
 }
 
-.card-list-detail-modal .attack-value {
-  color: #ff5555;
+.mobile-card-detail .attack-value {
+  color: #e63946;
   font-weight: bold;
 }
 
-.card-list-detail-modal .defense-value {
-  color: #55aaff;
+.mobile-card-detail .defense-value {
+  color: #4895ef;
   font-weight: bold;
 }
 
-.card-list-detail-modal .card-description {
-  margin: 0;
+.mobile-card-detail .card-description {
+  margin: 0.5rem 0;
+  white-space: pre-wrap;
   line-height: 1.5;
 }
 
-.card-list-detail-modal .card-detail-notes {
-  background-color: rgba(51, 51, 51, 0.5);
-  border-radius: 10px;
-  padding: 15px;
-  margin-top: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+.mobile-card-detail .mobile-card-keywords,
+.mobile-card-detail .mobile-card-notes {
+  margin-top: 1rem;
 }
 
-.card-list-detail-modal .card-detail-section-title {
-  margin-top: 0;
-  margin-bottom: 15px;
-  color: #eee;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding-bottom: 5px;
+.mobile-card-detail .keywords-title,
+.mobile-card-detail .notes-title {
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  color: #ddd;
 }
 
-.card-list-detail-modal .card-keywords {
-  margin-bottom: 20px;
+.mobile-card-detail .card-keywords {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
 }
 
-.card-list-detail-modal .keyword-banner {
-  margin-bottom: 10px;
+.mobile-card-detail .keyword-banner {
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-.card-list-detail-modal .keyword-overlay {
-  padding: 15px;
+.mobile-card-detail .keyword-overlay {
+  padding: 0.8rem;
   border-radius: 8px;
 }
 
-.card-list-detail-modal .keyword-title {
-  margin: 0 0 10px 0;
+.mobile-card-detail .keyword-title {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
   color: #fff;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
-.card-list-detail-modal .keyword-description-scrollable {
+.mobile-card-detail .keyword-description-scrollable {
   max-height: 100px;
   overflow-y: auto;
 }
 
-.card-list-detail-modal .note-line {
-  margin-bottom: 8px;
+.mobile-card-detail .keyword-description {
+  margin: 0;
+  line-height: 1.4;
+  color: #ddd;
 }
 
-/* Info button for mobile view */
-.view-details-btn {
+.mobile-card-detail .card-notes-content {
+  background-color: #333;
+  border-radius: 8px;
+  padding: 0.8rem;
+}
+
+.mobile-card-detail .note-line {
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.mobile-card-detail .note-line:last-child {
+  margin-bottom: 0;
+}
+
+.card-container .view-details-btn {
   position: absolute;
-  bottom: 10px;
-  right: 10px;
+  bottom: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  border-radius: 50%;
   width: 30px;
   height: 30px;
-  border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.7);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
   cursor: pointer;
-  z-index: 10;
-  transition: background-color 0.2s, color 0.2s;
+  z-index: 100;
+  transition: background 0.2s ease;
 }
 
-.view-details-btn:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+.card-container .view-details-btn:hover {
+  background: rgba(0, 0, 0, 0.9);
 }
 
-/* Media queries for responsive layout */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Media queries for responsiveness */
 @media (min-width: 768px) {
-  .card-list-detail-modal .detail-body {
+  .mobile-card-detail .detail-body {
     flex-direction: row;
-    gap: 20px;
+    gap: 1rem;
   }
   
-  .card-list-detail-modal .card-detail-image {
-    flex: 0 0 40%;
+  .mobile-card-detail .card-detail-image {
+    width: 40%;
     margin-bottom: 0;
   }
   
-  .card-list-detail-modal .card-detail-info {
-    flex: 0 0 60%;
+  .mobile-card-detail .card-detail-info {
+    width: 60%;
+  }
+  
+  .mobile-card-detail .card-detail-image img {
+    max-height: 350px;
   }
 }
 
-/* Show info button only in mobile view */
-@media (min-width: 769px) {
-  .view-details-btn {
-    display: none;
-  }
-} 
+/* End of Mobile Card Detail View for CardList */ 
