@@ -2775,3 +2775,22 @@
   min-width: 80px;
   padding: 8px 15px;
 } 
+
+/* Portrait mode styling - make cards clickable */
+@media (max-width: 768px), (orientation: portrait) {
+  .card-container {
+    cursor: pointer;
+  }
+  
+  /* No auto show on hover in portrait mode */
+  .card:hover + .card-detail {
+    opacity: 0;
+    visibility: hidden;
+  }
+  
+  /* Only show when actively selected */
+  .card-container[data-active="true"] .card-detail {
+    opacity: 1;
+    visibility: visible;
+  }
+}

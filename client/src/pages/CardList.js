@@ -229,7 +229,25 @@ const CardList = () => {
   };
 
   const handleMouseLeave = () => {
-    setActiveCardId(null);
+    // Only clear activeCardId in landscape mode (wider screens)
+    // This prevents the blinking issue in portrait mode
+    if (window.innerWidth > window.innerHeight) {
+      setActiveCardId(null);
+    }
+  };
+  
+  // Function to handle clicking on a card in portrait mode
+  const handleCardClick = (id) => {
+    // If in portrait mode on desktop
+    if (window.innerWidth <= 768 || window.innerWidth <= window.innerHeight) {
+      if (activeCardId === id) {
+        // If clicking the already active card, close it
+        setActiveCardId(null);
+      } else {
+        // Otherwise, show details for the clicked card
+        setActiveCardId(id);
+      }
+    }
   };
 
   // Handle double click to show notes
@@ -378,8 +396,10 @@ const CardList = () => {
               ref={(el) => setCardRef(card._id, el)}
               onMouseEnter={() => handleMouseEnter(card._id)}
               onMouseLeave={handleMouseLeave}
+              onClick={() => handleCardClick(card._id)}
               onDoubleClick={() => handleDoubleClick(card)}
               style={{ zIndex: activeCardId === card._id ? 1000 : 1 }}
+              data-active={activeCardId === card._id}
             >
               <div className="card">
                 <img 
