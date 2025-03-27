@@ -538,48 +538,73 @@ const SetDetail = () => {
                 {card.isToken && <div className="token-label">Token</div>}
               </div>
               <div className="set-card-info">
-                <h3>{card.title}</h3>
-                <div className="set-card-meta">
-                  <span className="cost-label">Cost: {card.cost}</span>
-                  <span className="card-class">{card.class}</span>
-                  <span className={`card-rarity card-rarity-${card.rarity.toLowerCase()}`}>{card.rarity}</span>
-                  <span className={`card-type-badge ${card.cardType?.toLowerCase() || 'follower'}`}>
-                    {card.cardType || 'Follower'}
-                  </span>
+                <div className="set-card-header">
+                  <h3>{card.title}</h3>
+                  <div className="set-card-meta">
+                    <span className="cost-badge">{card.cost}</span>
+                    <span className={`card-class-badge ${card.class.toLowerCase()}`}>{card.class}</span>
+                    <span className={`card-rarity-badge card-rarity-${card.rarity.toLowerCase()}`}>{card.rarity}</span>
+                    <span className={`card-type-badge ${card.cardType?.toLowerCase() || 'follower'}`}>
+                      {card.cardType || 'Follower'}
+                    </span>
+                    {card.trait && <span className="card-trait-badge">Trait: {card.trait}</span>}
+                  </div>
                 </div>
                 
-                <div className="set-card-stats">
+                <div className="set-card-content">
+                  {/* Follower card details */}
                   {(!card.cardType || card.cardType === 'Follower') && (
-                    <div>
-                      <span>Unevolved: <span className="attack-value">{card.unevolvedAttack}</span>/<span className="defense-value">{card.unevolvedDefense}</span></span>
-                      <span>Evolved: <span className="attack-value">{card.evolvedAttack}</span>/<span className="defense-value">{card.evolvedDefense}</span></span>
+                    <div className="card-descriptions list-descriptions">
+                      <div className="description-section list-section">
+                        <h4 className="description-title">Unevolved: <span className="stats-inline">
+                          <span className="attack-value">{card.unevolvedAttack}</span>/<span className="defense-value">{card.unevolvedDefense}</span>
+                        </span></h4>
+                        <p className="card-description">{formatText(card.unevolvedDescription)}</p>
+                      </div>
+                      
+                      <div className="description-section list-section">
+                        <h4 className="description-title">Evolved: <span className="stats-inline">
+                          <span className="attack-value">{card.evolvedAttack}</span>/<span className="defense-value">{card.evolvedDefense}</span>
+                        </span></h4>
+                        <p className="card-description">{formatText(card.evolvedDescription)}</p>
+                      </div>
                     </div>
                   )}
+                  
+                  {/* Spell card details */}
                   {card.cardType === 'Spell' && (
-                    <div>
-                      <span>Spell Effect: {card.spellDescription?.substring(0, 50) ? formatText(card.spellDescription?.substring(0, 50) + '...') : ''}</span>
+                    <div className="card-descriptions list-descriptions">
+                      <div className="description-section spell-section">
+                        <h4 className="description-title">Spell Effect</h4>
+                        <p className="card-description">{formatText(card.spellDescription)}</p>
+                      </div>
                     </div>
                   )}
+                  
+                  {/* Amulet card details */}
                   {card.cardType === 'Amulet' && (
-                    <div>
-                      <span>Amulet Effect: {card.amuletDescription?.substring(0, 50) ? formatText(card.amuletDescription?.substring(0, 50) + '...') : ''}</span>
+                    <div className="card-descriptions list-descriptions">
+                      <div className="description-section amulet-section">
+                        <h4 className="description-title">Amulet Effect</h4>
+                        <p className="card-description">{formatText(card.amuletDescription)}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Notes section */}
+                  {card.notes && card.notes.trim() !== '' && (
+                    <div className="set-card-notes">
+                      <h4 className="set-card-notes-title">Card Notes:</h4>
+                      <div className="set-card-notes-content">
+                        {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
+                          <div key={index} className="note-line">
+                            {formatText(line)}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
-
-                {/* Integrated notes section for list view */}
-                {card.notes && card.notes.trim() !== '' && (
-                  <div className="set-card-notes">
-                    <h4 className="set-card-notes-title">{card.title} Details:</h4>
-                    <div className="set-card-notes-content">
-                      {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
-                        <div key={index} className="note-line">
-                          {formatText(line)}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
 
                 {isAdmin && (
                   <div className="set-card-actions">
