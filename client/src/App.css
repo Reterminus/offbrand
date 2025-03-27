@@ -2620,9 +2620,9 @@
 }
 
 .card-list-detail-modal .detail-content {
-  background-color: #2a2a2a;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  background-color: #1a1a1a;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
   width: 100%;
   max-width: 600px;
   max-height: 90vh;
@@ -2636,9 +2636,10 @@
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
-  border-bottom: 1px solid #444;
-  background-color: #222;
-  border-radius: 10px 10px 0 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(34, 34, 34, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 12px 12px 0 0;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -2646,42 +2647,53 @@
 
 .card-list-detail-modal .card-title {
   margin: 0;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   font-weight: 600;
   color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
 }
 
 .card-list-detail-modal .close-detail-btn {
   background: none;
   border: none;
-  color: #aaa;
-  font-size: 24px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 32px;
   cursor: pointer;
   padding: 0 5px;
-  line-height: 1;
-  transition: color 0.2s;
+  line-height: 0.8;
+  transition: color 0.2s, transform 0.2s;
+  margin-right: -5px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
 }
 
 .card-list-detail-modal .close-detail-btn:hover {
   color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: scale(1.05);
 }
 
 .card-list-detail-modal .detail-body {
   padding: 20px;
   display: flex;
   flex-direction: column;
+  gap: 15px;
 }
 
 .card-list-detail-modal .card-detail-image {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .card-list-detail-modal .card-detail-image img {
   max-width: 100%;
   max-height: 350px;
   border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 .card-list-detail-modal .card-detail-info {
@@ -2690,9 +2702,10 @@
 
 .card-list-detail-modal .card-metadata {
   margin-bottom: 15px;
-  padding: 10px;
-  background-color: #333;
-  border-radius: 8px;
+  padding: 12px;
+  background-color: rgba(51, 51, 51, 0.5);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .card-list-detail-modal .card-metadata-row {
@@ -2709,12 +2722,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   background-color: #666;
   border-radius: 50%;
   margin-right: 10px;
   font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .card-list-detail-modal .card-class,
@@ -2722,8 +2736,8 @@
 .card-list-detail-modal .card-trait,
 .card-list-detail-modal .card-type-badge,
 .card-list-detail-modal .card-token-badge {
-  padding: 4px 8px;
-  border-radius: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
   font-size: 0.9rem;
 }
 
@@ -2779,9 +2793,10 @@
 
 .card-list-detail-modal .description-section {
   padding: 15px;
-  background-color: #333;
-  border-radius: 8px;
+  background-color: rgba(51, 51, 51, 0.5);
+  border-radius: 10px;
   margin-bottom: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .card-list-detail-modal .description-section:last-child {
@@ -2791,8 +2806,8 @@
 .card-list-detail-modal .description-title {
   margin-top: 0;
   margin-bottom: 10px;
-  color: #ddd;
-  border-bottom: 1px solid #555;
+  color: #eee;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding-bottom: 5px;
 }
 
@@ -2818,17 +2833,18 @@
 }
 
 .card-list-detail-modal .card-detail-notes {
-  background-color: #333;
-  border-radius: 8px;
+  background-color: rgba(51, 51, 51, 0.5);
+  border-radius: 10px;
   padding: 15px;
-  margin-top: 20px;
+  margin-top: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .card-list-detail-modal .card-detail-section-title {
   margin-top: 0;
   margin-bottom: 15px;
-  color: #ddd;
-  border-bottom: 1px solid #555;
+  color: #eee;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding-bottom: 5px;
 }
 
@@ -2840,7 +2856,7 @@
   margin-bottom: 10px;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .card-list-detail-modal .keyword-overlay {
