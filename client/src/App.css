@@ -2616,6 +2616,13 @@
   align-items: center;
   padding: 15px;
   overflow-y: auto;
+  backdrop-filter: blur(3px);
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
 .mobile-card-detail {
@@ -2623,11 +2630,17 @@
   border-radius: 10px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
   width: 100%;
-  max-width: 450px;
+  max-width: 550px;
   max-height: 90vh;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  0% { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
 }
 
 .mobile-card-detail .detail-header {
@@ -2776,48 +2789,34 @@
   padding: 8px 15px;
 } 
 
-/* Card info button for portrait mode */
-.card-info-button {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.6);
-  border: none;
-  color: white;
-  font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-  padding: 0;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  transition: all 0.2s ease;
-}
-
-.card-info-button:hover {
-  background-color: rgba(0, 0, 0, 0.8);
-  transform: scale(1.1);
-}
-
-/* Override hover behavior in portrait mode */
+/* Make cards in portrait mode have a pointer cursor to indicate they're clickable */
 @media (max-width: 1200px) {
-  .card:hover + .card-detail {
-    opacity: 0;
-    visibility: hidden;
+  .card-container {
+    cursor: pointer;
   }
   
-  .card-container:hover {
-    transform: none;
-  }
-}
-
-/* Ensure that the hover detail only shows in landscape mode */
-@media (max-width: 1200px) {
+  /* Hide the hover-based card details completely for portrait mode */
   .card-detail {
     display: none !important;
   }
+  
+  /* Ensure the original flyout animation is disabled */
+  .card:hover + .card-detail {
+    animation: none;
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* Mobile Card Detail Overlay Close Button */
+.mobile-card-detail-overlay::before {
+  content: 'Click outside to close';
+  position: fixed;
+  bottom: 15px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  pointer-events: none;
 }
