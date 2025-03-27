@@ -2662,14 +2662,26 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.7);
   z-index: 1000;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 20px;
-  overflow-y: auto;
+}
+
+/* Card cost circle - was missing, causing display issues */
+.card-cost {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  background-color: #98dc1f;
+  color: white;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 30px;
+  font-weight: bold;
+  margin-right: 10px;
 }
 
 .detail-header {

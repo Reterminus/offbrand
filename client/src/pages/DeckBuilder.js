@@ -104,6 +104,40 @@ const DeckBuilder = () => {
       });
     }
 
+    // Sort cards by cost, then class (selected class first), then card type
+    result.sort((a, b) => {
+      // First sort by cost
+      if (a.cost !== b.cost) {
+        return a.cost - b.cost;
+      }
+      
+      // Then sort by class (selected class first, neutral last)
+      if (a.class !== b.class) {
+        // If the selected class is present, it should appear first
+        if (a.class === selectedClass) return -1;
+        if (b.class === selectedClass) return 1;
+        
+        // Neutral cards should be last
+        if (a.class === 'Neutral') return 1;
+        if (b.class === 'Neutral') return -1;
+        
+        // Other classes sorted alphabetically
+        return a.class.localeCompare(b.class);
+      }
+      
+      // Then sort by card type (Follower, Spell, Amulet)
+      const typeOrder = { 'Follower': 0, 'Spell': 1, 'Amulet': 2 };
+      const aType = a.cardType || 'Follower';
+      const bType = b.cardType || 'Follower';
+      
+      if (typeOrder[aType] !== typeOrder[bType]) {
+        return typeOrder[aType] - typeOrder[bType];
+      }
+      
+      // Finally sort by card name
+      return a.title.localeCompare(b.title);
+    });
+
     setFilteredCards(result);
   }, [selectedClass, selectedCost, searchTerm, selectedCardType, cards]);
 
