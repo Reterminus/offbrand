@@ -606,7 +606,7 @@ const DeckBuilder = () => {
                           <span>Attack: <span className="attack-value">{selectedCardDetails.unevolvedAttack}</span></span>
                           <span>Defense: <span className="defense-value">{selectedCardDetails.unevolvedDefense}</span></span>
                         </div>
-                        <p className="card-description" dangerouslySetInnerHTML={{ __html: formatText(selectedCardDetails.unevolvedDescription) }}></p>
+                        <p className="card-description">{formatText(selectedCardDetails.unevolvedDescription)}</p>
                       </div>
                       
                       <div className="description-section">
@@ -615,7 +615,7 @@ const DeckBuilder = () => {
                           <span>Attack: <span className="attack-value">{selectedCardDetails.evolvedAttack}</span></span>
                           <span>Defense: <span className="defense-value">{selectedCardDetails.evolvedDefense}</span></span>
                         </div>
-                        <p className="card-description" dangerouslySetInnerHTML={{ __html: formatText(selectedCardDetails.evolvedDescription) }}></p>
+                        <p className="card-description">{formatText(selectedCardDetails.evolvedDescription)}</p>
                       </div>
                     </div>
                   )}
@@ -625,7 +625,7 @@ const DeckBuilder = () => {
                     <div className="card-descriptions">
                       <div className="description-section spell-section" style={{ border: 'none', borderBottom: 'none' }}>
                         <h4 className="description-title">Spell Effect</h4>
-                        <p className="card-description" dangerouslySetInnerHTML={{ __html: formatText(selectedCardDetails.spellDescription) }}></p>
+                        <p className="card-description">{formatText(selectedCardDetails.spellDescription)}</p>
                       </div>
                     </div>
                   )}
@@ -635,7 +635,7 @@ const DeckBuilder = () => {
                     <div className="card-descriptions">
                       <div className="description-section amulet-section" style={{ border: 'none', borderBottom: 'none' }}>
                         <h4 className="description-title">Amulet Effect</h4>
-                        <p className="card-description" dangerouslySetInnerHTML={{ __html: formatText(selectedCardDetails.amuletDescription) }}></p>
+                        <p className="card-description">{formatText(selectedCardDetails.amuletDescription)}</p>
                       </div>
                     </div>
                   )}
