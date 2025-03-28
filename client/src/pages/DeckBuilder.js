@@ -13,7 +13,6 @@ const DeckBuilder = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCost, setSelectedCost] = useState('');
   const [selectedCardType, setSelectedCardType] = useState('');
-  const [exportView, setExportView] = useState(false);
   const deckRef = useRef(null);
   const [exportingDeck, setExportingDeck] = useState(false);
   const [selectedCardDetails, setSelectedCardDetails] = useState(null);
@@ -282,20 +281,12 @@ const DeckBuilder = () => {
     });
   };
 
-  // Toggle export view
-  const toggleExportView = () => {
-    setExportView(!exportView);
-  };
-
   // Export deck as image
   const exportDeck = async () => {
     if (!deckRef.current) return;
     
     try {
       setExportingDeck(true);
-
-      // Set to export view before capturing
-      setExportView(true);
       
       // Small delay to ensure the DOM has updated and images are loaded
       await new Promise(resolve => setTimeout(resolve, 300));
@@ -313,13 +304,10 @@ const DeckBuilder = () => {
       link.download = `${selectedClass || 'Shadowverse'}_Deck_${new Date().toISOString().split('T')[0]}.png`;
       link.click();
       
-      // Reset back to normal view
-      setExportView(false);
       setExportingDeck(false);
     } catch (err) {
       console.error('Error exporting deck:', err);
       alert('Failed to export deck as image. Please try again.');
-      setExportView(false);
       setExportingDeck(false);
     }
   };
@@ -493,8 +481,8 @@ const DeckBuilder = () => {
               </div>
             </div>
             
-            {/* Current Deck */}
-            <div className={`current-deck ${exportView ? 'export-view' : ''}`} ref={deckRef}>
+            {/* Current Deck - Always using export style view */}
+            <div className="current-deck export-view" ref={deckRef}>
               <div className="deck-header">
                 <h2>{selectedClass} Deck ({deck.length}/40)</h2>
                 
@@ -510,20 +498,18 @@ const DeckBuilder = () => {
                   </div>
                 </div>
                 
-                {!exportView && (
-                  <div className="mana-curve">
-                    {getManaCurve().map((count, cost) => (
-                      <div key={cost} className="mana-bar">
-                        <div 
-                          className="mana-bar-fill" 
-                          style={{ height: `${Math.min(100, count * 10)}%` }}
-                        ></div>
-                        <div className="mana-cost">{cost === 10 ? "10+" : cost}</div>
-                        <div className="mana-count">{count}</div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <div className="mana-curve">
+                  {getManaCurve().map((count, cost) => (
+                    <div key={cost} className="mana-bar">
+                      <div 
+                        className="mana-bar-fill" 
+                        style={{ height: `${Math.min(100, count * 10)}%` }}
+                      ></div>
+                      <div className="mana-cost">{cost === 10 ? "10+" : cost}</div>
+                      <div className="mana-count">{count}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
               
               <div className="deck-cards">
@@ -531,13 +517,14 @@ const DeckBuilder = () => {
                   <div className="empty-deck">
                     <p>empty deck lmao</p>
                   </div>
-                ) : exportView ? (
-                  // Optimized view for export - group cards by count
+                ) : (
+                  // Always use the optimized/export view with grouped cards
                   <div className="deck-card-list export-list">
                     {groupedDeckCards.map(({ card, count }) => (
                       <div 
-                        key={`export-${card._id}`} 
+                        key={`grouped-${card._id}`} 
                         className="deck-card export-card"
+                        onClick={() => removeCardFromGroupedDeck(card._id)}
                       >
                         <div className="export-card-count">{count}x</div>
                         <div className="export-card-thumbnail">
@@ -547,34 +534,6 @@ const DeckBuilder = () => {
                             className="mini-card-image" 
                           />
                         </div>
-                        <div className="deck-card-info">
-                          <div className="deck-card-cost">{card.cost}</div>
-                          <div className="deck-card-title">{card.title}</div>
-                          <div className={`deck-card-class ${card.class.toLowerCase()}`}>
-                            {card.class}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  // Normal view for building - show all cards individually
-                  <div className="deck-card-list">
-                    {deck.sort((a, b) => {
-                      // Sort by cost, then by card title
-                      if (a.cost !== b.cost) return a.cost - b.cost;
-                      return a.title.localeCompare(b.title);
-                    }).map((card, index) => (
-                      <div 
-                        key={`${card._id}-${index}`} 
-                        className="deck-card"
-                        onClick={() => removeCardFromDeck(index)}
-                      >
-                        <img 
-                          src={card.imageUrl} 
-                          alt={card.title} 
-                          className="deck-card-thumbnail" 
-                        />
                         <div className="deck-card-info">
                           <div className="deck-card-cost">{card.cost}</div>
                           <div className="deck-card-title">{card.title}</div>
