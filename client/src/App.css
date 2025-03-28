@@ -106,6 +106,7 @@
   }
 
   .card-detail {
+    display: none !important; /* Force hide the hover window on mobile */
     position: fixed;
     left: 50% !important;
     top: 50% !important;
@@ -208,8 +209,12 @@
   }
 }
 
-/* Add styles for compressed window */
-@media (max-width: 1200px) {
+/* Add styles for compressed window (tablet) */
+@media (min-width: 769px) and (max-width: 1200px) {
+  .card-detail {
+    display: none !important; /* Force hide the hover window on tablet */
+  }
+  
   .card-detail {
     position: fixed;
     left: 50% !important;
@@ -378,40 +383,24 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 420px; /* detail window width */
-  max-height: none;
+  width: 450px; /*detail window width*/
   background-color: #2d2d2d;
   padding: 25px;
   border-radius: 10px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s, visibility 0.3s;
   pointer-events: none;
-  z-index: 500;
+  max-height: none;
+  color: #e0e0e0;
+  z-index: 1000;
 }
 
-.card-detail.show {
+/* Add styles for when detail is visible */
+.card:hover + .card-detail {
   opacity: 1;
   visibility: visible;
-  pointer-events: auto;
-}
-
-/* Make sure the detail header has the same width as the content */
-.detail-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  max-width: 800px;
-  background-color: #2a2a2a;
-  padding: 10px 15px;
-  border-radius: 8px 8px 0 0;
-}
-
-.card-list-detail-modal .card-detail-content {
-  width: 100%;
-  max-width: 800px;
 }
 
 /* Mobile styles override to keep existing behavior */
@@ -3029,42 +3018,4 @@
   opacity: 1;
   visibility: visible;
   border-top: none; /* Remove any top border as we're using the divider */
-}
-
-/* Ensure hover works too for desktop */
-.card-container:hover .card-detail.show {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-}
-
-@media (max-width: 768px) {
-  .card-list-detail-modal .detail-header,
-  .card-list-detail-modal .card-detail-content {
-    width: 95%;
-    max-width: 350px;
-  }
-  
-  .card-list-detail-modal .card-detail-content {
-    flex-direction: column;
-  }
-  
-  .card-list-detail-modal .card-detail-image {
-    flex: 0 0 auto;
-    padding-bottom: 0;
-  }
-  
-  .card-list-detail-modal .card-detail-info {
-    max-height: calc(80vh - 250px);
-    overflow-y: auto;
-  }
-}
-
-/* Larger tablets */
-@media (min-width: 769px) and (max-width: 1200px) {
-  .card-list-detail-modal .detail-header,
-  .card-list-detail-modal .card-detail-content {
-    width: 90%;
-    max-width: 600px;
-  }
 }
