@@ -757,7 +757,7 @@ const CardList = () => {
                   <div className="notes-content">
                     {selectedCardDetails.notes.split('\n').map((line, index) => (
                       <p key={index} className="note-line">
-                        {formatText(line) || <br />}
+                        {line.trim() !== '' ? formatText(line) : <br />}
                       </p>
                     ))}
                   </div>
