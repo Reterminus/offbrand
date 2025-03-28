@@ -210,6 +210,7 @@ const CardList = () => {
   const handleMouseLeave = () => {
     if (!isMobileOrTablet()) {
       setActiveCardId(null);
+      setShowNotesForCard(null);
     }
   };
 
@@ -595,13 +596,11 @@ const CardList = () => {
                 </div>
               )}
               
-              {/* Add Keywords and Notes section */}
-              {((selectedCardDetails.keywords && selectedCardDetails.keywords.length > 0) || 
-                (selectedCardDetails.notes && selectedCardDetails.notes.trim() !== '')) && (
+              {(selectedCardDetails.notes && selectedCardDetails.notes.trim() !== '') || 
+               (selectedCardDetails.keywords && selectedCardDetails.keywords.length > 0) ? (
                 <div className="card-notes-section">
                   <div className="card-notes-divider"></div>
                   
-                  {/* Keywords section */}
                   {selectedCardDetails.keywords && selectedCardDetails.keywords.length > 0 && (
                     <div className="card-keywords">
                       {selectedCardDetails.keywords.map(keyword => (
@@ -627,9 +626,9 @@ const CardList = () => {
                     </div>
                   )}
                   
-                  {/* Notes content */}
                   {selectedCardDetails.notes && selectedCardDetails.notes.trim() !== '' && (
                     <div className="card-notes-content">
+                      <h4 className="notes-title">Card Notes</h4>
                       {selectedCardDetails.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
                         <div key={index} className="note-line">
                           {formatText(line)}
@@ -638,7 +637,7 @@ const CardList = () => {
                     </div>
                   )}
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
