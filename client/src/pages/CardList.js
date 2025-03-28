@@ -23,27 +23,8 @@ const CardList = () => {
   const [selectedCreator, setSelectedCreator] = useState('');
   const [creators, setCreators] = useState([]);
   const [showNotesForCard, setShowNotesForCard] = useState(null);
-  const [selectedCardDetails, setSelectedCardDetails] = useState(null);
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const cardRefs = useRef({});
-
-  // Update window width on resize
-  useEffect(() => {
-    const handleWindowResize = () => {
-      setWindowWidth(window.innerWidth);
-    };
-    
-    window.addEventListener('resize', handleWindowResize);
-    
-    return () => {
-      window.removeEventListener('resize', handleWindowResize);
-    };
-  }, []);
-
-  // Check if we're on a mobile/tablet device
-  const isMobileOrTablet = () => {
-    return windowWidth <= 1200;
-  };
+  const [selectedCardDetails, setSelectedCardDetails] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -255,6 +236,11 @@ const CardList = () => {
     e.stopPropagation();
   };
 
+  // Check if we're on a mobile/tablet device
+  const isMobileOrTablet = () => {
+    return window.innerWidth <= 1200;
+  };
+
   // Handle mouse enter/leave for hover effect on desktop
   const handleMouseEnter = (id) => {
     if (!isMobileOrTablet()) {
@@ -464,7 +450,7 @@ const CardList = () => {
                 )}
               </div>
               
-              {windowWidth > 1200 && activeCardId === card._id && (
+              {!isMobileOrTablet() && activeCardId === card._id && (
                 <div 
                   className="card-detail"
                   style={{
