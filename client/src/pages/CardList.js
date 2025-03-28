@@ -451,7 +451,7 @@ const CardList = () => {
               </div>
               
               <div 
-                className="card-detail"
+                className={`card-detail ${activeCardId === card._id ? 'visible' : ''}`}
                 style={{
                   left: detailPositions[card._id] === 'left' ? 'auto' : 'calc(100% + 20px)',
                   right: detailPositions[card._id] === 'left' ? 'calc(100% + 20px)' : 'auto'

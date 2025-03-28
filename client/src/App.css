@@ -210,12 +210,13 @@
 
 /* Add styles for compressed window */
 @media (max-width: 1200px) {
-  /* Explicitly disable hover details for mobile/tablet */
+  /* Explicitly disable hover details for mobile/tablet - no longer needed with class-based approach
   .card:hover + .card-detail {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
   }
+  */
 
   .card-detail {
     position: fixed;
@@ -399,20 +400,12 @@
   z-index: 1000;
 }
 
-/* Add styles for when detail is visible */
-.card:hover + .card-detail {
+/* Replace hover-based rule with class-based rule */
+.card-detail.visible {
   opacity: 1;
   visibility: visible;
+  pointer-events: auto;
 }
-
-/* Mobile styles override to keep existing behavior 
-@media (max-width: 768px) {
-  .card-container:hover .card-detail {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-  }
-}*/
 
 .card-notes {
   position: absolute;
