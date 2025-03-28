@@ -219,6 +219,11 @@ const CardList = () => {
     e.stopPropagation();
   };
 
+  // Check if we're on a mobile/tablet device
+  const isMobileOrTablet = () => {
+    return window.innerWidth <= 1200;
+  };
+
   // Handle mouse enter/leave for hover effect on desktop
   const handleMouseEnter = (id) => {
     if (!isMobileOrTablet()) {
@@ -229,15 +234,14 @@ const CardList = () => {
   const handleMouseLeave = () => {
     if (!isMobileOrTablet()) {
       setActiveCardId(null);
+      setShowNotesForCard(null);
     }
   };
 
-  // Handle card click for full detail view
+  // Handle card click for showing the detail modal
   const handleCardClick = (card, e) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    // For all devices, show the full detail modal
     setSelectedCardDetails(card);
   };
 
@@ -246,7 +250,7 @@ const CardList = () => {
     setSelectedCardDetails(null);
   };
 
-  // Prevent event propagation
+  // Prevent event propagation in modal
   const handleDetailClick = (e) => {
     e.stopPropagation();
   };
@@ -520,10 +524,37 @@ const CardList = () => {
                   </div>
                 )}
                 
-                {/* Keywords and Notes section */}
-                {(card.notes && card.notes.trim() !== '') || 
-                 (card.keywords && card.keywords.length > 0) ? (
-                  <div className="card-notes-section">
+                {/* Keywords section */}
+                {card.keywords && card.keywords.length > 0 && (
+                  <div className="card-keywords">
+                    {card.keywords.map(keyword => (
+                      <div 
+                        key={keyword._id} 
+                        className="keyword-banner"
+                      >
+                        <div 
+                          className="keyword-overlay"
+                          style={{
+                            backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5)), url(${keyword.imageUrl})`,
+                            backgroundPosition: keyword.imagePosition || '50% 50%',
+                            backgroundSize: 'cover'
+                          }}
+                        >
+                          <h5 className="keyword-title">{keyword.title}</h5>
+                          <div className="keyword-description-scrollable">
+                            <p className="keyword-description">{keyword.description}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                {/* Notes section inside the detail window */}
+                {(card.notes && card.notes.trim() !== '') || (card.keywords && card.keywords.length > 0) ? (
+                  <div 
+                    className={`card-notes-section ${showNotesForCard === card._id ? 'show' : ''}`}
+                  >
                     <div className="card-notes-divider"></div>
                     
                     {/* Keywords section */}
@@ -687,49 +718,45 @@ const CardList = () => {
                 </div>
               )}
               
-              {/* Keywords and Notes section */}
-              {(selectedCardDetails.keywords && selectedCardDetails.keywords.length > 0) || (selectedCardDetails.notes && selectedCardDetails.notes.trim() !== '') ? (
-                <div className="card-notes-section">
-                  <div className="card-notes-divider"></div>
-                  
-                  {/* Keywords section */}
-                  {selectedCardDetails.keywords && selectedCardDetails.keywords.length > 0 && (
-                    <div className="card-keywords">
-                      {selectedCardDetails.keywords.map(keyword => (
-                        <div 
-                          key={keyword._id} 
-                          className="keyword-banner"
-                        >
-                          <div 
-                            className="keyword-overlay"
-                            style={{
-                              backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5)), url(${keyword.imageUrl})`,
-                              backgroundPosition: keyword.imagePosition || '50% 50%',
-                              backgroundSize: 'cover'
-                            }}
-                          >
-                            <h5 className="keyword-title">{keyword.title}</h5>
-                            <div className="keyword-description-scrollable">
-                              <p className="keyword-description">{keyword.description}</p>
-                            </div>
-                          </div>
+              {/* Keywords section */}
+              {selectedCardDetails.keywords && selectedCardDetails.keywords.length > 0 && (
+                <div className="card-keywords">
+                  {selectedCardDetails.keywords.map(keyword => (
+                    <div 
+                      key={keyword._id} 
+                      className="keyword-banner"
+                    >
+                      <div 
+                        className="keyword-overlay"
+                        style={{
+                          backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5)), url(${keyword.imageUrl})`,
+                          backgroundPosition: keyword.imagePosition || '50% 50%',
+                          backgroundSize: 'cover'
+                        }}
+                      >
+                        <h5 className="keyword-title">{keyword.title}</h5>
+                        <div className="keyword-description-scrollable">
+                          <p className="keyword-description">{keyword.description}</p>
                         </div>
-                      ))}
+                      </div>
                     </div>
-                  )}
-                  
-                  {/* Notes content */}
-                  {selectedCardDetails.notes && selectedCardDetails.notes.trim() !== '' && (
-                    <div className="card-notes-content">
-                      {selectedCardDetails.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
-                        <div key={index} className="note-line">
-                          {formatText(line)}
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  ))}
                 </div>
-              ) : null}
+              )}
+              
+              {/* Card Notes section */}
+              {selectedCardDetails.notes && selectedCardDetails.notes.trim() !== '' && (
+                <div className="card-notes-section">
+                  <h4 className="notes-title">Card Notes</h4>
+                  <div className="notes-content">
+                    {selectedCardDetails.notes.split('\n').map((line, index) => (
+                      <p key={index} className="note-line">
+                        {formatText(line) || <br />}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

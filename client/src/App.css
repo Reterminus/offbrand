@@ -2739,7 +2739,7 @@
 .card-detail-image img {
   width: 100%;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  /*box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);*/
 }
 
 .card-detail-info {
@@ -2860,32 +2860,33 @@
 }
 
 .card-list-detail-modal .card-keywords {
-  margin: 15px 0;
+  margin-top: 20px;
+  margin-bottom: 15px;
 }
 
 .card-list-detail-modal .keyword-banner {
   margin-bottom: 10px;
   border-radius: 6px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .card-list-detail-modal .keyword-overlay {
-  padding: 15px;
-  min-height: 100px;
+  padding: 12px 15px;
+  border-radius: 6px;
 }
 
 .card-list-detail-modal .keyword-title {
-  font-size: 18px;
   margin-bottom: 8px;
+  font-size: 16px;
   color: white;
-  text-shadow: 0 0 3px black, 0 0 5px black;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
 .card-list-detail-modal .keyword-description {
-  color: #e6e6e6;
-  line-height: 1.5;
-  text-shadow: 0 0 2px black, 0 0 4px black;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.4;
+  font-size: 14px;
 }
 
 .card-notes-section {
