@@ -181,7 +181,7 @@ const DeckBuilder = () => {
     // Check if we already have 3 copies of this card
     const cardCount = deck.filter(c => c._id === card._id).length;
     if (cardCount >= 3) {
-      alert('You can only have 3 copies of each card in your deck.');
+      /*alert('You can only have 3 copies of each card in your deck.');*/
       return;
     }
 
@@ -198,7 +198,7 @@ const DeckBuilder = () => {
 
     // Check if adding this card would exceed 40 cards
     if (deck.length >= 40) {
-      alert('Your deck is already full (40 cards).');
+      /*alert('Your deck is already full (40 cards).');*/
       return;
     }
 
@@ -206,16 +206,15 @@ const DeckBuilder = () => {
     setDeck([...deck, card]);
   };
 
-  // Handle removing a card from the deck
-  const removeCardFromDeck = (index) => {
-    const newDeck = [...deck];
-    newDeck.splice(index, 1);
-    setDeck(newDeck);
-
-    // If the deck is now empty, reset the selected class
-    /*if (newDeck.length === 0) {
-      setSelectedClass('');
-    }*/
+  // Handle removing a card from the deck - Modified to work with grouped cards
+  const removeCardFromDeck = (cardId) => {
+    // Find the first occurrence of the card in the deck
+    const index = deck.findIndex(card => card._id === cardId);
+    if (index !== -1) {
+      const newDeck = [...deck];
+      newDeck.splice(index, 1);
+      setDeck(newDeck);
+    }
   };
 
   // Handle class selection
@@ -481,7 +480,7 @@ const DeckBuilder = () => {
               </div>
             </div>
             
-            {/* Current Deck - Always using export style view */}
+            {/* Current Deck - Always use export view style */}
             <div className="current-deck export-view" ref={deckRef}>
               <div className="deck-header">
                 <h2>{selectedClass} Deck ({deck.length}/40)</h2>
@@ -498,6 +497,7 @@ const DeckBuilder = () => {
                   </div>
                 </div>
                 
+                {/* Always show mana curve */}
                 <div className="mana-curve">
                   {getManaCurve().map((count, cost) => (
                     <div key={cost} className="mana-bar">
@@ -518,13 +518,14 @@ const DeckBuilder = () => {
                     <p>empty deck lmao</p>
                   </div>
                 ) : (
-                  // Always use the optimized/export view with grouped cards
+                  // Always use the export list view for grouping cards
                   <div className="deck-card-list export-list">
-                    {groupedDeckCards.map(({ card, count }) => (
+                    {getGroupedDeckCards().map(({ card, count }) => (
                       <div 
-                        key={`grouped-${card._id}`} 
+                        key={`export-${card._id}`} 
                         className="deck-card export-card"
-                        onClick={() => removeCardFromGroupedDeck(card._id)}
+                        onClick={() => removeCardFromDeck(card._id)}
+                        title="Click to remove one copy"
                       >
                         <div className="export-card-count">{count}x</div>
                         <div className="export-card-thumbnail">
