@@ -2933,7 +2933,8 @@
 
 /* Larger tablets */
 @media (min-width: 769px) and (max-width: 1200px) {
-  .card-list-detail-modal .card-detail-content {
+  .card-list-detail-modal .card-detail-content,
+  .card-list-detail-modal .detail-header {
     max-width: 90%;
   }
 }
