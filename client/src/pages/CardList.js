@@ -584,15 +584,11 @@ const CardList = () => {
                     )}
                     
                     {/* Notes content */}
-                    {card.notes && card.notes.trim() !== '' && (
-                      <div className="card-notes-content">
-                        {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
-                          <div key={index} className="note-line">
-                            {formatText(line)}
-                          </div>
-                        ))}
+                    {card.notes && card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
+                      <div key={index} className="note-line">
+                        {formatText(line)}
                       </div>
-                    )}
+                    ))}
                   </div>
                 ) : null}
               </div>
@@ -718,6 +714,11 @@ const CardList = () => {
                 </div>
               )}
               
+              {/* Divider line before Keywords */}
+              {(selectedCardDetails.keywords && selectedCardDetails.keywords.length > 0) && (
+                <div className="card-notes-divider"></div>
+              )}
+              
               {/* Keywords section */}
               {selectedCardDetails.keywords && selectedCardDetails.keywords.length > 0 && (
                 <div className="card-keywords">
@@ -742,6 +743,11 @@ const CardList = () => {
                     </div>
                   ))}
                 </div>
+              )}
+              
+              {/* Divider line before Notes */}
+              {selectedCardDetails.notes && selectedCardDetails.notes.trim() !== '' && (
+                <div className="card-notes-divider"></div>
               )}
               
               {/* Card Notes section */}
