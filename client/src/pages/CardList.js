@@ -526,7 +526,7 @@ const CardList = () => {
                   </div>
                 )}
                 
-                {/* Keywords section */}
+                {/* Keywords section - commented out from hover window
                 {card.keywords && card.keywords.length > 0 && (
                   <div className="card-keywords">
                     {card.keywords.map(keyword => (
@@ -551,6 +551,7 @@ const CardList = () => {
                     ))}
                   </div>
                 )}
+                */}
                 
                 {/* Notes section inside the detail window */}
                 {(card.notes && card.notes.trim() !== '') || (card.keywords && card.keywords.length > 0) ? (

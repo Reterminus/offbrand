@@ -2962,8 +2962,8 @@
 }
 
 .card-container:hover::after {
-  content: 'ℹ';
-  opacity: 0.8;
+  content: '';
+  opacity: 0;
 }
 
 /* Desktop hover effects */
