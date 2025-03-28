@@ -23,9 +23,10 @@ const CardList = () => {
   const [selectedCreator, setSelectedCreator] = useState('');
   const [creators, setCreators] = useState([]);
   const [showNotesForCard, setShowNotesForCard] = useState(null);
-  const [selectedCardDetails, setSelectedCardDetails] = useState(null);
   const cardRefs = useRef({});
+  const [selectedCardDetails, setSelectedCardDetails] = useState(null);
 
+  // Check if we're on a mobile/tablet device
   const isMobileOrTablet = () => {
     return window.innerWidth <= 1200;
   };
@@ -38,7 +39,9 @@ const CardList = () => {
           getSets(),
           getKeywords()
         ]);
+        // Sort cards by class, rarity, and title
         const sortedCards = sortCards(cardsData);
+        // Extract unique creators from cards
         const uniqueCreators = [...new Set(sortedCards
           .map(card => card.creator)
           .filter(creator => creator && creator.trim() !== '')
@@ -58,22 +61,27 @@ const CardList = () => {
     fetchData();
   }, []);
 
+  // Filter cards when search term or selected filters change
   useEffect(() => {
     if (cards.length === 0) return;
     
     let result = [...cards];
     
+    // Filter by search term
     if (searchTerm.trim() !== '') {
       const searchTermLower = searchTerm.toLowerCase();
       result = result.filter(card => {
+        // Search in card title
         if (card.title.toLowerCase().includes(searchTermLower)) {
           return true;
         }
         
+        // Search in card trait
         if (card.trait && card.trait.toLowerCase().includes(searchTermLower)) {
           return true;
         }
         
+        // Search in descriptions based on card type
         if ((!card.cardType || card.cardType === 'Follower') && 
             ((card.unevolvedDescription && card.unevolvedDescription.toLowerCase().includes(searchTermLower)) || 
              (card.evolvedDescription && card.evolvedDescription.toLowerCase().includes(searchTermLower)))) {
@@ -96,14 +104,17 @@ const CardList = () => {
       });
     }
     
+    // Filter by class
     if (selectedClass !== '') {
       result = result.filter(card => card.class === selectedClass);
     }
     
+    // Filter by rarity
     if (selectedRarity !== '') {
       result = result.filter(card => card.rarity === selectedRarity);
     }
 
+    // Filter by set
     if (selectedSet !== '') {
       const selectedSetData = sets.find(set => set._id === selectedSet);
       if (selectedSetData) {
@@ -111,6 +122,7 @@ const CardList = () => {
       }
     }
 
+    // Filter by creator
     if (selectedCreator !== '') {
       result = result.filter(card => card.creator === selectedCreator);
     }
@@ -118,6 +130,7 @@ const CardList = () => {
     setFilteredCards(result);
   }, [searchTerm, selectedClass, selectedRarity, selectedSet, selectedCreator, cards, sets]);
 
+  // Calculate detail position when window is resized
   useEffect(() => {
     const handleResize = () => {
       const newPositions = {};
@@ -126,17 +139,22 @@ const CardList = () => {
         if (cardElement) {
           const rect = cardElement.getBoundingClientRect();
           const windowWidth = window.innerWidth;
+          // Calculate the center position of the card
           const cardCenter = rect.left + (rect.width / 2);
+          // If the card's center is in the right half of the screen, show detail on the left
           newPositions[id] = cardCenter > windowWidth / 2 ? 'left' : 'right';
         }
       });
       setDetailPositions(newPositions);
     };
 
+    // Initial calculation
     handleResize();
 
+    // Add event listener for window resize
     window.addEventListener('resize', handleResize);
 
+    // Cleanup
     return () => {
       window.removeEventListener('resize', handleResize);
     };
@@ -150,6 +168,7 @@ const CardList = () => {
     if (window.confirm('Are you sure you want to delete this card?')) {
       try {
         await deleteCard(id);
+        // Re-sort the cards after deletion
         const updatedCards = cards.filter(card => card._id !== id);
         const sortedCards = sortCards(updatedCards);
         setCards(sortedCards);
@@ -159,12 +178,15 @@ const CardList = () => {
           if (searchTerm.trim() !== '') {
             const searchTermLower = searchTerm.toLowerCase();
             
+            // Check title
             let textMatch = card.title.toLowerCase().includes(searchTermLower);
 
+            // Check trait
             if (!textMatch && card.trait) {
               textMatch = card.trait.toLowerCase().includes(searchTermLower);
             }
             
+            // Check descriptions based on card type
             if (!textMatch && (!card.cardType || card.cardType === 'Follower')) {
               textMatch = (card.unevolvedDescription && card.unevolvedDescription.toLowerCase().includes(searchTermLower)) || 
                          (card.evolvedDescription && card.evolvedDescription.toLowerCase().includes(searchTermLower));
@@ -197,10 +219,12 @@ const CardList = () => {
     }
   };
 
+  // Prevent event propagation to avoid triggering parent events
   const handleButtonClick = (e) => {
     e.stopPropagation();
   };
 
+  // Handle mouse enter/leave for cards
   const handleMouseEnter = (id) => {
     if (!isMobileOrTablet()) {
       setActiveCardId(id);
@@ -214,45 +238,63 @@ const CardList = () => {
     }
   };
 
+  // Handle double click to show notes
+  const handleDoubleClick = (card) => {
+    if (card.notes && card.notes.trim() !== '') {
+      setShowNotesForCard(card._id);
+    }
+  };
+
+  // Handle card click for full detail view
   const handleCardClick = (card, e) => {
     e.preventDefault();
     e.stopPropagation();
     
+    // Show the full detail modal
     setSelectedCardDetails(card);
   };
 
+  // Close the detail modal
   const handleDetailClose = () => {
     setSelectedCardDetails(null);
   };
 
+  // Prevent event propagation in the detail window
   const handleDetailClick = (e) => {
     e.stopPropagation();
   };
 
+  // Set ref for card element
   const setCardRef = (id, element) => {
     cardRefs.current[id] = element;
   };
 
+  // Handle search input change
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
 
+  // Handle class filter change
   const handleClassChange = (e) => {
     setSelectedClass(e.target.value);
   };
 
+  // Handle rarity filter change
   const handleRarityChange = (e) => {
     setSelectedRarity(e.target.value);
   };
 
+  // Handle set filter change
   const handleSetChange = (e) => {
     setSelectedSet(e.target.value);
   };
 
+  // Handle creator filter change
   const handleCreatorChange = (e) => {
     setSelectedCreator(e.target.value);
   };
 
+  // Clear all filters
   const handleClearFilters = () => {
     setSearchTerm('');
     setSelectedClass('');
@@ -261,13 +303,21 @@ const CardList = () => {
     setSelectedCreator('');
   };
 
+  // Class options for the filter dropdown
   const classOptions = [
     'Neutral', 'Forestcraft', 'Swordcraft', 'Runecraft', 
     'Dragoncraft', 'Shadowcraft', 'Bloodcraft', 'Havencraft', 
     'Portalcraft'
   ];
 
+  // Rarity options for the filter dropdown
   const rarityOptions = ['Bronze', 'Silver', 'Gold', 'Legendary'];
+
+  // Add handler to close mobile detail view
+  const handleCloseMobileDetail = () => {
+    setActiveCardId(null);
+    setShowNotesForCard(null);
+  };
 
   if (loading) {
     return <div className="loading">Loading cards...</div>;
@@ -431,6 +481,7 @@ const CardList = () => {
                     )}
                   </div>
                   
+                  {/* Follower card details */}
                   {(!card.cardType || card.cardType === 'Follower') && (
                     <div className="card-descriptions">
                       <div className="description-section follower-section">
@@ -453,6 +504,7 @@ const CardList = () => {
                     </div>
                   )}
                   
+                  {/* Spell card details */}
                   {card.cardType === 'Spell' && (
                     <div className="card-descriptions" style={{ border: 'none', borderBottom: 'none' }}>
                       <div 
@@ -465,24 +517,95 @@ const CardList = () => {
                     </div>
                   )}
                   
+                  {/* Amulet card details */}
                   {card.cardType === 'Amulet' && (
-                    <div className="card-descriptions" style={{ border: 'none', borderBottom: 'none' }}>
-                      <div 
-                        className="description-section amulet-section"
-                        style={{ border: 'none', borderBottom: 'none' }}
-                      >
+                    <div className="card-descriptions">
+                      <div className="description-section amulet-section" style={{ border: 'none', borderBottom: 'none' }}>
                         <h4 className="description-title">Amulet Effect</h4>
                         <p className="card-description">{formatText(card.amuletDescription)}</p>
                       </div>
                     </div>
                   )}
+                  
+                  {/* Keywords section */}
+                  {card.keywords && card.keywords.length > 0 && (
+                    <div className="card-keywords">
+                      {card.keywords.map(keyword => (
+                        <div 
+                          key={keyword._id} 
+                          className="keyword-banner"
+                        >
+                          <div 
+                            className="keyword-overlay"
+                            style={{
+                              backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5)), url(${keyword.imageUrl})`,
+                              backgroundPosition: keyword.imagePosition || '50% 50%',
+                              backgroundSize: 'cover'
+                            }}
+                          >
+                            <h5 className="keyword-title">{keyword.title}</h5>
+                            <div className="keyword-description-scrollable">
+                              <p className="keyword-description">{keyword.description}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Notes section inside the detail window */}
+                  {(card.notes && card.notes.trim() !== '') || (card.keywords && card.keywords.length > 0) ? (
+                    <div 
+                      className={`card-notes-section ${showNotesForCard === card._id ? 'show' : ''}`}
+                    >
+                      <div className="card-notes-divider"></div>
+                      
+                      {/* Keywords section */}
+                      {card.keywords && card.keywords.length > 0 && (
+                        <div className="card-keywords">
+                          {card.keywords.map(keyword => (
+                            <div 
+                              key={keyword._id} 
+                              className="keyword-banner"
+                            >
+                              <div 
+                                className="keyword-overlay"
+                                style={{
+                                  backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5)), url(${keyword.imageUrl})`,
+                                  backgroundPosition: keyword.imagePosition || '50% 50%',
+                                  backgroundSize: 'cover'
+                                }}
+                              >
+                                <h5 className="keyword-title">{keyword.title}</h5>
+                                <div className="keyword-description-scrollable">
+                                  <p className="keyword-description">{keyword.description}</p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {/* Notes content */}
+                      {card.notes && card.notes.trim() !== '' && (
+                        <div className="card-notes-content">
+                          {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
+                            <div key={index} className="note-line">
+                              {formatText(line)}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
                 </div>
               )}
             </div>
           ))}
         </div>
       )}
-
+      
+      {/* Full Detail Modal */}
       {selectedCardDetails && (
         <div 
           className="deck-builder-card-detail card-list-detail-modal"
@@ -556,6 +679,7 @@ const CardList = () => {
                 )}
               </div>
               
+              {/* Follower card details */}
               {(!selectedCardDetails.cardType || selectedCardDetails.cardType === 'Follower') && (
                 <div className="card-descriptions">
                   <div className="description-section follower-section">
@@ -578,6 +702,7 @@ const CardList = () => {
                 </div>
               )}
               
+              {/* Spell card details */}
               {selectedCardDetails.cardType === 'Spell' && (
                 <div className="card-descriptions">
                   <div className="description-section spell-section" style={{ border: 'none', borderBottom: 'none' }}>
@@ -587,6 +712,7 @@ const CardList = () => {
                 </div>
               )}
               
+              {/* Amulet card details */}
               {selectedCardDetails.cardType === 'Amulet' && (
                 <div className="card-descriptions">
                   <div className="description-section amulet-section" style={{ border: 'none', borderBottom: 'none' }}>
@@ -596,48 +722,45 @@ const CardList = () => {
                 </div>
               )}
               
-              {(selectedCardDetails.notes && selectedCardDetails.notes.trim() !== '') || 
-               (selectedCardDetails.keywords && selectedCardDetails.keywords.length > 0) ? (
-                <div className="card-notes-section">
-                  <div className="card-notes-divider"></div>
-                  
-                  {selectedCardDetails.keywords && selectedCardDetails.keywords.length > 0 && (
-                    <div className="card-keywords">
-                      {selectedCardDetails.keywords.map(keyword => (
-                        <div 
-                          key={keyword._id} 
-                          className="keyword-banner"
-                        >
-                          <div 
-                            className="keyword-overlay"
-                            style={{
-                              backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5)), url(${keyword.imageUrl})`,
-                              backgroundPosition: keyword.imagePosition || '50% 50%',
-                              backgroundSize: 'cover'
-                            }}
-                          >
-                            <h5 className="keyword-title">{keyword.title}</h5>
-                            <div className="keyword-description-scrollable">
-                              <p className="keyword-description">{keyword.description}</p>
-                            </div>
-                          </div>
+              {/* Keywords section */}
+              {selectedCardDetails.keywords && selectedCardDetails.keywords.length > 0 && (
+                <div className="card-keywords">
+                  {selectedCardDetails.keywords.map(keyword => (
+                    <div 
+                      key={keyword._id} 
+                      className="keyword-banner"
+                    >
+                      <div 
+                        className="keyword-overlay"
+                        style={{
+                          backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5)), url(${keyword.imageUrl})`,
+                          backgroundPosition: keyword.imagePosition || '50% 50%',
+                          backgroundSize: 'cover'
+                        }}
+                      >
+                        <h5 className="keyword-title">{keyword.title}</h5>
+                        <div className="keyword-description-scrollable">
+                          <p className="keyword-description">{keyword.description}</p>
                         </div>
-                      ))}
+                      </div>
                     </div>
-                  )}
-                  
-                  {selectedCardDetails.notes && selectedCardDetails.notes.trim() !== '' && (
-                    <div className="card-notes-content">
-                      <h4 className="notes-title">Card Notes</h4>
-                      {selectedCardDetails.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
-                        <div key={index} className="note-line">
-                          {formatText(line)}
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  ))}
                 </div>
-              ) : null}
+              )}
+              
+              {/* Card Notes */}
+              {selectedCardDetails.notes && selectedCardDetails.notes.trim() !== '' && (
+                <div className="card-notes-section">
+                  <h4 className="notes-title">Card Notes</h4>
+                  <div className="notes-content">
+                    {selectedCardDetails.notes.split('\n').map((line, index) => (
+                      <p key={index} className="note-line">
+                        {formatText(line)}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -2859,48 +2859,10 @@
   max-height: 80vh;
 }
 
-.card-list-detail-modal .card-notes-section {
+.card-notes-section {
   margin-top: 20px;
   padding-top: 15px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.card-list-detail-modal .card-notes-divider {
-  margin: 15px 0;
-  height: 1px;
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.card-list-detail-modal .card-keywords {
-  margin-bottom: 20px;
-}
-
-.card-list-detail-modal .keyword-banner {
-  margin-bottom: 15px;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
-}
-
-.card-list-detail-modal .keyword-overlay {
-  padding: 15px;
-  min-height: 80px;
-}
-
-.card-list-detail-modal .keyword-title {
-  margin-top: 0;
-  margin-bottom: 10px;
-  font-size: 18px;
-  font-weight: 600;
-  color: #fff;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
-}
-
-.card-list-detail-modal .keyword-description {
-  font-size: 14px;
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.9);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .notes-title {
