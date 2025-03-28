@@ -753,7 +753,7 @@ const CardList = () => {
               {/* Card Notes section */}
               {selectedCardDetails.notes && (
                 <div className="card-notes-section">
-                  <h4 className="notes-title">Card Notes</h4>
+                  <h4 className="notes-title">Details</h4>
                   <div className="notes-content">
                     {selectedCardDetails.notes.split('\n').map((line, index) => (
                       <p key={index} className="note-line">
