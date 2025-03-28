@@ -242,6 +242,8 @@ const CardList = () => {
   const handleCardClick = (card, e) => {
     e.preventDefault();
     e.stopPropagation();
+    // Log for debugging
+    console.log('Selected card notes:', card.notes);
     setSelectedCardDetails(card);
   };
 
@@ -718,10 +720,12 @@ const CardList = () => {
                 </div>
               )}
               
+              {/* Divider before Keywords/Notes */}
+              <div className="card-notes-divider"></div>
+              
               {/* Keywords section */}
               {selectedCardDetails.keywords && selectedCardDetails.keywords.length > 0 && (
                 <div className="card-keywords">
-                  <div className="card-notes-divider"></div>
                   {selectedCardDetails.keywords.map(keyword => (
                     <div 
                       key={keyword._id} 
@@ -746,16 +750,13 @@ const CardList = () => {
               )}
               
               {/* Card Notes section */}
-              {selectedCardDetails.notes && selectedCardDetails.notes.trim() !== '' && (
+              {selectedCardDetails.notes && (
                 <div className="card-notes-section">
-                  {!selectedCardDetails.keywords || selectedCardDetails.keywords.length === 0 ? (
-                    <div className="card-notes-divider"></div>
-                  ) : null}
                   <h4 className="notes-title">Card Notes</h4>
                   <div className="notes-content">
                     {selectedCardDetails.notes.split('\n').map((line, index) => (
                       <p key={index} className="note-line">
-                        {formatText(line) || <br />}
+                        {formatText(line || '')}
                       </p>
                     ))}
                   </div>

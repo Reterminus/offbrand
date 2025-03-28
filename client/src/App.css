@@ -2986,3 +2986,31 @@
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
+
+.card-list-detail-modal .notes-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #e0e0e0;
+}
+
+.card-list-detail-modal .notes-content {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.card-list-detail-modal .note-line {
+  margin: 5px 0;
+  line-height: 1.4;
+  color: #d0d0d0;
+}
+
+.card-list-detail-modal .card-notes-section {
+  display: block;
+  margin-top: 20px;
+  padding-top: 15px;
+  opacity: 1;
+  visibility: visible;
+  border-top: none; /* Remove any top border as we're using the divider */
+}
