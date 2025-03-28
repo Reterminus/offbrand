@@ -2849,3 +2849,96 @@
 .notes-section .note-line:last-child {
   margin-bottom: 0;
 }
+
+/* Card List Detail Modal - Custom styles for the new detail window */
+.card-list-detail-modal {
+  backdrop-filter: blur(5px);
+}
+
+.card-list-detail-modal .card-detail-content {
+  max-height: 80vh;
+}
+
+.card-notes-section {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.notes-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #e0e0e0;
+}
+
+.notes-content {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.note-line {
+  margin: 5px 0;
+  line-height: 1.4;
+  color: #d0d0d0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card-list-detail-modal .card-detail-content {
+    flex-direction: column;
+  }
+  
+  .card-list-detail-modal .card-detail-image {
+    flex: 0 0 auto;
+    padding-bottom: 0;
+  }
+  
+  .card-list-detail-modal .card-detail-info {
+    max-height: calc(80vh - 250px);
+    overflow-y: auto;
+  }
+}
+
+/* Larger tablets */
+@media (min-width: 769px) and (max-width: 1200px) {
+  .card-list-detail-modal .card-detail-content {
+    max-width: 90%;
+  }
+}
+
+/* Hover tweaks for detail button */
+.card-container {
+  position: relative;
+}
+
+.card-container::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 24px;
+  height: 24px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  color: white;
+  text-align: center;
+  line-height: 24px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.card-container:hover::after {
+  content: 'ℹ';
+  opacity: 0.8;
+}
+
+/* Desktop hover effects */
+@media (min-width: 1201px) {
+  .card-container {
+    cursor: pointer;
+  }
+}
