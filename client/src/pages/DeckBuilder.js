@@ -103,7 +103,7 @@ const DeckBuilder = () => {
       });
     }
 
-    // Sort cards by cost, then class (selected class first), then card type
+    // Sort cards by cost, then class (selected class first), then rarity, then card type
     result.sort((a, b) => {
       // First sort by cost
       if (a.cost !== b.cost) {
@@ -122,6 +122,16 @@ const DeckBuilder = () => {
         
         // Other classes sorted alphabetically
         return a.class.localeCompare(b.class);
+      }
+      
+      // Then sort by rarity (Legendary, Gold, Silver, Bronze)
+      const rarityOrder = { 'Legendary': 0, 'Gold': 1, 'Silver': 2, 'Bronze': 3 };
+      // Handle case where rarity might not match exactly or be undefined
+      const aRarityValue = rarityOrder[a.rarity] !== undefined ? rarityOrder[a.rarity] : 999;
+      const bRarityValue = rarityOrder[b.rarity] !== undefined ? rarityOrder[b.rarity] : 999;
+      
+      if (aRarityValue !== bRarityValue) {
+        return aRarityValue - bRarityValue;
       }
       
       // Then sort by card type (Follower, Spell, Amulet)
@@ -283,6 +293,12 @@ const DeckBuilder = () => {
   // Export deck as image
   const exportDeck = async () => {
     if (!deckRef.current) return;
+    
+    // Check if deck has exactly 40 cards and show alert if not
+    if (deck.length !== 40) {
+      alert(`A ${deck.length} card deck isn't legal. Fill out your deck lmao`);
+      return;
+    }
     
     try {
       setExportingDeck(true);
