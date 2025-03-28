@@ -23,8 +23,9 @@ const CardList = () => {
   const [selectedCreator, setSelectedCreator] = useState('');
   const [creators, setCreators] = useState([]);
   const [showNotesForCard, setShowNotesForCard] = useState(null);
-  const cardRefs = useRef({});
   const [selectedCardDetails, setSelectedCardDetails] = useState(null);
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth > 1200);
+  const cardRefs = useRef({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -159,6 +160,16 @@ const CardList = () => {
     };
   }, [filteredCards]);
 
+  // Update isDesktop state on window resize
+  useEffect(() => {
+    const handleWindowResize = () => {
+      setIsDesktop(window.innerWidth > 1200);
+    };
+    
+    window.addEventListener('resize', handleWindowResize);
+    return () => window.removeEventListener('resize', handleWindowResize);
+  }, []);
+
   const handleEdit = (id) => {
     navigate(`/edit/${id}`);
   };
@@ -243,13 +254,15 @@ const CardList = () => {
 
   // Handle mouse enter/leave for hover effect on desktop
   const handleMouseEnter = (id) => {
-    if (!isMobileOrTablet()) {
+    // Only activate hover on desktop
+    if (isDesktop) {
       setActiveCardId(id);
     }
   };
 
   const handleMouseLeave = () => {
-    if (!isMobileOrTablet()) {
+    // Only deactivate hover on desktop
+    if (isDesktop) {
       setActiveCardId(null);
       setShowNotesForCard(null);
     }
@@ -450,7 +463,7 @@ const CardList = () => {
                 )}
               </div>
               
-              {!isMobileOrTablet() && activeCardId === card._id && (
+              {activeCardId === card._id && isDesktop && (
                 <div 
                   className="card-detail"
                   style={{

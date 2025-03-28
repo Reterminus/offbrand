@@ -3015,9 +3015,11 @@
   border-top: none; /* Remove any top border as we're using the divider */
 }
 
-/* Ensure hover detail is hidden for tablet/mobile */
+/* Ensure hover detail is hidden for tablet/mobile without breaking animations */
 @media (max-width: 1200px) {
   .card-container .card-detail {
-    display: none !important;
+    display: none;
+    visibility: hidden;
+    opacity: 0;
   }
 }
