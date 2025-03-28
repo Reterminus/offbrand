@@ -2853,6 +2853,9 @@
 /* Card List Detail Modal - Custom styles for the new detail window */
 .card-list-detail-modal {
   backdrop-filter: blur(5px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .card-list-detail-modal .card-detail-content {
@@ -2933,9 +2936,14 @@
 
 /* Larger tablets */
 @media (min-width: 769px) and (max-width: 1200px) {
+  .card-list-detail-modal {
+    align-items: center;
+  }
+  
   .card-list-detail-modal .card-detail-content,
   .card-list-detail-modal .detail-header {
     max-width: 90%;
+    width: 90%;
   }
 }
 
