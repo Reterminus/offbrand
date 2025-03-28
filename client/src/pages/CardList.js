@@ -380,7 +380,7 @@ const CardList = () => {
           
           <select value={selectedSet} onChange={handleSetChange}>
             <option value="">All Sets</option>
-            <option value="tokens">Tokens</option>
+            <option value="tokens">Token</option>
             {sets.map(set => (
               <option key={set._id} value={set._id}>{set.name}</option>
             ))}
