@@ -2859,29 +2859,94 @@
   max-height: 80vh;
 }
 
-.card-notes-section {
+/* Card Note Section Styling */
+.card-list-detail-modal .card-notes-section {
   margin-top: 20px;
-  padding-top: 15px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 5px;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
-.notes-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 10px;
-  color: #e0e0e0;
+.card-list-detail-modal .card-notes-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+  margin: 10px 0 15px 0;
 }
 
-.notes-content {
+.card-list-detail-modal .card-notes-content {
   background-color: rgba(0, 0, 0, 0.2);
   border-radius: 8px;
-  padding: 10px;
+  padding: 15px;
+  margin-top: 15px;
 }
 
-.note-line {
-  margin: 5px 0;
-  line-height: 1.4;
+.card-list-detail-modal .note-line {
+  margin: 8px 0;
+  line-height: 1.5;
   color: #d0d0d0;
+  padding: 8px 10px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* Colorful note lines */
+.card-list-detail-modal .note-line:nth-child(5n+1) {
+  border-left: 3px solid rgba(100, 149, 237, 0.7);
+}
+
+.card-list-detail-modal .note-line:nth-child(5n+2) {
+  border-left: 3px solid rgba(144, 238, 144, 0.7);
+}
+
+.card-list-detail-modal .note-line:nth-child(5n+3) {
+  border-left: 3px solid rgba(255, 105, 180, 0.7);
+}
+
+.card-list-detail-modal .note-line:nth-child(5n+4) {
+  border-left: 3px solid rgba(255, 165, 0, 0.7);
+}
+
+.card-list-detail-modal .note-line:nth-child(5n+5) {
+  border-left: 3px solid rgba(186, 85, 211, 0.7);
+}
+
+/* Keyword Styling */
+.card-list-detail-modal .card-keywords {
+  margin-bottom: 15px;
+}
+
+.card-list-detail-modal .keyword-banner {
+  margin-bottom: 12px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.card-list-detail-modal .keyword-overlay {
+  padding: 15px;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-list-detail-modal .keyword-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.card-list-detail-modal .keyword-description-scrollable {
+  overflow-y: auto;
+  max-height: 150px;
+}
+
+.card-list-detail-modal .keyword-description {
+  margin: 0;
+  color: #e0e0e0;
+  font-size: 14px;
+  line-height: 1.5;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 /* Responsive adjustments */
@@ -2898,6 +2963,10 @@
   .card-list-detail-modal .card-detail-info {
     max-height: calc(80vh - 250px);
     overflow-y: auto;
+  }
+
+  .card-list-detail-modal .keyword-description-scrollable {
+    max-height: 100px;
   }
 }
 

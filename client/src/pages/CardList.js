@@ -595,16 +595,48 @@ const CardList = () => {
                 </div>
               )}
               
-              {selectedCardDetails.notes && selectedCardDetails.notes.trim() !== '' && (
+              {/* Add Keywords and Notes section */}
+              {((selectedCardDetails.keywords && selectedCardDetails.keywords.length > 0) || 
+                (selectedCardDetails.notes && selectedCardDetails.notes.trim() !== '')) && (
                 <div className="card-notes-section">
-                  <h4 className="notes-title">Card Notes</h4>
-                  <div className="notes-content">
-                    {selectedCardDetails.notes.split('\n').map((line, index) => (
-                      <p key={index} className="note-line">
-                        {line || <br />}
-                      </p>
-                    ))}
-                  </div>
+                  <div className="card-notes-divider"></div>
+                  
+                  {/* Keywords section */}
+                  {selectedCardDetails.keywords && selectedCardDetails.keywords.length > 0 && (
+                    <div className="card-keywords">
+                      {selectedCardDetails.keywords.map(keyword => (
+                        <div 
+                          key={keyword._id} 
+                          className="keyword-banner"
+                        >
+                          <div 
+                            className="keyword-overlay"
+                            style={{
+                              backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5)), url(${keyword.imageUrl})`,
+                              backgroundPosition: keyword.imagePosition || '50% 50%',
+                              backgroundSize: 'cover'
+                            }}
+                          >
+                            <h5 className="keyword-title">{keyword.title}</h5>
+                            <div className="keyword-description-scrollable">
+                              <p className="keyword-description">{keyword.description}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Notes content */}
+                  {selectedCardDetails.notes && selectedCardDetails.notes.trim() !== '' && (
+                    <div className="card-notes-content">
+                      {selectedCardDetails.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
+                        <div key={index} className="note-line">
+                          {formatText(line)}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
