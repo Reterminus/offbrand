@@ -111,9 +111,13 @@ const CardList = () => {
 
     // Filter by set
     if (selectedSet !== '') {
-      const selectedSetData = sets.find(set => set._id === selectedSet);
-      if (selectedSetData) {
-        result = result.filter(card => selectedSetData.cards.includes(card._id));
+      if (selectedSet === 'tokens') {
+        result = result.filter(card => card.isToken === true);
+      } else {
+        const selectedSetData = sets.find(set => set._id === selectedSet);
+        if (selectedSetData) {
+          result = result.filter(card => selectedSetData.cards.includes(card._id));
+        }
       }
     }
 
@@ -204,6 +208,19 @@ const CardList = () => {
           
           if (selectedRarity !== '') {
             match = match && card.rarity === selectedRarity;
+          }
+          
+          if (selectedSet !== '') {
+            if (selectedSet === 'tokens') {
+              match = match && card.isToken === true;
+            } else {
+              const selectedSetData = sets.find(set => set._id === selectedSet);
+              match = match && (selectedSetData && selectedSetData.cards.includes(card._id));
+            }
+          }
+          
+          if (selectedCreator !== '') {
+            match = match && card.creator === selectedCreator;
           }
           
           return match;
@@ -363,6 +380,7 @@ const CardList = () => {
           
           <select value={selectedSet} onChange={handleSetChange}>
             <option value="">All Sets</option>
+            <option value="tokens">Tokens</option>
             {sets.map(set => (
               <option key={set._id} value={set._id}>{set.name}</option>
             ))}
