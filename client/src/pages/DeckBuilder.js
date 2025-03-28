@@ -103,11 +103,21 @@ const DeckBuilder = () => {
       });
     }
 
-    // Sort cards by cost, then class (selected class first), then rarity, then card type
+    // Sort cards by cost, then rarity, then class, then card type, and finally by name
     result.sort((a, b) => {
       // First sort by cost
       if (a.cost !== b.cost) {
         return a.cost - b.cost;
+      }
+      
+      // Then sort by rarity (Legendary, Gold, Silver, Bronze)
+      const rarityOrder = { 'Legendary': 0, 'Gold': 1, 'Silver': 2, 'Bronze': 3 };
+      // Handle case where rarity might not match exactly or be undefined
+      const aRarityValue = rarityOrder[a.rarity] !== undefined ? rarityOrder[a.rarity] : 999;
+      const bRarityValue = rarityOrder[b.rarity] !== undefined ? rarityOrder[b.rarity] : 999;
+      
+      if (aRarityValue !== bRarityValue) {
+        return aRarityValue - bRarityValue;
       }
       
       // Then sort by class (selected class first, neutral last)
@@ -122,16 +132,6 @@ const DeckBuilder = () => {
         
         // Other classes sorted alphabetically
         return a.class.localeCompare(b.class);
-      }
-      
-      // Then sort by rarity (Legendary, Gold, Silver, Bronze)
-      const rarityOrder = { 'Legendary': 0, 'Gold': 1, 'Silver': 2, 'Bronze': 3 };
-      // Handle case where rarity might not match exactly or be undefined
-      const aRarityValue = rarityOrder[a.rarity] !== undefined ? rarityOrder[a.rarity] : 999;
-      const bRarityValue = rarityOrder[b.rarity] !== undefined ? rarityOrder[b.rarity] : 999;
-      
-      if (aRarityValue !== bRarityValue) {
-        return aRarityValue - bRarityValue;
       }
       
       // Then sort by card type (Follower, Spell, Amulet)
@@ -374,7 +374,7 @@ const DeckBuilder = () => {
             <button 
               className="btn" 
               onClick={exportDeck}
-              disabled={exportingDeck || deck.length !== 40}
+              disabled={exportingDeck}
             >
               {exportingDeck ? 'Exporting...' : 'Export Deck as Image'}
             </button>
