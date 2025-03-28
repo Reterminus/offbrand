@@ -404,7 +404,7 @@
 .card-detail.visible {
   opacity: 1;
   visibility: visible;
-  pointer-events: auto;
+  pointer-events: none; /* Prevent mouse events on the detail window */
 }
 
 .card-notes {
