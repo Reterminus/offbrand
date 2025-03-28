@@ -4,6 +4,7 @@ import { getCards, deleteCard, getSets, getKeywords } from '../services/api';
 import { sortCards } from '../utils/cardUtils';
 import { formatText } from '../utils/textUtils';
 import { AuthContext } from '../context/AuthContext';
+import '../styles/CardListFixes.css';
 
 const CardList = () => {
   const navigate = useNavigate();
@@ -465,7 +466,7 @@ const CardList = () => {
               
               {activeCardId === card._id && isDesktop && (
                 <div 
-                  className="card-detail"
+                  className="card-detail hover-detail"
                   style={{
                     left: detailPositions[card._id] === 'left' ? 'auto' : 'calc(100% + 20px)',
                     right: detailPositions[card._id] === 'left' ? 'calc(100% + 20px)' : 'auto'
