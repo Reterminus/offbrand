@@ -210,6 +210,13 @@
 
 /* Add styles for compressed window */
 @media (max-width: 1200px) {
+  /* Explicitly disable hover details for mobile/tablet */
+  .card:hover + .card-detail {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
   .card-detail {
     position: fixed;
     left: 50% !important;
