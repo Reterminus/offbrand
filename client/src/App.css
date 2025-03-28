@@ -405,14 +405,14 @@
   visibility: visible;
 }
 
-/* Mobile styles override to keep existing behavior */
+/* Mobile styles override to keep existing behavior 
 @media (max-width: 768px) {
   .card-container:hover .card-detail {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
   }
-}
+}*/
 
 .card-notes {
   position: absolute;
