@@ -242,7 +242,10 @@ const CardList = () => {
   const handleCardClick = (card, e) => {
     e.preventDefault();
     e.stopPropagation();
-    setSelectedCardDetails(card);
+    
+    // Find the full card data just to be safe
+    const fullCardData = cards.find(c => c._id === card._id) || card;
+    setSelectedCardDetails(fullCardData);
   };
 
   // Close the detail modal
@@ -755,11 +758,18 @@ const CardList = () => {
                 <div className="card-notes-section">
                   <h4 className="notes-title">Card Notes</h4>
                   <div className="notes-content">
-                    {selectedCardDetails.notes.split('\n').map((line, index) => (
-                      <p key={index} className="note-line">
-                        {line.trim() !== '' ? formatText(line) : <br />}
+                    {/* If notes are a single line, handle differently */}
+                    {!selectedCardDetails.notes.includes('\n') ? (
+                      <p className="note-line">
+                        {formatText(selectedCardDetails.notes)}
                       </p>
-                    ))}
+                    ) : (
+                      selectedCardDetails.notes.split('\n').map((line, index) => (
+                        <p key={index} className="note-line">
+                          {formatText(line || ' ')}
+                        </p>
+                      ))
+                    )}
                   </div>
                 </div>
               )}
