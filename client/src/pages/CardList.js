@@ -242,10 +242,7 @@ const CardList = () => {
   const handleCardClick = (card, e) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    // Find the full card data just to be safe
-    const fullCardData = cards.find(c => c._id === card._id) || card;
-    setSelectedCardDetails(fullCardData);
+    setSelectedCardDetails(card);
   };
 
   // Close the detail modal
@@ -587,11 +584,15 @@ const CardList = () => {
                     )}
                     
                     {/* Notes content */}
-                    {card.notes && card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
-                      <div key={index} className="note-line">
-                        {formatText(line)}
+                    {card.notes && card.notes.trim() !== '' && (
+                      <div className="card-notes-content">
+                        {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
+                          <div key={index} className="note-line">
+                            {formatText(line)}
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
                 ) : null}
               </div>
@@ -717,11 +718,6 @@ const CardList = () => {
                 </div>
               )}
               
-              {/* Divider line before Keywords */}
-              {(selectedCardDetails.keywords && selectedCardDetails.keywords.length > 0) && (
-                <div className="card-notes-divider"></div>
-              )}
-              
               {/* Keywords section */}
               {selectedCardDetails.keywords && selectedCardDetails.keywords.length > 0 && (
                 <div className="card-keywords">
@@ -748,28 +744,16 @@ const CardList = () => {
                 </div>
               )}
               
-              {/* Divider line before Notes */}
-              {selectedCardDetails.notes && selectedCardDetails.notes.trim() !== '' && (
-                <div className="card-notes-divider"></div>
-              )}
-              
               {/* Card Notes section */}
               {selectedCardDetails.notes && selectedCardDetails.notes.trim() !== '' && (
                 <div className="card-notes-section">
                   <h4 className="notes-title">Card Notes</h4>
                   <div className="notes-content">
-                    {/* If notes are a single line, handle differently */}
-                    {!selectedCardDetails.notes.includes('\n') ? (
-                      <p className="note-line">
-                        {formatText(selectedCardDetails.notes)}
+                    {selectedCardDetails.notes.split('\n').map((line, index) => (
+                      <p key={index} className="note-line">
+                        {formatText(line) || <br />}
                       </p>
-                    ) : (
-                      selectedCardDetails.notes.split('\n').map((line, index) => (
-                        <p key={index} className="note-line">
-                          {formatText(line || ' ')}
-                        </p>
-                      ))
-                    )}
+                    ))}
                   </div>
                 </div>
               )}

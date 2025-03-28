@@ -2963,8 +2963,8 @@
 }
 
 .card-container:hover::after {
-  content: 'ℹ';
-  opacity: 0.8;
+  content: '';
+  opacity: 0;
 }
 
 /* Desktop hover effects */
@@ -2972,29 +2972,4 @@
   .card-container {
     cursor: pointer;
   }
-}
-
-.card-list-detail-modal .card-notes-section {
-  margin-top: 20px;
-  padding-top: 15px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.card-list-detail-modal .notes-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 12px;
-  color: #e0e0e0;
-}
-
-.card-list-detail-modal .notes-content {
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
-  padding: 12px 15px;
-}
-
-.card-list-detail-modal .note-line {
-  margin: 6px 0;
-  line-height: 1.5;
-  color: #d0d0d0;
 }
