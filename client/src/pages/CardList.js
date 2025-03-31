@@ -93,11 +93,20 @@ const CardList = () => {
               // Check if the full card data is in our local cache
               const cachedCard = cards.find(card => card._id === relatedCard._id);
               if (cachedCard) {
-                newPreloadedCards[relatedCard._id] = cachedCard;
+                // Create a copy and sort its related cards
+                const cardWithSortedRelatedCards = {...cachedCard};
+                if (cardWithSortedRelatedCards.relatedCards && Array.isArray(cardWithSortedRelatedCards.relatedCards)) {
+                  cardWithSortedRelatedCards.relatedCards = sortCards(cardWithSortedRelatedCards.relatedCards);
+                }
+                newPreloadedCards[relatedCard._id] = cardWithSortedRelatedCards;
               } else {
                 // Otherwise fetch it (don't await here, let it happen in parallel)
                 getCard(relatedCard._id, true)
                   .then(cardData => {
+                    // Sort the related cards before caching
+                    if (cardData.relatedCards && Array.isArray(cardData.relatedCards)) {
+                      cardData.relatedCards = sortCards(cardData.relatedCards);
+                    }
                     setPreloadedRelatedCards(prev => ({
                       ...prev,
                       [relatedCard._id]: cardData
@@ -112,7 +121,7 @@ const CardList = () => {
         }
         
         // Update the preloaded cards state with any cached cards we found
-        if (Object.keys(newPreloadedCards).length > preloadedRelatedCards.length) {
+        if (Object.keys(newPreloadedCards).length > Object.keys(preloadedRelatedCards).length) {
           setPreloadedRelatedCards(newPreloadedCards);
         }
       };
@@ -321,9 +330,18 @@ const CardList = () => {
   const handleCardClick = (card, e) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    // Create a copy of the card to avoid modifying the original data
+    const cardDataToShow = {...card};
+    
+    // Sort the related cards if they exist
+    if (cardDataToShow.relatedCards && Array.isArray(cardDataToShow.relatedCards)) {
+      cardDataToShow.relatedCards = sortCards(cardDataToShow.relatedCards);
+    }
+    
     // Log for debugging
-    console.log('Selected card notes:', card.notes);
-    setSelectedCardDetails(card);
+    console.log('Selected card notes:', cardDataToShow.notes);
+    setSelectedCardDetails(cardDataToShow);
   };
 
   // Close the detail modal
@@ -409,7 +427,12 @@ const CardList = () => {
     try {
       // First check if we have this card preloaded
       if (preloadedRelatedCards[relatedCard._id]) {
-        setSelectedCardDetails(preloadedRelatedCards[relatedCard._id]);
+        // Sort the related cards before showing the details
+        const cardData = preloadedRelatedCards[relatedCard._id];
+        if (cardData.relatedCards && Array.isArray(cardData.relatedCards)) {
+          cardData.relatedCards = sortCards(cardData.relatedCards);
+        }
+        setSelectedCardDetails(cardData);
         return;
       }
       
@@ -417,40 +440,62 @@ const CardList = () => {
       if (relatedCard.keywords && Array.isArray(relatedCard.keywords) && 
           relatedCard.keywords.length > 0 && typeof relatedCard.keywords[0] === 'object' &&
           relatedCard.relatedCards && Array.isArray(relatedCard.relatedCards)) {
-        setSelectedCardDetails(relatedCard);
+        // Sort the related cards before showing the details
+        const cardDataToShow = {...relatedCard};
+        cardDataToShow.relatedCards = sortCards(cardDataToShow.relatedCards);
+        setSelectedCardDetails(cardDataToShow);
       } else {
         // Otherwise, try to find the full card data with populated keywords
         const fullCardData = cards.find(card => card._id === relatedCard._id);
         if (fullCardData) {
-          setSelectedCardDetails(fullCardData);
-        } else {
-          // If the card isn't in our local cache (e.g., it might be from a hidden set),
-          // we need to fetch it directly from the API
-          try {
-            // Pass true to indicate this is a related card view
-            const cardData = await getCard(relatedCard._id, true);
-            setSelectedCardDetails(cardData);
-            
-            // Also add it to our preloaded cards for future use
-            setPreloadedRelatedCards(prev => ({
-              ...prev,
-              [relatedCard._id]: cardData
-            }));
-          } catch (err) {
-            console.error('Error fetching card details:', err);
-            // Fallback to using the minimal related card data we have
-            // This ensures something is shown even if the fetch fails
-            setSelectedCardDetails({
-              ...relatedCard,
-              keywords: [],
-              relatedCards: []
-            });
+          // Sort the related cards before showing the details
+          const cardDataToShow = {...fullCardData};
+          if (cardDataToShow.relatedCards && Array.isArray(cardDataToShow.relatedCards)) {
+            cardDataToShow.relatedCards = sortCards(cardDataToShow.relatedCards);
           }
+          setSelectedCardDetails(cardDataToShow);
+          // Also add to cache for future use
+          setPreloadedRelatedCards(prev => ({...prev, [relatedCard._id]: cardDataToShow}));
+        } else {
+          // Last resort - fetch from API
+          // Show loading state immediately
+          setSelectedCardDetails({
+            ...relatedCard,
+            title: `${relatedCard.title} (Loading...)`,
+            keywords: [],
+            relatedCards: []
+          });
+          
+          // Fetch in background
+          getCard(relatedCard._id, true)
+            .then(cardData => {
+              // Sort the related cards before showing the details
+              if (cardData.relatedCards && Array.isArray(cardData.relatedCards)) {
+                cardData.relatedCards = sortCards(cardData.relatedCards);
+              }
+              setSelectedCardDetails(cardData);
+              setPreloadedRelatedCards(prev => ({...prev, [relatedCard._id]: cardData}));
+            })
+            .catch(err => {
+              console.error('Error fetching card details:', err);
+              // If fetch fails, show what we have
+              setSelectedCardDetails({
+                ...relatedCard,
+                title: `${relatedCard.title} (Failed to load details)`,
+                keywords: [],
+                relatedCards: []
+              });
+            });
         }
       }
     } catch (err) {
       console.error('Error handling related card click:', err);
-      // Provide user feedback if needed
+      // Fallback if anything goes wrong
+      setSelectedCardDetails({
+        ...relatedCard,
+        keywords: [],
+        relatedCards: []
+      });
     }
   };
 
