@@ -3397,7 +3397,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #1a1a1a;
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 .related-card.cards-only .related-card-image img {
