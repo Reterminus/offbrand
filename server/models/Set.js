@@ -19,6 +19,10 @@ const SetSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  order: {
+    type: Number,
+    default: 9999 // High default value so new sets appear at the end
+  },
   createdAt: {
     type: Date,
     default: Date.now

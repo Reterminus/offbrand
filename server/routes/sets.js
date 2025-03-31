@@ -2,10 +2,10 @@ const express = require('express');
 const router = express.Router();
 const Set = require('../models/Set');
 const Card = require('../models/Card');
-const { admin } = require('../middleware/auth');
+const { admin, auth } = require('../middleware/auth');
 
-// GET all sets - public
-router.get('/', async (req, res) => {
+// GET all sets - public but uses auth to check admin status
+router.get('/', auth, async (req, res) => {
   try {
     // Check if the user is an admin
     const isAdmin = req.user && req.user.isAdmin;
@@ -13,7 +13,8 @@ router.get('/', async (req, res) => {
     // Filter condition - if admin, show all sets; if not, only show non-hidden sets
     const filterCondition = isAdmin ? {} : { hidden: { $ne: true } };
     
-    const sets = await Set.find(filterCondition);
+    // Sort sets by order field
+    const sets = await Set.find(filterCondition).sort({ order: 1 });
     res.json(sets);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -21,7 +22,7 @@ router.get('/', async (req, res) => {
 });
 
 // GET a single set with populated cards - public
-router.get('/:id', async (req, res) => {
+router.get('/:id', auth, async (req, res) => {
   try {
     // Check if the user is an admin
     const isAdmin = req.user && req.user.isAdmin;
@@ -64,12 +65,13 @@ router.post('/', admin, async (req, res) => {
 // UPDATE a set - admin only
 router.patch('/:id', admin, async (req, res) => {
   try {
-    const { name, description, hidden } = req.body;
+    const { name, description, hidden, order } = req.body;
     
     const updateData = {};
     if (name) updateData.name = name;
     if (description !== undefined) updateData.description = description;
     if (hidden !== undefined) updateData.hidden = hidden === true;
+    if (order !== undefined) updateData.order = Number(order);
     
     const updatedSet = await Set.findByIdAndUpdate(
       req.params.id, 
@@ -153,6 +155,31 @@ router.delete('/:setId/cards/:cardId', admin, async (req, res) => {
     res.json(updatedSet);
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+// Update set order - admin only
+router.patch('/:id/order', admin, async (req, res) => {
+  try {
+    const { order } = req.body;
+    
+    if (order === undefined) {
+      return res.status(400).json({ message: 'Order value is required' });
+    }
+    
+    const updatedSet = await Set.findByIdAndUpdate(
+      req.params.id,
+      { order: Number(order) },
+      { new: true }
+    );
+    
+    if (!updatedSet) {
+      return res.status(404).json({ message: 'Set not found' });
+    }
+    
+    res.json(updatedSet);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
 });
 

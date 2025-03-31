@@ -881,7 +881,12 @@
 .set-name {
   font-size: 20px;
   margin-bottom: 8px;
-  color: #e0e0e0;
+  color: #ffffff;
+}
+
+.set-name a {
+  color: #ffffff;
+  text-decoration: none;
 }
 
 .set-description {
@@ -897,6 +902,39 @@
 .set-actions {
   display: flex;
   gap: 10px;
+  align-items: center;
+}
+
+.set-order-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-right: 10px;
+}
+
+.btn-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+  transition: all 0.2s;
+}
+
+.btn-icon:hover:not(:disabled) {
+  background-color: #444;
+}
+
+.btn-icon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Set Detail Styling */

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getSets, deleteSet } from '../services/api';
+import { getSets, deleteSet, updateSetOrder } from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 
 const SetList = () => {
@@ -9,6 +9,7 @@ const SetList = () => {
   const [sets, setSets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [reordering, setReordering] = useState(false);
 
   useEffect(() => {
     const fetchSets = async () => {
@@ -44,6 +45,52 @@ const SetList = () => {
     }
   };
 
+  const moveSetUp = async (setId, currentIndex) => {
+    if (currentIndex === 0) return; // Already at the top
+    
+    setReordering(true);
+    
+    try {
+      const prevSet = sets[currentIndex - 1];
+      const currentSet = sets[currentIndex];
+      
+      // Swap orders
+      await updateSetOrder(currentSet._id, prevSet.order);
+      await updateSetOrder(prevSet._id, currentSet.order);
+      
+      // Refresh sets
+      const updatedSets = await getSets();
+      setSets(updatedSets);
+    } catch (err) {
+      setError('Failed to reorder sets. Please try again.');
+    } finally {
+      setReordering(false);
+    }
+  };
+  
+  const moveSetDown = async (setId, currentIndex) => {
+    if (currentIndex === sets.length - 1) return; // Already at the bottom
+    
+    setReordering(true);
+    
+    try {
+      const nextSet = sets[currentIndex + 1];
+      const currentSet = sets[currentIndex];
+      
+      // Swap orders
+      await updateSetOrder(currentSet._id, nextSet.order);
+      await updateSetOrder(nextSet._id, currentSet.order);
+      
+      // Refresh sets
+      const updatedSets = await getSets();
+      setSets(updatedSets);
+    } catch (err) {
+      setError('Failed to reorder sets. Please try again.');
+    } finally {
+      setReordering(false);
+    }
+  };
+
   if (loading) {
     return <div className="loading">Loading sets...</div>;
   }
@@ -67,7 +114,7 @@ const SetList = () => {
         </div>
       ) : (
         <div className="set-list">
-          {sets.map(set => (
+          {sets.map((set, index) => (
             <div key={set._id} className={`set-item ${set.hidden ? 'hidden-set' : ''}`}>
               <div className="set-info">
                 <h3 className="set-name">
@@ -86,6 +133,26 @@ const SetList = () => {
               
               {isAdmin && (
                 <div className="set-actions">
+                  {isAdmin && (
+                    <div className="set-order-controls">
+                      <button 
+                        className="btn btn-icon"
+                        onClick={() => moveSetUp(set._id, index)}
+                        disabled={reordering || index === 0}
+                        title="Move up"
+                      >
+                        ↑
+                      </button>
+                      <button 
+                        className="btn btn-icon"
+                        onClick={() => moveSetDown(set._id, index)}
+                        disabled={reordering || index === sets.length - 1}
+                        title="Move down"
+                      >
+                        ↓
+                      </button>
+                    </div>
+                  )}
                   <Link to={`/sets/edit/${set._id}`} className="btn btn-edit">Edit</Link>
                   <button 
                     className="btn btn-danger"

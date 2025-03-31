@@ -199,6 +199,17 @@ export const updateSet = async (id, setData) => {
   }
 };
 
+// Update a set's order
+export const updateSetOrder = async (id, order) => {
+  try {
+    const response = await api.patch(`${SETS_URL}/${id}/order`, { order });
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating order for set with ID ${id}:`, error);
+    throw error;
+  }
+};
+
 // Delete a set
 export const deleteSet = async (id) => {
   try {
