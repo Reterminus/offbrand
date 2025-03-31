@@ -5,6 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const Card = require('../models/Card');
 const { admin } = require('../middleware/auth');
+const Set = require('../models/Set');
 
 // Set up multer for file uploads
 const storage = multer.diskStorage({
@@ -39,11 +40,38 @@ const upload = multer({
 // GET all cards - public
 router.get('/', async (req, res) => {
   try {
+    // Check if the user is an admin
+    const isAdmin = req.user && req.user.isAdmin;
+    
+    // Get all cards
     const cards = await Card.find()
       .populate('keywords')
       .populate('relatedCards');
+    
+    // If not admin, filter out cards from hidden sets
+    if (!isAdmin) {
+      // First get all hidden sets
+      const hiddenSets = await Set.find({ hidden: true });
+      const hiddenSetIds = hiddenSets.map(set => set._id.toString());
+      
+      // For each hidden set, get its cards
+      let cardsInHiddenSets = [];
+      for (const setId of hiddenSetIds) {
+        const hiddenSet = await Set.findById(setId);
+        if (hiddenSet && hiddenSet.cards && hiddenSet.cards.length > 0) {
+          cardsInHiddenSets = [...cardsInHiddenSets, ...hiddenSet.cards.map(id => id.toString())];
+        }
+      }
+      
+      // Filter out the cards in hidden sets
+      const filteredCards = cards.filter(card => !cardsInHiddenSets.includes(card._id.toString()));
+      return res.json(filteredCards);
+    }
+    
+    // If admin, return all cards
     res.json(cards);
   } catch (err) {
+    console.error('Error fetching cards:', err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -57,6 +85,15 @@ router.get('/:id', async (req, res) => {
     
     if (!card) {
       return res.status(404).json({ message: 'Card not found' });
+    }
+    
+    // Check if card belongs to a hidden set (for non-admins)
+    const isAdmin = req.user && req.user.isAdmin;
+    if (!isAdmin) {
+      const setsWithCard = await Set.find({ cards: card._id, hidden: true });
+      if (setsWithCard.length > 0) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
     }
     
     res.json(card);

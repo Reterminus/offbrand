@@ -7,7 +7,8 @@ const EditSet = () => {
   const { id } = useParams();
   const [formData, setFormData] = useState({
     name: '',
-    description: ''
+    description: '',
+    hidden: false
   });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -16,10 +17,11 @@ const EditSet = () => {
   useEffect(() => {
     const fetchSet = async () => {
       try {
-        const set = await getSet(id);
+        const setData = await getSet(id);
         setFormData({
-          name: set.name || '',
-          description: set.description || ''
+          name: setData.name,
+          description: setData.description || '',
+          hidden: setData.hidden || false
         });
         setLoading(false);
       } catch (err) {
@@ -27,15 +29,15 @@ const EditSet = () => {
         setLoading(false);
       }
     };
-
+    
     fetchSet();
   }, [id]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     });
   };
 
@@ -43,7 +45,7 @@ const EditSet = () => {
     e.preventDefault();
     
     if (!formData.name) {
-      setError('Please enter a set name.');
+      setError('Please provide a set name.');
       return;
     }
     
@@ -99,6 +101,21 @@ const EditSet = () => {
             placeholder="Enter set description"
             rows="4"
           ></textarea>
+        </div>
+        
+        <div className="form-group checkbox-group">
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              name="hidden"
+              checked={formData.hidden}
+              onChange={handleChange}
+            />
+            Hidden Set (Only visible to admins; cards won't appear in lists)
+          </label>
+          <p className="form-text text-muted">
+            When a set is hidden, its cards will only be accessible from the set page or through related cards.
+          </p>
         </div>
         
         <div className="form-actions">

@@ -257,6 +257,17 @@ const SetDetail = () => {
         </div>
       )}
 
+      {/* Notice for hidden sets */}
+      {set.hidden && isAdmin && (
+        <div className="set-hidden-info">
+          <span className="set-hidden-info-icon">ⓘ</span>
+          <span className="set-hidden-info-text">
+            This is a hidden set. It's only visible to admins, and its cards won't appear in the main card list or deck builder.
+            Cards in this set can only be accessed from this page or when they appear as related cards.
+          </span>
+        </div>
+      )}
+
       {isAdmin && (
         <div className="set-management">
           <h2>Add Cards to Set</h2>

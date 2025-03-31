@@ -3377,3 +3377,57 @@
     height: 100px;
   }
 }
+
+/* Hidden Set Styles */
+.hidden-set {
+  opacity: 0.8;
+  position: relative;
+}
+
+.hidden-set::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.05);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.hidden-set-badge {
+  display: inline-block;
+  background-color: rgba(255, 0, 0, 0.15);
+  color: #e57373;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+  vertical-align: middle;
+  font-weight: normal;
+  border: 1px solid rgba(255, 0, 0, 0.2);
+}
+
+/* Info badge for SetDetail page to show hidden status */
+.set-hidden-info {
+  background-color: rgba(255, 0, 0, 0.1);
+  border: 1px solid rgba(255, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 10px 15px;
+  margin-bottom: 20px;
+  color: #e0e0e0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.set-hidden-info-icon {
+  font-size: 20px;
+  color: #e57373;
+}
+
+.set-hidden-info-text {
+  font-size: 14px;
+  line-height: 1.4;
+}

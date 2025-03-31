@@ -34,7 +34,7 @@ const SetList = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this set?')) {
+    if (window.confirm('Are you sure you want to delete this set? This action cannot be undone.')) {
       try {
         await deleteSet(id);
         setSets(sets.filter(set => set._id !== id));
@@ -57,51 +57,44 @@ const SetList = () => {
       <div className="header">
         <h1>Card Sets</h1>
         {isAdmin && (
-          <Link to="/sets/create" className="btn">Add Set</Link>
+          <Link to="/sets/create" className="btn">Create New Set</Link>
         )}
       </div>
 
       {sets.length === 0 ? (
         <div className="no-sets">
-          <p>No sets found. {isAdmin ? 'Create your first set!' : ''}</p>
+          <p>No sets found.</p>
         </div>
       ) : (
         <div className="set-list">
           {sets.map(set => (
-            <div className="set-item" key={set._id}>
+            <div key={set._id} className={`set-item ${set.hidden ? 'hidden-set' : ''}`}>
               <div className="set-info">
-                <h2 className="set-name">{set.name}</h2>
-                {set.description && (
-                  <p className="set-description">{set.description}</p>
-                )}
+                <h3 className="set-name">
+                  <Link to={`/sets/${set._id}`}>{set.name}</Link>
+                  {set.hidden && isAdmin && (
+                    <span className="hidden-set-badge" title="This set is hidden from non-admin users">Hidden</span>
+                  )}
+                </h3>
+                <p className="set-description">{set.description || 'No description available.'}</p>
                 <div className="set-meta">
-                  <span>{set.cards.length} cards</span>
+                  <span className="set-card-count">
+                    {set.cards?.length || 0} card{(set.cards?.length !== 1) ? 's' : ''}
+                  </span>
                 </div>
               </div>
-              <div className="set-actions">
-                <button 
-                  className="btn btn-primary"
-                  onClick={() => handleView(set._id)}
-                >
-                  View
-                </button>
-                {isAdmin && (
-                  <>
-                    <button 
-                      className="btn btn-edit"
-                      onClick={() => handleEdit(set._id)}
-                    >
-                      Edit
-                    </button>
-                    <button 
-                      className="btn btn-danger"
-                      onClick={() => handleDelete(set._id)}
-                    >
-                      Delete
-                    </button>
-                  </>
-                )}
-              </div>
+              
+              {isAdmin && (
+                <div className="set-actions">
+                  <Link to={`/sets/edit/${set._id}`} className="btn btn-edit">Edit</Link>
+                  <button 
+                    className="btn btn-danger"
+                    onClick={() => handleDelete(set._id)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>

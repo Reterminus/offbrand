@@ -1,41 +1,53 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
 // Secret key for JWT
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-// Middleware to check if user is authenticated
-const auth = (req, res, next) => {
-  // Get token from header
-  const token = req.header('x-auth-token');
-  
-  // Check if no token
-  if (!token) {
-    return res.status(401).json({ message: 'No token, authorization denied' });
-  }
-  
+const authMiddleware = async (req, res, next) => {
   try {
-    // Verify token
-    const decoded = jwt.verify(token, JWT_SECRET);
+    // Get token from header
+    const token = req.header('x-auth-token');
     
-    // Add user from payload to request
-    req.user = decoded;
-    next();
+    if (!token) {
+      return res.status(401).json({ message: 'No token, authorization denied' });
+    }
+    
+    try {
+      // Verify token
+      const decoded = jwt.verify(token, JWT_SECRET);
+      
+      // Attach user info to request
+      req.user = {
+        id: decoded.id,
+        username: decoded.username,
+        isAdmin: decoded.isAdmin
+      };
+      
+      next();
+    } catch (err) {
+      res.status(401).json({ message: 'Token is not valid' });
+    }
   } catch (err) {
-    res.status(401).json({ message: 'Token is not valid' });
+    res.status(500).json({ message: err.message });
   }
 };
 
 // Middleware to check if user is admin
-const admin = (req, res, next) => {
-  // First check if user is authenticated
-  auth(req, res, () => {
-    // Check if user is admin
-    if (req.user && req.user.isAdmin) {
+const adminMiddleware = async (req, res, next) => {
+  try {
+    // First apply the auth middleware
+    authMiddleware(req, res, () => {
+      // Check if user is admin
+      if (!req.user.isAdmin) {
+        return res.status(403).json({ message: 'Access denied. Admin privileges required.' });
+      }
+      
       next();
-    } else {
-      res.status(403).json({ message: 'Access denied. Admin privileges required.' });
-    }
-  });
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
-module.exports = { auth, admin }; 
+module.exports = { auth: authMiddleware, admin: adminMiddleware }; 

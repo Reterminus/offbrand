@@ -7,7 +7,13 @@ const { admin } = require('../middleware/auth');
 // GET all sets - public
 router.get('/', async (req, res) => {
   try {
-    const sets = await Set.find().sort({ createdAt: -1 });
+    // Check if the user is an admin
+    const isAdmin = req.user && req.user.isAdmin;
+    
+    // Filter condition - if admin, show all sets; if not, only show non-hidden sets
+    const filterCondition = isAdmin ? {} : { hidden: { $ne: true } };
+    
+    const sets = await Set.find(filterCondition);
     res.json(sets);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -17,8 +23,20 @@ router.get('/', async (req, res) => {
 // GET a single set with populated cards - public
 router.get('/:id', async (req, res) => {
   try {
+    // Check if the user is an admin
+    const isAdmin = req.user && req.user.isAdmin;
+    
     const set = await Set.findById(req.params.id).populate('cards');
-    if (!set) return res.status(404).json({ message: 'Set not found' });
+    
+    if (!set) {
+      return res.status(404).json({ message: 'Set not found' });
+    }
+    
+    // If set is hidden and user is not admin, deny access
+    if (set.hidden && !isAdmin) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+    
     res.json(set);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -28,12 +46,12 @@ router.get('/:id', async (req, res) => {
 // CREATE a new set - admin only
 router.post('/', admin, async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { name, description, hidden } = req.body;
     
     const newSet = new Set({
       name,
-      description: description || '',
-      cards: []
+      description,
+      hidden: hidden === true // Convert to boolean
     });
     
     const savedSet = await newSet.save();
@@ -46,15 +64,23 @@ router.post('/', admin, async (req, res) => {
 // UPDATE a set - admin only
 router.patch('/:id', admin, async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { name, description, hidden } = req.body;
+    
+    const updateData = {};
+    if (name) updateData.name = name;
+    if (description !== undefined) updateData.description = description;
+    if (hidden !== undefined) updateData.hidden = hidden === true;
     
     const updatedSet = await Set.findByIdAndUpdate(
-      req.params.id,
-      { name, description },
+      req.params.id, 
+      updateData, 
       { new: true }
     );
     
-    if (!updatedSet) return res.status(404).json({ message: 'Set not found' });
+    if (!updatedSet) {
+      return res.status(404).json({ message: 'Set not found' });
+    }
+    
     res.json(updatedSet);
   } catch (err) {
     res.status(400).json({ message: err.message });
