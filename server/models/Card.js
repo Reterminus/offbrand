@@ -41,6 +41,10 @@ const CardSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Keyword'
   }],
+  referencedCards: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Card'
+  }],
   unevolvedAttack: {
     type: Number,
     default: 0

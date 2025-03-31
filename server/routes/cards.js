@@ -49,7 +49,9 @@ router.get('/', async (req, res) => {
 // GET a single card - public
 router.get('/:id', async (req, res) => {
   try {
-    const card = await Card.findById(req.params.id).populate('keywords');
+    const card = await Card.findById(req.params.id)
+      .populate('keywords')
+      .populate('referencedCards');
     if (!card) return res.status(404).json({ message: 'Card not found' });
     res.json(card);
   } catch (err) {
@@ -79,7 +81,8 @@ router.post('/', admin, upload.single('image'), async (req, res) => {
       notes,
       creator,
       imageUrl,
-      keywords
+      keywords,
+      referencedCards
     } = req.body;
     
     let finalImageUrl = imageUrl;
@@ -111,6 +114,11 @@ router.post('/', admin, upload.single('image'), async (req, res) => {
     // Add keywords if provided
     if (keywords) {
       cardData.keywords = Array.isArray(keywords) ? keywords : JSON.parse(keywords);
+    }
+    
+    // Add referenced cards if provided
+    if (referencedCards) {
+      cardData.referencedCards = Array.isArray(referencedCards) ? referencedCards : JSON.parse(referencedCards);
     }
     
     // Add type-specific fields
@@ -161,7 +169,8 @@ router.patch('/:id', admin, upload.single('image'), async (req, res) => {
       notes,
       creator,
       imageUrl,
-      keywords
+      keywords,
+      referencedCards
     } = req.body;
     
     // Create base update object
@@ -196,6 +205,11 @@ router.patch('/:id', admin, upload.single('image'), async (req, res) => {
     // Add keywords if provided
     if (keywords) {
       updateData.keywords = Array.isArray(keywords) ? keywords : JSON.parse(keywords);
+    }
+    
+    // Add referenced cards if provided
+    if (referencedCards) {
+      updateData.referencedCards = Array.isArray(referencedCards) ? referencedCards : JSON.parse(referencedCards);
     }
     
     // Handle image update

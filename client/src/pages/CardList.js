@@ -274,6 +274,20 @@ const CardList = () => {
     e.stopPropagation();
   };
 
+  // Handle clicking on a referenced card to view its details
+  const handleReferencedCardClick = (card, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Find the full card data for the referenced card
+    const fullCardData = cards.find(c => c._id === card._id);
+    if (fullCardData) {
+      setSelectedCardDetails(fullCardData);
+    } else {
+      console.error('Could not find complete data for referenced card:', card._id);
+    }
+  };
+
   // Handle double click to show notes
   const handleDoubleClick = (card) => {
     if (card.notes && card.notes.trim() !== '') {
@@ -765,6 +779,34 @@ const CardList = () => {
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+              
+              {/* Referenced Cards section */}
+              {selectedCardDetails.referencedCards && selectedCardDetails.referencedCards.length > 0 && (
+                <div className="referenced-cards-section">
+                  <h4 className="referenced-cards-title">Referenced Cards</h4>
+                  <div className="referenced-cards-grid">
+                    {selectedCardDetails.referencedCards.map(refCard => (
+                      <div 
+                        key={refCard._id} 
+                        className="referenced-card-item"
+                        onClick={(e) => handleReferencedCardClick(refCard, e)}
+                      >
+                        <div className="referenced-card-image">
+                          <img src={refCard.imageUrl} alt={refCard.title} />
+                        </div>
+                        <div className="referenced-card-info">
+                          <h5 className="referenced-card-title">{refCard.title}</h5>
+                          <div className="referenced-card-meta">
+                            <span className="referenced-card-cost">{refCard.cost}</span>
+                            <span className="referenced-card-class">{refCard.class}</span>
+                            <span className="referenced-card-type">{refCard.cardType}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
               

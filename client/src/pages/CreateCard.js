@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createCard, getSets, addCardToSet, getKeywords } from '../services/api';
+import { createCard, getSets, addCardToSet, getKeywords, getCards } from '../services/api';
 
 const CreateCard = () => {
   const navigate = useNavigate();
@@ -26,24 +26,28 @@ const CreateCard = () => {
     imageUrl: '',
     imageSource: 'url', // Changed default to 'url'
     setId: '', // Added setId field
-    keywords: []
+    keywords: [],
+    referencedCards: []
   });
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [sets, setSets] = useState([]); // Added state for sets
   const [keywords, setKeywords] = useState([]);
+  const [allCards, setAllCards] = useState([]);
 
-  // Fetch available sets and keywords when component mounts
+  // Fetch available sets, keywords, and all cards when component mounts
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [setsData, keywordsData] = await Promise.all([
+        const [setsData, keywordsData, cardsData] = await Promise.all([
           getSets(),
-          getKeywords()
+          getKeywords(),
+          getCards()
         ]);
         setSets(setsData);
         setKeywords(keywordsData);
+        setAllCards(cardsData);
       } catch (err) {
         console.error('Error fetching data:', err);
       }
@@ -119,6 +123,14 @@ const CreateCard = () => {
     });
   };
 
+  const handleReferencedCardsChange = (e) => {
+    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+    setFormData({
+      ...formData,
+      referencedCards: selectedOptions
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -183,6 +195,11 @@ const CreateCard = () => {
       // Append keywords if selected
       if (formData.keywords.length > 0) {
         data.append('keywords', JSON.stringify(formData.keywords));
+      }
+      
+      // Append referenced cards if selected
+      if (formData.referencedCards.length > 0) {
+        data.append('referencedCards', JSON.stringify(formData.referencedCards));
       }
       
       // Create the card
@@ -598,55 +615,41 @@ const CreateCard = () => {
         </div>
         
         <div className="form-group">
-          <label className="form-label">Keywords:</label>
-          <div className="keywords-container">
+          <label htmlFor="keywords">Keywords:</label>
+          <select
+            id="keywords"
+            name="keywords"
+            multiple
+            value={formData.keywords}
+            onChange={handleKeywordChange}
+            className="form-control"
+          >
             {keywords.map(keyword => (
-              <div key={keyword._id} className="keyword-selection-item">
-                <div className="keyword-checkbox-wrapper">
-                  <input
-                    type="checkbox"
-                    id={`keyword-${keyword._id}`}
-                    checked={formData.keywords.includes(keyword._id)}
-                    onChange={() => {
-                      // Toggle this keyword in the selected keywords
-                      const newKeywords = formData.keywords.includes(keyword._id)
-                        ? formData.keywords.filter(id => id !== keyword._id)
-                        : [...formData.keywords, keyword._id];
-                      
-                      setFormData({
-                        ...formData,
-                        keywords: newKeywords
-                      });
-                    }}
-                    className="keyword-checkbox"
-                  />
-                  <label htmlFor={`keyword-${keyword._id}`} className="keyword-label">
-                    {keyword.title}
-                  </label>
-                </div>
-                <div 
-                  className="keyword-preview-banner"
-                  style={{
-                    backgroundImage: `url(${keyword.imageUrl})`,
-                    backgroundPosition: keyword.imagePosition || '50% 50%',
-                    backgroundSize: 'cover'
-                  }}
-                >
-                  <div className="keyword-preview-overlay">
-                    <div className="keyword-preview-content">
-                      <h5 className="keyword-preview-title">{keyword.title}</h5>
-                      <p className="keyword-preview-description">{keyword.description}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <option key={keyword._id} value={keyword._id}>
+                {keyword.title}
+              </option>
             ))}
-          </div>
-          {keywords.length === 0 && (
-            <div className="no-keywords-message">
-              No keywords available. <a href="/keywords/create">Create keywords</a> to add them to cards.
-            </div>
-          )}
+          </select>
+          <small>Hold Ctrl (or Cmd on Mac) to select multiple keywords.</small>
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="referencedCards">Referenced Cards:</label>
+          <select
+            id="referencedCards"
+            name="referencedCards"
+            multiple
+            value={formData.referencedCards}
+            onChange={handleReferencedCardsChange}
+            className="form-control"
+          >
+            {allCards.map(card => (
+              <option key={card._id} value={card._id}>
+                {card.title} ({card.cardType}, {card.class}, {card.rarity})
+              </option>
+            ))}
+          </select>
+          <small>Hold Ctrl (or Cmd on Mac) to select multiple cards.</small>
         </div>
         
         <div className="form-actions">
