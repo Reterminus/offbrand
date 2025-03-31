@@ -25,6 +25,7 @@ const CardList = () => {
   const [showNotesForCard, setShowNotesForCard] = useState(null);
   const cardRefs = useRef({});
   const [selectedCardDetails, setSelectedCardDetails] = useState(null);
+  const [hoveredRelatedCard, setHoveredRelatedCard] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -355,6 +356,16 @@ const CardList = () => {
         setSelectedCardDetails(relatedCard);
       }
     }
+  };
+
+  // Handle hover on related card to show its name in the title
+  const handleRelatedCardMouseEnter = (relatedCard) => {
+    setHoveredRelatedCard(relatedCard);
+  };
+
+  // Handle hover end on related card to restore original title
+  const handleRelatedCardMouseLeave = () => {
+    setHoveredRelatedCard(null);
   };
 
   if (loading) {
@@ -739,13 +750,17 @@ const CardList = () => {
               {/* Related Cards section - Move above Keywords */}
               {selectedCardDetails.relatedCards && selectedCardDetails.relatedCards.length > 0 && (
                 <div className="related-cards-section">
-                  <h4 className="related-cards-title">Related Cards</h4>
+                  <h4 className="related-cards-title">
+                    {hoveredRelatedCard ? hoveredRelatedCard.title : "Related Cards"}
+                  </h4>
                   <div className="related-cards-grid cards-only">
                     {selectedCardDetails.relatedCards.map(relatedCard => (
                       <div 
                         key={relatedCard._id} 
                         className="related-card cards-only"
                         onClick={(e) => handleRelatedCardClick(relatedCard, e)}
+                        onMouseEnter={() => handleRelatedCardMouseEnter(relatedCard)}
+                        onMouseLeave={handleRelatedCardMouseLeave}
                       >
                         <div className="related-card-image">
                           <img src={relatedCard.imageUrl} alt={relatedCard.title} />
