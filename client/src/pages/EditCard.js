@@ -37,6 +37,8 @@ const EditCard = () => {
   const [sets, setSets] = useState([]);
   const [keywords, setKeywords] = useState([]);
   const [allCards, setAllCards] = useState([]);
+  const [relatedCardSearch, setRelatedCardSearch] = useState('');
+  const [filteredRelatedCards, setFilteredRelatedCards] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -190,12 +192,47 @@ const EditCard = () => {
     });
   };
 
-  const handleRelatedCardsChange = (e) => {
-    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+  const handleRelatedCardSearch = (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    setRelatedCardSearch(searchTerm);
+    
+    if (searchTerm.trim() === '') {
+      setFilteredRelatedCards([]);
+      return;
+    }
+    
+    const filtered = allCards
+      .filter(card => card._id !== id) // Prevent self-reference
+      .filter(card => 
+        card.title.toLowerCase().includes(searchTerm) ||
+        card.class.toLowerCase().includes(searchTerm) ||
+        card.rarity.toLowerCase().includes(searchTerm) ||
+        (card.trait && card.trait.toLowerCase().includes(searchTerm))
+      );
+    
+    setFilteredRelatedCards(filtered);
+  };
+
+  const handleAddRelatedCard = (cardId) => {
+    if (!formData.relatedCards.includes(cardId)) {
+      setFormData({
+        ...formData,
+        relatedCards: [...formData.relatedCards, cardId]
+      });
+    }
+    setRelatedCardSearch('');
+    setFilteredRelatedCards([]);
+  };
+
+  const handleRemoveRelatedCard = (cardId) => {
     setFormData({
       ...formData,
-      relatedCards: selectedOptions
+      relatedCards: formData.relatedCards.filter(id => id !== cardId)
     });
+  };
+
+  const getRelatedCardById = (cardId) => {
+    return allCards.find(card => card._id === cardId);
   };
 
   const handleSubmit = async (e) => {
@@ -751,26 +788,85 @@ const EditCard = () => {
           )}
         </div>
         
-        {/* Add RelatedCards selection */}
+        {/* Replace the existing Related Cards Selection */}
         <div className="form-group">
-          <label htmlFor="relatedCards">Related Cards</label>
-          <select
-            id="relatedCards"
-            name="relatedCards"
-            multiple
-            className="form-control"
-            onChange={handleRelatedCardsChange}
-            value={formData.relatedCards}
-          >
-            {allCards.map(card => (
-              <option key={card._id} value={card._id}>
-                {card.title} ({card.class}, {card.rarity})
-              </option>
-            ))}
-          </select>
-          <small className="form-text text-muted">
-            Hold Ctrl (or Cmd on Mac) to select multiple cards.
-          </small>
+          <label>Related Cards</label>
+          
+          <div className="related-cards-manager">
+            {/* Search input for related cards */}
+            <div className="related-cards-search">
+              <input
+                type="text"
+                placeholder="Search for cards to relate..."
+                value={relatedCardSearch}
+                onChange={handleRelatedCardSearch}
+                className="form-control"
+              />
+              
+              {/* Search results dropdown */}
+              {filteredRelatedCards.length > 0 && (
+                <div className="related-cards-search-results">
+                  {filteredRelatedCards.map(card => (
+                    <div 
+                      key={card._id} 
+                      className="related-card-search-item"
+                      onClick={() => handleAddRelatedCard(card._id)}
+                    >
+                      <div className="related-card-search-image">
+                        <img src={card.imageUrl} alt={card.title} />
+                      </div>
+                      <div className="related-card-search-info">
+                        <div className="related-card-search-title">{card.title}</div>
+                        <div className="related-card-search-meta">
+                          <span>{card.class}</span>
+                          <span>{card.rarity}</span>
+                          <span>{card.cardType || 'Follower'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            {/* Currently selected related cards */}
+            <div className="selected-related-cards">
+              <h4>Selected Related Cards</h4>
+              
+              {formData.relatedCards.length === 0 ? (
+                <div className="no-related-cards">No related cards selected</div>
+              ) : (
+                <div className="selected-related-cards-list">
+                  {formData.relatedCards.map(cardId => {
+                    const card = getRelatedCardById(cardId);
+                    if (!card) return null;
+                    
+                    return (
+                      <div key={cardId} className="selected-related-card">
+                        <div className="selected-related-card-image">
+                          <img src={card.imageUrl} alt={card.title} />
+                        </div>
+                        <div className="selected-related-card-info">
+                          <div className="selected-related-card-title">{card.title}</div>
+                          <div className="selected-related-card-meta">
+                            <span>{card.class}</span>
+                            <span>{card.rarity}</span>
+                          </div>
+                        </div>
+                        <button 
+                          type="button" 
+                          className="remove-related-card-btn"
+                          onClick={() => handleRemoveRelatedCard(cardId)}
+                        >
+                          &times;
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
         
         <div className="form-actions">

@@ -340,7 +340,21 @@ const CardList = () => {
   const handleRelatedCardClick = (relatedCard, e) => {
     e.preventDefault();
     e.stopPropagation();
-    setSelectedCardDetails(relatedCard);
+    
+    // If the related card already has populated keywords, use it as is
+    if (relatedCard.keywords && Array.isArray(relatedCard.keywords) && 
+        relatedCard.keywords.length > 0 && typeof relatedCard.keywords[0] === 'object') {
+      setSelectedCardDetails(relatedCard);
+    } else {
+      // Otherwise, try to find the full card data with populated keywords
+      const fullCardData = cards.find(card => card._id === relatedCard._id);
+      if (fullCardData) {
+        setSelectedCardDetails(fullCardData);
+      } else {
+        // Fallback to using the related card data we have
+        setSelectedCardDetails(relatedCard);
+      }
+    }
   };
 
   if (loading) {
@@ -775,27 +789,19 @@ const CardList = () => {
                 </div>
               )}
               
-              {/* Related Cards section - Add this new section */}
+              {/* Related Cards section - Update this section */}
               {selectedCardDetails.relatedCards && selectedCardDetails.relatedCards.length > 0 && (
                 <div className="related-cards-section">
                   <h4 className="related-cards-title">Related Cards</h4>
-                  <div className="related-cards-grid">
+                  <div className="related-cards-grid cards-only">
                     {selectedCardDetails.relatedCards.map(relatedCard => (
                       <div 
                         key={relatedCard._id} 
-                        className="related-card"
+                        className="related-card cards-only"
                         onClick={(e) => handleRelatedCardClick(relatedCard, e)}
                       >
                         <div className="related-card-image">
                           <img src={relatedCard.imageUrl} alt={relatedCard.title} />
-                        </div>
-                        <div className="related-card-info">
-                          <h5 className="related-card-title">{relatedCard.title}</h5>
-                          <div className="related-card-meta">
-                            <span className="related-card-cost">{relatedCard.cost}</span>
-                            <span className="related-card-class">{relatedCard.class}</span>
-                            <span className="related-card-type">{relatedCard.cardType || 'Follower'}</span>
-                          </div>
                         </div>
                       </div>
                     ))}
