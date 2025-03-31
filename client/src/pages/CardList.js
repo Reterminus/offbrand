@@ -26,6 +26,7 @@ const CardList = () => {
   const cardRefs = useRef({});
   const [selectedCardDetails, setSelectedCardDetails] = useState(null);
   const [hoveredRelatedCard, setHoveredRelatedCard] = useState(null);
+  const [preloadedRelatedCards, setPreloadedRelatedCards] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -56,6 +57,48 @@ const CardList = () => {
 
     fetchData();
   }, []);
+
+  // Preload related cards data when a card is selected for the detail modal
+  useEffect(() => {
+    if (selectedCardDetails && selectedCardDetails.relatedCards && selectedCardDetails.relatedCards.length > 0) {
+      const preloadRelatedCardsData = async () => {
+        const relatedCardIds = selectedCardDetails.relatedCards.map(card => card._id);
+        const newPreloadedCards = { ...preloadedRelatedCards };
+        
+        // For each related card that's not already preloaded
+        for (const relatedCard of selectedCardDetails.relatedCards) {
+          if (!preloadedRelatedCards[relatedCard._id]) {
+            try {
+              // Check if the full card data is in our local cache
+              const cachedCard = cards.find(card => card._id === relatedCard._id);
+              if (cachedCard) {
+                newPreloadedCards[relatedCard._id] = cachedCard;
+              } else {
+                // Otherwise fetch it (don't await here, let it happen in parallel)
+                getCard(relatedCard._id, true)
+                  .then(cardData => {
+                    setPreloadedRelatedCards(prev => ({
+                      ...prev,
+                      [relatedCard._id]: cardData
+                    }));
+                  })
+                  .catch(err => console.error(`Error preloading card ${relatedCard._id}:`, err));
+              }
+            } catch (err) {
+              console.error(`Error preloading related card ${relatedCard._id}:`, err);
+            }
+          }
+        }
+        
+        // Update the preloaded cards state with any cached cards we found
+        if (Object.keys(newPreloadedCards).length > preloadedRelatedCards.length) {
+          setPreloadedRelatedCards(newPreloadedCards);
+        }
+      };
+      
+      preloadRelatedCardsData();
+    }
+  }, [selectedCardDetails, cards, preloadedRelatedCards]);
 
   // Filter cards when search term or selected filters change
   useEffect(() => {
@@ -343,6 +386,12 @@ const CardList = () => {
     e.stopPropagation();
     
     try {
+      // First check if we have this card preloaded
+      if (preloadedRelatedCards[relatedCard._id]) {
+        setSelectedCardDetails(preloadedRelatedCards[relatedCard._id]);
+        return;
+      }
+      
       // If the related card already has populated keywords and relatedCards, use it as is
       if (relatedCard.keywords && Array.isArray(relatedCard.keywords) && 
           relatedCard.keywords.length > 0 && typeof relatedCard.keywords[0] === 'object' &&
@@ -360,6 +409,12 @@ const CardList = () => {
             // Pass true to indicate this is a related card view
             const cardData = await getCard(relatedCard._id, true);
             setSelectedCardDetails(cardData);
+            
+            // Also add it to our preloaded cards for future use
+            setPreloadedRelatedCards(prev => ({
+              ...prev,
+              [relatedCard._id]: cardData
+            }));
           } catch (err) {
             console.error('Error fetching card details:', err);
             // Fallback to using the minimal related card data we have
