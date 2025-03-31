@@ -477,13 +477,7 @@ const CardList = () => {
       <div className="header">
         <h1>All Cards</h1>
         {isAdmin && (
-          <div className="admin-header-actions">
-            <Link to="/create" className="btn">Add Card</Link>
-            <div className="hidden-sets-note">
-              <span className="info-icon">ⓘ</span>
-              <span>Cards in hidden sets are accessible from their respective sets in the Set List.</span>
-            </div>
-          </div>
+          <Link to="/create" className="btn">Add Card</Link>
         )}
       </div>
 
