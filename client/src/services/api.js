@@ -90,9 +90,11 @@ export const getCards = async (filterHidden = true) => {
 };
 
 // Get a single card by ID
-export const getCard = async (id) => {
+export const getCard = async (id, isRelatedView = false) => {
   try {
-    const response = await api.get(`${CARDS_URL}/${id}`);
+    const response = await api.get(`${CARDS_URL}/${id}`, {
+      params: { relatedView: isRelatedView }
+    });
     return response.data;
   } catch (error) {
     console.error(`Error fetching card with ID ${id}:`, error);

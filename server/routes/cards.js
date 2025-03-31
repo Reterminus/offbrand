@@ -92,7 +92,9 @@ router.get('/:id', optionalAuth, async (req, res) => {
     
     // Check if card belongs to a hidden set (for non-admins)
     const isAdmin = req.user && req.user.isAdmin;
-    if (!isAdmin) {
+    const isRelatedCardView = req.query.relatedView === 'true';
+    
+    if (!isAdmin && !isRelatedCardView) {
       const setsWithCard = await Set.find({ cards: card._id, hidden: true });
       if (setsWithCard.length > 0) {
         return res.status(403).json({ message: 'Access denied' });

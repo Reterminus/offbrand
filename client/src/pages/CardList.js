@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getCards, deleteCard, getSets, getKeywords } from '../services/api';
+import { getCards, deleteCard, getSets, getKeywords, getCard } from '../services/api';
 import { sortCards } from '../utils/cardUtils';
 import { formatText } from '../utils/textUtils';
 import { AuthContext } from '../context/AuthContext';
@@ -338,23 +338,43 @@ const CardList = () => {
   };
 
   // Handle clicking on a related card to show its details
-  const handleRelatedCardClick = (relatedCard, e) => {
+  const handleRelatedCardClick = async (relatedCard, e) => {
     e.preventDefault();
     e.stopPropagation();
     
-    // If the related card already has populated keywords, use it as is
-    if (relatedCard.keywords && Array.isArray(relatedCard.keywords) && 
-        relatedCard.keywords.length > 0 && typeof relatedCard.keywords[0] === 'object') {
-      setSelectedCardDetails(relatedCard);
-    } else {
-      // Otherwise, try to find the full card data with populated keywords
-      const fullCardData = cards.find(card => card._id === relatedCard._id);
-      if (fullCardData) {
-        setSelectedCardDetails(fullCardData);
-      } else {
-        // Fallback to using the related card data we have
+    try {
+      // If the related card already has populated keywords and relatedCards, use it as is
+      if (relatedCard.keywords && Array.isArray(relatedCard.keywords) && 
+          relatedCard.keywords.length > 0 && typeof relatedCard.keywords[0] === 'object' &&
+          relatedCard.relatedCards && Array.isArray(relatedCard.relatedCards)) {
         setSelectedCardDetails(relatedCard);
+      } else {
+        // Otherwise, try to find the full card data with populated keywords
+        const fullCardData = cards.find(card => card._id === relatedCard._id);
+        if (fullCardData) {
+          setSelectedCardDetails(fullCardData);
+        } else {
+          // If the card isn't in our local cache (e.g., it might be from a hidden set),
+          // we need to fetch it directly from the API
+          try {
+            // Pass true to indicate this is a related card view
+            const cardData = await getCard(relatedCard._id, true);
+            setSelectedCardDetails(cardData);
+          } catch (err) {
+            console.error('Error fetching card details:', err);
+            // Fallback to using the minimal related card data we have
+            // This ensures something is shown even if the fetch fails
+            setSelectedCardDetails({
+              ...relatedCard,
+              keywords: [],
+              relatedCards: []
+            });
+          }
+        }
       }
+    } catch (err) {
+      console.error('Error handling related card click:', err);
+      // Provide user feedback if needed
     }
   };
 
