@@ -27,36 +27,38 @@ const CardList = () => {
   const [selectedCardDetails, setSelectedCardDetails] = useState(null);
   const [hoveredRelatedCard, setHoveredRelatedCard] = useState(null);
   const [preloadedRelatedCards, setPreloadedRelatedCards] = useState({});
+  const [showHiddenSetCards, setShowHiddenSetCards] = useState(false);
+  const [cardsFromHiddenSets, setCardsFromHiddenSets] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [cardsData, setsData, keywordsData] = await Promise.all([
-          getCards(),
+          getCards(false),
           getSets(),
           getKeywords()
         ]);
         
-        // Find all hidden sets
-        const hiddenSets = setsData.filter(set => set.hidden);
+        const sortedCards = sortCards(cardsData);
         
-        // Create a list of card IDs that are in hidden sets
-        const cardsInHiddenSets = new Set();
+        // Identify cards from hidden sets
+        const hiddenSets = setsData.filter(set => set.hidden);
+        const hiddenSetCards = [];
+        
+        // Collect all cards that belong to hidden sets
         hiddenSets.forEach(set => {
           if (set.cards && Array.isArray(set.cards)) {
-            set.cards.forEach(cardId => cardsInHiddenSets.add(cardId.toString()));
+            set.cards.forEach(cardId => {
+              // Ensure we're comparing strings
+              const cardIdStr = cardId.toString();
+              if (!hiddenSetCards.includes(cardIdStr)) {
+                hiddenSetCards.push(cardIdStr);
+              }
+            });
           }
         });
+        setCardsFromHiddenSets(hiddenSetCards);
         
-        // Filter out cards that are in hidden sets
-        const filteredCardsData = cardsData.filter(card => {
-          return !cardsInHiddenSets.has(card._id.toString());
-        });
-        
-        // Sort cards by class, rarity, and title
-        const sortedCards = sortCards(filteredCardsData);
-        
-        // Extract unique creators from cards
         const uniqueCreators = [...new Set(sortedCards
           .map(card => card.creator)
           .filter(creator => creator && creator.trim() !== '')
@@ -81,6 +83,7 @@ const CardList = () => {
   useEffect(() => {
     if (selectedCardDetails && selectedCardDetails.relatedCards && selectedCardDetails.relatedCards.length > 0) {
       const preloadRelatedCardsData = async () => {
+        const relatedCardIds = selectedCardDetails.relatedCards.map(card => card._id);
         const newPreloadedCards = { ...preloadedRelatedCards };
         
         // For each related card that's not already preloaded
@@ -109,7 +112,7 @@ const CardList = () => {
         }
         
         // Update the preloaded cards state with any cached cards we found
-        if (Object.keys(newPreloadedCards).length > Object.keys(preloadedRelatedCards).length) {
+        if (Object.keys(newPreloadedCards).length > preloadedRelatedCards.length) {
           setPreloadedRelatedCards(newPreloadedCards);
         }
       };
@@ -124,21 +127,22 @@ const CardList = () => {
     
     let result = [...cards];
     
-    // Filter by search term
+    // Filter cards from hidden sets if toggle is off
+    if (!showHiddenSetCards && cardsFromHiddenSets.length > 0) {
+      result = result.filter(card => !cardsFromHiddenSets.includes(card._id.toString()));
+    }
+    
     if (searchTerm.trim() !== '') {
       const searchTermLower = searchTerm.toLowerCase();
       result = result.filter(card => {
-        // Search in card title
         if (card.title.toLowerCase().includes(searchTermLower)) {
           return true;
         }
         
-        // Search in card trait
         if (card.trait && card.trait.toLowerCase().includes(searchTermLower)) {
           return true;
         }
         
-        // Search in descriptions based on card type
         if ((!card.cardType || card.cardType === 'Follower') && 
             ((card.unevolvedDescription && card.unevolvedDescription.toLowerCase().includes(searchTermLower)) || 
              (card.evolvedDescription && card.evolvedDescription.toLowerCase().includes(searchTermLower)))) {
@@ -161,17 +165,14 @@ const CardList = () => {
       });
     }
     
-    // Filter by class
     if (selectedClass !== '') {
       result = result.filter(card => card.class === selectedClass);
     }
     
-    // Filter by rarity
     if (selectedRarity !== '') {
       result = result.filter(card => card.rarity === selectedRarity);
     }
 
-    // Filter by set
     if (selectedSet !== '') {
       if (selectedSet === 'tokens') {
         result = result.filter(card => card.isToken === true);
@@ -183,13 +184,12 @@ const CardList = () => {
       }
     }
 
-    // Filter by creator
     if (selectedCreator !== '') {
       result = result.filter(card => card.creator === selectedCreator);
     }
     
     setFilteredCards(result);
-  }, [searchTerm, selectedClass, selectedRarity, selectedSet, selectedCreator, cards, sets]);
+  }, [searchTerm, selectedClass, selectedRarity, selectedSet, selectedCreator, cards, sets, showHiddenSetCards, cardsFromHiddenSets]);
 
   // Calculate detail position when window is resized
   useEffect(() => {
@@ -464,6 +464,11 @@ const CardList = () => {
     setHoveredRelatedCard(null);
   };
 
+  // Handle toggle for hidden set cards
+  const handleToggleHiddenSetCards = () => {
+    setShowHiddenSetCards(prev => !prev);
+  };
+
   if (loading) {
     return <div className="loading">Loading cards...</div>;
   }
@@ -477,7 +482,19 @@ const CardList = () => {
       <div className="header">
         <h1>All Cards</h1>
         {isAdmin && (
-          <Link to="/create" className="btn">Add Card</Link>
+          <div className="admin-controls">
+            <Link to="/create" className="btn">Add Card</Link>
+            <div className="hidden-sets-toggle">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={showHiddenSetCards}
+                  onChange={handleToggleHiddenSetCards}
+                />
+                Show Hidden Set Cards
+              </label>
+            </div>
+          </div>
         )}
       </div>
 

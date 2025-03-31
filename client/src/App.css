@@ -3470,27 +3470,48 @@
   line-height: 1.4;
 }
 
-.admin-header-actions {
+.card-list-page .header {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
-.hidden-sets-note {
-  font-size: 14px;
-  color: #b0b0b0;
+.admin-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.hidden-sets-toggle {
+  padding: 6px 12px;
+  background-color: #333;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border: 1px solid #444;
+  transition: all 0.2s ease;
+}
+
+.hidden-sets-toggle:hover {
+  background-color: #3a3a3a;
+  border-color: #555;
+}
+
+.hidden-sets-toggle label {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 5px;
-  background-color: rgba(66, 133, 244, 0.1);
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid rgba(66, 133, 244, 0.2);
+  cursor: pointer;
+  font-size: 14px;
+  color: #e0e0e0;
+  user-select: none;
 }
 
-.info-icon {
-  color: #4285f4;
-  font-weight: bold;
+.hidden-sets-toggle input[type="checkbox"] {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  accent-color: #4285f4;
 }
