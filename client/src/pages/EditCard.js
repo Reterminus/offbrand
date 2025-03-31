@@ -28,7 +28,7 @@ const EditCard = () => {
     imageSource: 'url', // Default to 'url' since we'll be loading an existing image
     setId: '',
     keywords: [],
-    referencedCards: []
+    relatedCards: []
   });
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -50,20 +50,16 @@ const EditCard = () => {
           getCards()
         ]);
         
+        // Filter out the current card from allCards to prevent self-reference
+        const filteredCards = cardsData.filter(card => card._id !== id);
+        setAllCards(filteredCards);
+        
         // Find which set (if any) this card belongs to
         const cardSetId = findCardSetId(setsData, id);
         
         // Extract keyword IDs from the card data
         const keywordIds = cardData.keywords ? 
           cardData.keywords.map(keyword => keyword._id) : [];
-        
-        // Extract referenced card IDs
-        const referencedCardIds = cardData.referencedCards ? 
-          cardData.referencedCards.map(card => card._id) : [];
-        
-        // Filter out the current card from allCards to prevent self-referencing
-        const filteredCards = cardsData.filter(card => card._id !== id);
-        setAllCards(filteredCards);
         
         setFormData({
           title: cardData.title,
@@ -88,7 +84,7 @@ const EditCard = () => {
           imageSource: 'url',
           setId: cardSetId || '',
           keywords: keywordIds,
-          referencedCards: referencedCardIds
+          relatedCards: cardData.relatedCards ? cardData.relatedCards.map(c => c._id) : []
         });
         
         setSets(setsData);
@@ -194,11 +190,11 @@ const EditCard = () => {
     });
   };
 
-  const handleReferencedCardsChange = (e) => {
+  const handleRelatedCardsChange = (e) => {
     const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
     setFormData({
       ...formData,
-      referencedCards: selectedOptions
+      relatedCards: selectedOptions
     });
   };
 
@@ -269,9 +265,9 @@ const EditCard = () => {
         data.append('keywords', JSON.stringify(formData.keywords));
       }
       
-      // Append referenced cards if selected
-      if (formData.referencedCards.length > 0) {
-        data.append('referencedCards', JSON.stringify(formData.referencedCards));
+      // Append related cards if selected
+      if (formData.relatedCards.length > 0) {
+        data.append('relatedCards', JSON.stringify(formData.relatedCards));
       }
       
       // Update the card
@@ -702,42 +698,79 @@ const EditCard = () => {
           )}
         </div>
         
+        {/* Replace the existing keyword selection with a more intuitive interface */}
         <div className="form-group">
-          <label htmlFor="keywords">Keywords:</label>
-          <select
-            id="keywords"
-            name="keywords"
-            multiple
-            value={formData.keywords}
-            onChange={handleKeywordChange}
-            className="form-control"
-          >
+          <label className="form-label">Keywords:</label>
+          <div className="keywords-container">
             {keywords.map(keyword => (
-              <option key={keyword._id} value={keyword._id}>
-                {keyword.title}
-              </option>
+              <div key={keyword._id} className="keyword-selection-item">
+                <div className="keyword-checkbox-wrapper">
+                  <input
+                    type="checkbox"
+                    id={`keyword-${keyword._id}`}
+                    checked={formData.keywords.includes(keyword._id)}
+                    onChange={() => {
+                      // Toggle this keyword in the selected keywords
+                      const newKeywords = formData.keywords.includes(keyword._id)
+                        ? formData.keywords.filter(id => id !== keyword._id)
+                        : [...formData.keywords, keyword._id];
+                      
+                      setFormData({
+                        ...formData,
+                        keywords: newKeywords
+                      });
+                    }}
+                    className="keyword-checkbox"
+                  />
+                  <label htmlFor={`keyword-${keyword._id}`} className="keyword-label">
+                    {keyword.title}
+                  </label>
+                </div>
+                <div 
+                  className="keyword-preview-banner"
+                  style={{
+                    backgroundImage: `url(${keyword.imageUrl})`,
+                    backgroundPosition: keyword.imagePosition || '50% 50%',
+                    backgroundSize: 'cover'
+                  }}
+                >
+                  <div className="keyword-preview-overlay">
+                    <div className="keyword-preview-content">
+                      <h5 className="keyword-preview-title">{keyword.title}</h5>
+                      <p className="keyword-preview-description">{keyword.description}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             ))}
-          </select>
-          <small>Hold Ctrl (or Cmd on Mac) to select multiple keywords.</small>
+          </div>
+          {keywords.length === 0 && (
+            <div className="no-keywords-message">
+              No keywords available. <a href="/keywords/create">Create keywords</a> to add them to cards.
+            </div>
+          )}
         </div>
         
+        {/* Add RelatedCards selection */}
         <div className="form-group">
-          <label htmlFor="referencedCards">Referenced Cards:</label>
+          <label htmlFor="relatedCards">Related Cards</label>
           <select
-            id="referencedCards"
-            name="referencedCards"
+            id="relatedCards"
+            name="relatedCards"
             multiple
-            value={formData.referencedCards}
-            onChange={handleReferencedCardsChange}
             className="form-control"
+            onChange={handleRelatedCardsChange}
+            value={formData.relatedCards}
           >
             {allCards.map(card => (
               <option key={card._id} value={card._id}>
-                {card.title} ({card.cardType}, {card.class}, {card.rarity})
+                {card.title} ({card.class}, {card.rarity})
               </option>
             ))}
           </select>
-          <small>Hold Ctrl (or Cmd on Mac) to select multiple cards.</small>
+          <small className="form-text text-muted">
+            Hold Ctrl (or Cmd on Mac) to select multiple cards.
+          </small>
         </div>
         
         <div className="form-actions">

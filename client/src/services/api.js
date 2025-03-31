@@ -101,6 +101,13 @@ export const getCard = async (id) => {
 // Create a new card
 export const createCard = async (formData) => {
   try {
+    // If formData contains relatedCards, ensure it's properly formatted for the API
+    if (formData.get('relatedCards') && !formData.get('relatedCards').startsWith('[')) {
+      // Convert to JSON string if it's not already
+      const relatedCards = formData.get('relatedCards');
+      formData.set('relatedCards', JSON.stringify(relatedCards));
+    }
+    
     const response = await api.post(CARDS_URL, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -116,6 +123,13 @@ export const createCard = async (formData) => {
 // Update a card
 export const updateCard = async (id, formData) => {
   try {
+    // If formData contains relatedCards, ensure it's properly formatted for the API
+    if (formData.get('relatedCards') && !formData.get('relatedCards').startsWith('[')) {
+      // Convert to JSON string if it's not already
+      const relatedCards = formData.get('relatedCards');
+      formData.set('relatedCards', JSON.stringify(relatedCards));
+    }
+    
     const response = await api.patch(`${CARDS_URL}/${id}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',

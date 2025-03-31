@@ -274,20 +274,6 @@ const CardList = () => {
     e.stopPropagation();
   };
 
-  // Handle clicking on a referenced card to view its details
-  const handleReferencedCardClick = (card, e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    // Find the full card data for the referenced card
-    const fullCardData = cards.find(c => c._id === card._id);
-    if (fullCardData) {
-      setSelectedCardDetails(fullCardData);
-    } else {
-      console.error('Could not find complete data for referenced card:', card._id);
-    }
-  };
-
   // Handle double click to show notes
   const handleDoubleClick = (card) => {
     if (card.notes && card.notes.trim() !== '') {
@@ -348,6 +334,13 @@ const CardList = () => {
   const handleCloseMobileDetail = () => {
     setActiveCardId(null);
     setShowNotesForCard(null);
+  };
+
+  // Handle clicking on a related card to show its details
+  const handleRelatedCardClick = (relatedCard, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedCardDetails(relatedCard);
   };
 
   if (loading) {
@@ -753,7 +746,7 @@ const CardList = () => {
                 </div>
               )}
               
-              {/* Divider before Keywords/Notes */}
+              {/* Divider before Keywords/Related Cards/Notes */}
               <div className="card-notes-divider"></div>
               
               {/* Keywords section */}
@@ -782,26 +775,26 @@ const CardList = () => {
                 </div>
               )}
               
-              {/* Referenced Cards section */}
-              {selectedCardDetails.referencedCards && selectedCardDetails.referencedCards.length > 0 && (
-                <div className="referenced-cards-section">
-                  <h4 className="referenced-cards-title">Referenced Cards</h4>
-                  <div className="referenced-cards-grid">
-                    {selectedCardDetails.referencedCards.map(refCard => (
+              {/* Related Cards section - Add this new section */}
+              {selectedCardDetails.relatedCards && selectedCardDetails.relatedCards.length > 0 && (
+                <div className="related-cards-section">
+                  <h4 className="related-cards-title">Related Cards</h4>
+                  <div className="related-cards-grid">
+                    {selectedCardDetails.relatedCards.map(relatedCard => (
                       <div 
-                        key={refCard._id} 
-                        className="referenced-card-item"
-                        onClick={(e) => handleReferencedCardClick(refCard, e)}
+                        key={relatedCard._id} 
+                        className="related-card"
+                        onClick={(e) => handleRelatedCardClick(relatedCard, e)}
                       >
-                        <div className="referenced-card-image">
-                          <img src={refCard.imageUrl} alt={refCard.title} />
+                        <div className="related-card-image">
+                          <img src={relatedCard.imageUrl} alt={relatedCard.title} />
                         </div>
-                        <div className="referenced-card-info">
-                          <h5 className="referenced-card-title">{refCard.title}</h5>
-                          <div className="referenced-card-meta">
-                            <span className="referenced-card-cost">{refCard.cost}</span>
-                            <span className="referenced-card-class">{refCard.class}</span>
-                            <span className="referenced-card-type">{refCard.cardType}</span>
+                        <div className="related-card-info">
+                          <h5 className="related-card-title">{relatedCard.title}</h5>
+                          <div className="related-card-meta">
+                            <span className="related-card-cost">{relatedCard.cost}</span>
+                            <span className="related-card-class">{relatedCard.class}</span>
+                            <span className="related-card-type">{relatedCard.cardType || 'Follower'}</span>
                           </div>
                         </div>
                       </div>

@@ -39,7 +39,9 @@ const upload = multer({
 // GET all cards - public
 router.get('/', async (req, res) => {
   try {
-    const cards = await Card.find().sort({ createdAt: -1 }).populate('keywords');
+    const cards = await Card.find()
+      .populate('keywords')
+      .populate('relatedCards');
     res.json(cards);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -51,8 +53,12 @@ router.get('/:id', async (req, res) => {
   try {
     const card = await Card.findById(req.params.id)
       .populate('keywords')
-      .populate('referencedCards');
-    if (!card) return res.status(404).json({ message: 'Card not found' });
+      .populate('relatedCards');
+    
+    if (!card) {
+      return res.status(404).json({ message: 'Card not found' });
+    }
+    
     res.json(card);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -82,7 +88,7 @@ router.post('/', admin, upload.single('image'), async (req, res) => {
       creator,
       imageUrl,
       keywords,
-      referencedCards
+      relatedCards
     } = req.body;
     
     let finalImageUrl = imageUrl;
@@ -111,14 +117,22 @@ router.post('/', admin, upload.single('image'), async (req, res) => {
       imageUrl: finalImageUrl
     };
     
-    // Add keywords if provided
+    // Handle keywords if provided
     if (keywords) {
-      cardData.keywords = Array.isArray(keywords) ? keywords : JSON.parse(keywords);
+      try {
+        cardData.keywords = JSON.parse(keywords);
+      } catch (err) {
+        console.error('Error parsing keywords:', err);
+      }
     }
     
-    // Add referenced cards if provided
-    if (referencedCards) {
-      cardData.referencedCards = Array.isArray(referencedCards) ? referencedCards : JSON.parse(referencedCards);
+    // Handle related cards if provided
+    if (relatedCards) {
+      try {
+        cardData.relatedCards = JSON.parse(relatedCards);
+      } catch (err) {
+        console.error('Error parsing related cards:', err);
+      }
     }
     
     // Add type-specific fields
@@ -170,7 +184,7 @@ router.patch('/:id', admin, upload.single('image'), async (req, res) => {
       creator,
       imageUrl,
       keywords,
-      referencedCards
+      relatedCards
     } = req.body;
     
     // Create base update object
@@ -188,6 +202,24 @@ router.patch('/:id', admin, upload.single('image'), async (req, res) => {
 
     console.log('Update data being applied:', updateData);
     
+    // Handle keywords if provided
+    if (keywords) {
+      try {
+        updateData.keywords = JSON.parse(keywords);
+      } catch (err) {
+        console.error('Error parsing keywords:', err);
+      }
+    }
+    
+    // Handle related cards if provided
+    if (relatedCards) {
+      try {
+        updateData.relatedCards = JSON.parse(relatedCards);
+      } catch (err) {
+        console.error('Error parsing related cards:', err);
+      }
+    }
+    
     // Add type-specific fields
     if (cardType === 'Follower') {
       updateData.unevolvedAttack = Number(unevolvedAttack);
@@ -200,16 +232,6 @@ router.patch('/:id', admin, upload.single('image'), async (req, res) => {
       updateData.spellDescription = spellDescription || '';
     } else if (cardType === 'Amulet') {
       updateData.amuletDescription = amuletDescription || '';
-    }
-    
-    // Add keywords if provided
-    if (keywords) {
-      updateData.keywords = Array.isArray(keywords) ? keywords : JSON.parse(keywords);
-    }
-    
-    // Add referenced cards if provided
-    if (referencedCards) {
-      updateData.referencedCards = Array.isArray(referencedCards) ? referencedCards : JSON.parse(referencedCards);
     }
     
     // Handle image update

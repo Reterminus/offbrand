@@ -41,7 +41,7 @@ const CardSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Keyword'
   }],
-  referencedCards: [{
+  relatedCards: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Card'
   }],
