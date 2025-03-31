@@ -565,33 +565,6 @@ const CardList = () => {
                   </div>
                 )}
                 
-                {/* Keywords section - commented out from hover window
-                {card.keywords && card.keywords.length > 0 && (
-                  <div className="card-keywords">
-                    {card.keywords.map(keyword => (
-                      <div 
-                        key={keyword._id} 
-                        className="keyword-banner"
-                      >
-                        <div 
-                          className="keyword-overlay"
-                          style={{
-                            backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5)), url(${keyword.imageUrl})`,
-                            backgroundPosition: keyword.imagePosition || '50% 50%',
-                            backgroundSize: 'cover'
-                          }}
-                        >
-                          <h5 className="keyword-title">{keyword.title}</h5>
-                          <div className="keyword-description-scrollable">
-                            <p className="keyword-description">{keyword.description}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                */}
-                
                 {/* Notes section inside the detail window */}
                 {(card.notes && card.notes.trim() !== '') || (card.keywords && card.keywords.length > 0) ? (
                   <div 
@@ -763,6 +736,26 @@ const CardList = () => {
               {/* Divider before Keywords/Related Cards/Notes */}
               <div className="card-notes-divider"></div>
               
+              {/* Related Cards section - Move above Keywords */}
+              {selectedCardDetails.relatedCards && selectedCardDetails.relatedCards.length > 0 && (
+                <div className="related-cards-section">
+                  <h4 className="related-cards-title">Related Cards</h4>
+                  <div className="related-cards-grid cards-only">
+                    {selectedCardDetails.relatedCards.map(relatedCard => (
+                      <div 
+                        key={relatedCard._id} 
+                        className="related-card cards-only"
+                        onClick={(e) => handleRelatedCardClick(relatedCard, e)}
+                      >
+                        <div className="related-card-image">
+                          <img src={relatedCard.imageUrl} alt={relatedCard.title} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
               {/* Keywords section */}
               {selectedCardDetails.keywords && selectedCardDetails.keywords.length > 0 && (
                 <div className="card-keywords">
@@ -786,26 +779,6 @@ const CardList = () => {
                       </div>
                     </div>
                   ))}
-                </div>
-              )}
-              
-              {/* Related Cards section - Update this section */}
-              {selectedCardDetails.relatedCards && selectedCardDetails.relatedCards.length > 0 && (
-                <div className="related-cards-section">
-                  <h4 className="related-cards-title">Related Cards</h4>
-                  <div className="related-cards-grid cards-only">
-                    {selectedCardDetails.relatedCards.map(relatedCard => (
-                      <div 
-                        key={relatedCard._id} 
-                        className="related-card cards-only"
-                        onClick={(e) => handleRelatedCardClick(relatedCard, e)}
-                      >
-                        <div className="related-card-image">
-                          <img src={relatedCard.imageUrl} alt={relatedCard.title} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
                 </div>
               )}
               
