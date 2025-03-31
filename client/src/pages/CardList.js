@@ -34,14 +34,14 @@ const CardList = () => {
     const fetchData = async () => {
       try {
         const [cardsData, setsData, keywordsData] = await Promise.all([
-          getCards(false),
+          getCards(),
           getSets(),
           getKeywords()
         ]);
         
         const sortedCards = sortCards(cardsData);
         
-        // Identify cards from hidden sets
+        // Identify cards from hidden sets for admin toggle functionality
         const hiddenSets = setsData.filter(set => set.hidden);
         const hiddenSetCards = [];
         
