@@ -385,6 +385,9 @@ const CardList = () => {
     e.preventDefault();
     e.stopPropagation();
     
+    // Reset the hovered related card state
+    setHoveredRelatedCard(null);
+    
     try {
       // First check if we have this card preloaded
       if (preloadedRelatedCards[relatedCard._id]) {
