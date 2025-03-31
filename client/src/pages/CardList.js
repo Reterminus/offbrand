@@ -36,13 +36,32 @@ const CardList = () => {
           getSets(),
           getKeywords()
         ]);
+        
+        // Find all hidden sets
+        const hiddenSets = setsData.filter(set => set.hidden);
+        
+        // Create a list of card IDs that are in hidden sets
+        const cardsInHiddenSets = new Set();
+        hiddenSets.forEach(set => {
+          if (set.cards && Array.isArray(set.cards)) {
+            set.cards.forEach(cardId => cardsInHiddenSets.add(cardId.toString()));
+          }
+        });
+        
+        // Filter out cards that are in hidden sets
+        const filteredCardsData = cardsData.filter(card => {
+          return !cardsInHiddenSets.has(card._id.toString());
+        });
+        
         // Sort cards by class, rarity, and title
-        const sortedCards = sortCards(cardsData);
+        const sortedCards = sortCards(filteredCardsData);
+        
         // Extract unique creators from cards
         const uniqueCreators = [...new Set(sortedCards
           .map(card => card.creator)
           .filter(creator => creator && creator.trim() !== '')
           .sort())];
+        
         setCreators(uniqueCreators);
         setCards(sortedCards);
         setFilteredCards(sortedCards);
@@ -62,7 +81,6 @@ const CardList = () => {
   useEffect(() => {
     if (selectedCardDetails && selectedCardDetails.relatedCards && selectedCardDetails.relatedCards.length > 0) {
       const preloadRelatedCardsData = async () => {
-        const relatedCardIds = selectedCardDetails.relatedCards.map(card => card._id);
         const newPreloadedCards = { ...preloadedRelatedCards };
         
         // For each related card that's not already preloaded
@@ -91,7 +109,7 @@ const CardList = () => {
         }
         
         // Update the preloaded cards state with any cached cards we found
-        if (Object.keys(newPreloadedCards).length > preloadedRelatedCards.length) {
+        if (Object.keys(newPreloadedCards).length > Object.keys(preloadedRelatedCards).length) {
           setPreloadedRelatedCards(newPreloadedCards);
         }
       };
@@ -459,7 +477,13 @@ const CardList = () => {
       <div className="header">
         <h1>All Cards</h1>
         {isAdmin && (
-          <Link to="/create" className="btn">Add Card</Link>
+          <div className="admin-header-actions">
+            <Link to="/create" className="btn">Add Card</Link>
+            <div className="hidden-sets-note">
+              <span className="info-icon">ⓘ</span>
+              <span>Cards in hidden sets are accessible from their respective sets in the Set List.</span>
+            </div>
+          </div>
         )}
       </div>
 
