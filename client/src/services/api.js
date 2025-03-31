@@ -74,10 +74,12 @@ export const initAdmin = async () => {
 // Card API Functions
 
 // Get all cards
-export const getCards = async () => {
+export const getCards = async (filterHidden = true) => {
   try {
     console.log('Making request to:', BASE_URL + CARDS_URL);
-    const response = await api.get(CARDS_URL);
+    const response = await api.get(CARDS_URL, {
+      params: { filterHidden: filterHidden }
+    });
     return response.data;
   } catch (error) {
     console.error('Error fetching cards:', error);

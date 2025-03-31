@@ -4,7 +4,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const Card = require('../models/Card');
-const { admin } = require('../middleware/auth');
+const { admin, optionalAuth } = require('../middleware/auth');
 const Set = require('../models/Set');
 
 // Set up multer for file uploads
@@ -38,7 +38,7 @@ const upload = multer({
 });
 
 // GET all cards - public
-router.get('/', async (req, res) => {
+router.get('/', optionalAuth, async (req, res) => {
   try {
     // Check if the user is an admin
     const isAdmin = req.user && req.user.isAdmin;
@@ -48,8 +48,11 @@ router.get('/', async (req, res) => {
       .populate('keywords')
       .populate('relatedCards');
     
-    // If not admin, filter out cards from hidden sets
-    if (!isAdmin) {
+    // Check for query param to decide if we should filter hidden cards
+    const filterHidden = req.query.filterHidden !== 'false';
+    
+    // If not admin AND we should filter hidden, filter out cards from hidden sets
+    if (!isAdmin && filterHidden) {
       // First get all hidden sets
       const hiddenSets = await Set.find({ hidden: true });
       const hiddenSetIds = hiddenSets.map(set => set._id.toString());
@@ -68,7 +71,7 @@ router.get('/', async (req, res) => {
       return res.json(filteredCards);
     }
     
-    // If admin, return all cards
+    // If admin OR we should not filter hidden, return all cards
     res.json(cards);
   } catch (err) {
     console.error('Error fetching cards:', err);
@@ -77,7 +80,7 @@ router.get('/', async (req, res) => {
 });
 
 // GET a single card - public
-router.get('/:id', async (req, res) => {
+router.get('/:id', optionalAuth, async (req, res) => {
   try {
     const card = await Card.findById(req.params.id)
       .populate('keywords')

@@ -47,7 +47,7 @@ const CreateCard = () => {
         const [setsData, keywordsData, cardsData] = await Promise.all([
           getSets(),
           getKeywords(),
-          getCards()
+          getCards(false) // Pass false to get all cards including from hidden sets
         ]);
         setSets(setsData);
         setKeywords(keywordsData);

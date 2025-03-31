@@ -33,6 +33,40 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
+// A version of auth that doesn't require a token, but will use it if present
+const optionalAuthMiddleware = async (req, res, next) => {
+  try {
+    // Get token from header
+    const token = req.header('x-auth-token');
+    
+    // If no token, just continue as non-authenticated user
+    if (!token) {
+      req.user = null;
+      return next();
+    }
+    
+    try {
+      // Verify token
+      const decoded = jwt.verify(token, JWT_SECRET);
+      
+      // Attach user info to request
+      req.user = {
+        id: decoded.id,
+        username: decoded.username,
+        isAdmin: decoded.isAdmin
+      };
+      
+      next();
+    } catch (err) {
+      // Invalid token, but we'll still let them through as non-authenticated
+      req.user = null;
+      next();
+    }
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 // Middleware to check if user is admin
 const adminMiddleware = async (req, res, next) => {
   try {
@@ -50,4 +84,8 @@ const adminMiddleware = async (req, res, next) => {
   }
 };
 
-module.exports = { auth: authMiddleware, admin: adminMiddleware }; 
+module.exports = { 
+  auth: authMiddleware, 
+  admin: adminMiddleware,
+  optionalAuth: optionalAuthMiddleware
+}; 

@@ -49,7 +49,7 @@ const EditCard = () => {
           getCard(id),
           getSets(),
           getKeywords(),
-          getCards()
+          getCards(false) // Pass false to get all cards including from hidden sets
         ]);
         
         // Filter out the current card from allCards to prevent self-reference

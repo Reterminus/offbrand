@@ -2,10 +2,10 @@ const express = require('express');
 const router = express.Router();
 const Set = require('../models/Set');
 const Card = require('../models/Card');
-const { admin, auth } = require('../middleware/auth');
+const { admin, auth, optionalAuth } = require('../middleware/auth');
 
-// GET all sets - public but uses auth to check admin status
-router.get('/', auth, async (req, res) => {
+// GET all sets - public but checks if user is admin when token is present
+router.get('/', optionalAuth, async (req, res) => {
   try {
     // Check if the user is an admin
     const isAdmin = req.user && req.user.isAdmin;
@@ -22,7 +22,7 @@ router.get('/', auth, async (req, res) => {
 });
 
 // GET a single set with populated cards - public
-router.get('/:id', auth, async (req, res) => {
+router.get('/:id', optionalAuth, async (req, res) => {
   try {
     // Check if the user is an admin
     const isAdmin = req.user && req.user.isAdmin;
