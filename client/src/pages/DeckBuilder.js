@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { getCards, getCard } from '../services/api';
+import { getCards, getCard, getSets } from '../services/api';
 import { formatText } from '../utils/textUtils';
 import html2canvas from 'html2canvas';
 import { sortCards } from '../utils/cardUtils';
@@ -20,17 +20,22 @@ const DeckBuilder = () => {
   // New state variables for related cards functionality
   const [hoveredRelatedCard, setHoveredRelatedCard] = useState(null);
   const [preloadedRelatedCards, setPreloadedRelatedCards] = useState({});
+  const [sets, setSets] = useState([]);
 
   // Fetch all cards on component mount
   useEffect(() => {
     const fetchCards = async () => {
       try {
         setLoading(true);
-        const cardsData = await getCards();
+        const [cardsData, setsData] = await Promise.all([
+          getCards(),
+          getSets()
+        ]);
         // Filter out token cards
         const nonTokenCards = cardsData.filter(card => !card.isToken);
         setCards(nonTokenCards);
         setFilteredCards(nonTokenCards);
+        setSets(setsData);
         setLoading(false);
       } catch (err) {
         setError('Failed to fetch cards. Please try again later.');
@@ -551,6 +556,19 @@ const DeckBuilder = () => {
     setHoveredRelatedCard(null);
   };
 
+  // Helper function to check if a card belongs to a hidden set
+  const isCardFromHiddenSet = (card) => {
+    // If we don't have sets data yet, assume it's not from a hidden set
+    if (!sets || sets.length === 0) return false;
+    
+    // Check if this card belongs to any hidden set
+    return sets.some(set => 
+      set.hidden && 
+      set.cards && 
+      set.cards.includes(card._id)
+    );
+  };
+
   // If still loading
   if (loading) {
     return <div className="loading">Loading cards...</div>;
@@ -947,20 +965,23 @@ const DeckBuilder = () => {
                     </div>
                   )}
                   
-                  <div className="detail-actions">
-                    <button 
-                      className="add-to-deck-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        addCardToDeck(selectedCardDetails);
-                        // You may choose to close the detail view after adding or keep it open
-                        // setSelectedCardDetails(null);
-                      }}
-                      disabled={deck.filter(c => c._id === selectedCardDetails._id).length >= 3 || deck.length >= 40}
-                    >
-                      Add to Deck ({deck.filter(c => c._id === selectedCardDetails._id).length}/3)
-                    </button>
-                  </div>
+                  {/* Only show Add to Deck button if the card is not a token and not from a hidden set */}
+                  {!selectedCardDetails.isToken && !isCardFromHiddenSet(selectedCardDetails) && (
+                    <div className="detail-actions">
+                      <button 
+                        className="add-to-deck-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          addCardToDeck(selectedCardDetails);
+                          // You may choose to close the detail view after adding or keep it open
+                          // setSelectedCardDetails(null);
+                        }}
+                        disabled={deck.filter(c => c._id === selectedCardDetails._id).length >= 3 || deck.length >= 40}
+                      >
+                        Add to Deck ({deck.filter(c => c._id === selectedCardDetails._id).length}/3)
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
