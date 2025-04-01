@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { getCards } from '../services/api';
+import { getCards, getCard } from '../services/api';
 import { formatText } from '../utils/textUtils';
 import html2canvas from 'html2canvas';
+import { sortCards } from '../utils/cardUtils';
 
 const DeckBuilder = () => {
   const [cards, setCards] = useState([]);
@@ -16,6 +17,9 @@ const DeckBuilder = () => {
   const deckRef = useRef(null);
   const [exportingDeck, setExportingDeck] = useState(false);
   const [selectedCardDetails, setSelectedCardDetails] = useState(null);
+  // New state variables for related cards functionality
+  const [hoveredRelatedCard, setHoveredRelatedCard] = useState(null);
+  const [preloadedRelatedCards, setPreloadedRelatedCards] = useState({});
 
   // Fetch all cards on component mount
   useEffect(() => {
@@ -169,11 +173,70 @@ const DeckBuilder = () => {
     'Portalcraft': 'https://i.imgur.com/p4foy4o.png'
   };
 
+  // Preload related cards data when a card is selected for the detail modal
+  useEffect(() => {
+    if (selectedCardDetails && selectedCardDetails.relatedCards && selectedCardDetails.relatedCards.length > 0) {
+      const preloadRelatedCardsData = async () => {
+        const newPreloadedCards = { ...preloadedRelatedCards };
+        
+        // For each related card that's not already preloaded
+        for (const relatedCard of selectedCardDetails.relatedCards) {
+          if (!preloadedRelatedCards[relatedCard._id]) {
+            try {
+              // Check if the full card data is in our local cache
+              const cachedCard = cards.find(card => card._id === relatedCard._id);
+              if (cachedCard) {
+                // Create a copy and sort its related cards
+                const cardWithSortedRelatedCards = {...cachedCard};
+                if (cardWithSortedRelatedCards.relatedCards && Array.isArray(cardWithSortedRelatedCards.relatedCards)) {
+                  cardWithSortedRelatedCards.relatedCards = sortCards(cardWithSortedRelatedCards.relatedCards);
+                }
+                newPreloadedCards[relatedCard._id] = cardWithSortedRelatedCards;
+              } else {
+                // Otherwise fetch it (don't await here, let it happen in parallel)
+                getCard(relatedCard._id, true)
+                  .then(cardData => {
+                    // Sort the related cards before caching
+                    if (cardData.relatedCards && Array.isArray(cardData.relatedCards)) {
+                      cardData.relatedCards = sortCards(cardData.relatedCards);
+                    }
+                    setPreloadedRelatedCards(prev => ({
+                      ...prev,
+                      [relatedCard._id]: cardData
+                    }));
+                  })
+                  .catch(err => console.error(`Error preloading card ${relatedCard._id}:`, err));
+              }
+            } catch (err) {
+              console.error(`Error preloading related card ${relatedCard._id}:`, err);
+            }
+          }
+        }
+        
+        // Update the preloaded cards state with any cached cards we found
+        if (Object.keys(newPreloadedCards).length > Object.keys(preloadedRelatedCards).length) {
+          setPreloadedRelatedCards(newPreloadedCards);
+        }
+      };
+      
+      preloadRelatedCardsData();
+    }
+  }, [selectedCardDetails, cards, preloadedRelatedCards]);
+
   // Handle clicking on a card to view details
   const handleCardDetailView = (card, e) => {
     e.preventDefault();
     e.stopPropagation(); // Prevent adding to deck when viewing details
-    setSelectedCardDetails(card);
+    
+    // Create a copy of the card to avoid modifying the original data
+    const cardDataToShow = {...card};
+    
+    // Sort the related cards if they exist
+    if (cardDataToShow.relatedCards && Array.isArray(cardDataToShow.relatedCards)) {
+      cardDataToShow.relatedCards = sortCards(cardDataToShow.relatedCards);
+    }
+    
+    setSelectedCardDetails(cardDataToShow);
   };
 
   // Close the card detail view when clicking outside
@@ -349,6 +412,143 @@ const DeckBuilder = () => {
     });
     
     return counts;
+  };
+
+  // Handle clicking on a related card to show its details
+  const handleRelatedCardClick = async (relatedCard, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Reset the hovered related card state
+    setHoveredRelatedCard(null);
+    
+    try {
+      // First check if we have this card preloaded
+      if (preloadedRelatedCards[relatedCard._id]) {
+        // Sort the related cards before showing the details
+        const cardData = {...preloadedRelatedCards[relatedCard._id]};
+        if (cardData.relatedCards && Array.isArray(cardData.relatedCards)) {
+          cardData.relatedCards = sortCards(cardData.relatedCards);
+        }
+        setSelectedCardDetails(cardData);
+        
+        // Continue preloading the next level of related cards in the background
+        if (cardData.relatedCards && cardData.relatedCards.length > 0) {
+          setTimeout(() => {
+            cardData.relatedCards.forEach(nestedRelatedCard => {
+              if (!preloadedRelatedCards[nestedRelatedCard._id]) {
+                getCard(nestedRelatedCard._id, true)
+                  .then(nestedCardData => {
+                    if (nestedCardData.relatedCards && Array.isArray(nestedCardData.relatedCards)) {
+                      nestedCardData.relatedCards = sortCards(nestedCardData.relatedCards);
+                    }
+                    setPreloadedRelatedCards(prev => ({
+                      ...prev,
+                      [nestedRelatedCard._id]: nestedCardData
+                    }));
+                  })
+                  .catch(err => console.error(`Error preloading nested card ${nestedRelatedCard._id}:`, err));
+              }
+            });
+          }, 100); // Small delay to prioritize UI updates first
+        }
+        
+        return;
+      }
+      
+      // If the related card already has populated keywords and relatedCards, use it as is
+      if (relatedCard.keywords && Array.isArray(relatedCard.keywords) && 
+          relatedCard.keywords.length > 0 && typeof relatedCard.keywords[0] === 'object' &&
+          relatedCard.relatedCards && Array.isArray(relatedCard.relatedCards)) {
+        // Sort the related cards before showing the details
+        const cardDataToShow = {...relatedCard};
+        cardDataToShow.relatedCards = sortCards(cardDataToShow.relatedCards);
+        setSelectedCardDetails(cardDataToShow);
+        
+        // Also add to cache for future use
+        setPreloadedRelatedCards(prev => ({...prev, [relatedCard._id]: cardDataToShow}));
+      } else {
+        // Otherwise, try to find the full card data with populated keywords
+        const fullCardData = cards.find(card => card._id === relatedCard._id);
+        if (fullCardData) {
+          // Sort the related cards before showing the details
+          const cardDataToShow = {...fullCardData};
+          if (cardDataToShow.relatedCards && Array.isArray(cardDataToShow.relatedCards)) {
+            cardDataToShow.relatedCards = sortCards(cardDataToShow.relatedCards);
+          }
+          setSelectedCardDetails(cardDataToShow);
+          // Also add to cache for future use
+          setPreloadedRelatedCards(prev => ({...prev, [relatedCard._id]: cardDataToShow}));
+        } else {
+          // Last resort - fetch from API
+          // Show loading state immediately
+          setSelectedCardDetails({
+            ...relatedCard,
+            title: `${relatedCard.title} (Loading...)`,
+            keywords: [],
+            relatedCards: []
+          });
+          
+          // Fetch in background
+          getCard(relatedCard._id, true)
+            .then(cardData => {
+              // Ensure we didn't navigate away while loading
+              const currentCard = cardData;
+              
+              // Sort the related cards before showing the details
+              if (currentCard.relatedCards && Array.isArray(currentCard.relatedCards)) {
+                currentCard.relatedCards = sortCards(currentCard.relatedCards);
+              }
+              
+              // Update the UI with the loaded card data
+              setSelectedCardDetails(prev => {
+                // Only update if we're still looking at the same card (by title)
+                if (prev && prev.title.includes(relatedCard.title)) {
+                  return currentCard;
+                }
+                return prev;
+              });
+              
+              // Cache the card data for future use
+              setPreloadedRelatedCards(prev => ({...prev, [relatedCard._id]: currentCard}));
+            })
+            .catch(err => {
+              console.error('Error fetching card details:', err);
+              // If fetch fails, show what we have
+              setSelectedCardDetails(prev => {
+                // Only update if we're still looking at the loading version
+                if (prev && prev.title.includes(`${relatedCard.title} (Loading...)`)) {
+                  return {
+                    ...relatedCard,
+                    title: `${relatedCard.title} (Failed to load details)`,
+                    keywords: [],
+                    relatedCards: []
+                  };
+                }
+                return prev;
+              });
+            });
+        }
+      }
+    } catch (err) {
+      console.error('Error handling related card click:', err);
+      // Fallback if anything goes wrong
+      setSelectedCardDetails({
+        ...relatedCard,
+        keywords: [],
+        relatedCards: []
+      });
+    }
+  };
+
+  // Handle hover on related card to show its name in the title
+  const handleRelatedCardMouseEnter = (relatedCard) => {
+    setHoveredRelatedCard(relatedCard);
+  };
+
+  // Handle hover end on related card to restore original title
+  const handleRelatedCardMouseLeave = () => {
+    setHoveredRelatedCard(null);
   };
 
   // If still loading
@@ -576,7 +776,7 @@ const DeckBuilder = () => {
                 className="detail-header"
                 onClick={handleDetailClick}
               >
-                <h3 className="card-title">{selectedCardDetails.title}</h3>
+                <h3 className="card-title">{hoveredRelatedCard ? hoveredRelatedCard.title : selectedCardDetails.title}</h3>
                 <button 
                   className="close-detail-btn" 
                   onClick={handleDetailClose}
@@ -679,6 +879,70 @@ const DeckBuilder = () => {
                       <div className="description-section amulet-section" style={{ border: 'none', borderBottom: 'none' }}>
                         <h4 className="description-title">Amulet Effect</h4>
                         <p className="card-description">{formatText(selectedCardDetails.amuletDescription)}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Related Cards section - Add before detail actions */}
+                  {selectedCardDetails.relatedCards && selectedCardDetails.relatedCards.length > 0 && (
+                    <div className="related-cards-section">
+                      <h4 className="related-cards-title">
+                        {hoveredRelatedCard ? hoveredRelatedCard.title : "Related Cards"}
+                      </h4>
+                      <div className="related-cards-grid cards-only">
+                        {selectedCardDetails.relatedCards.map(relatedCard => (
+                          <div 
+                            key={relatedCard._id} 
+                            className="related-card cards-only"
+                            onClick={(e) => handleRelatedCardClick(relatedCard, e)}
+                            onMouseEnter={() => handleRelatedCardMouseEnter(relatedCard)}
+                            onMouseLeave={handleRelatedCardMouseLeave}
+                          >
+                            <div className="related-card-image">
+                              <img src={relatedCard.imageUrl} alt={relatedCard.title} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Keywords section - Add before detail actions */}
+                  {selectedCardDetails.keywords && selectedCardDetails.keywords.length > 0 && (
+                    <div className="card-keywords">
+                      {selectedCardDetails.keywords.map(keyword => (
+                        <div 
+                          key={keyword._id} 
+                          className="keyword-banner"
+                        >
+                          <div 
+                            className="keyword-overlay"
+                            style={{
+                              backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5)), url(${keyword.imageUrl})`,
+                              backgroundPosition: keyword.imagePosition || '50% 50%',
+                              backgroundSize: 'cover'
+                            }}
+                          >
+                            <h5 className="keyword-title">{keyword.title}</h5>
+                            <div className="keyword-description-scrollable">
+                              <p className="keyword-description">{keyword.description}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Notes section - Add before detail actions */}
+                  {selectedCardDetails.notes && selectedCardDetails.notes.trim() !== '' && (
+                    <div className="card-notes-section">
+                      <h4 className="notes-title">Details</h4>
+                      <div className="notes-content">
+                        {selectedCardDetails.notes.split('\n').map((line, index) => (
+                          <p key={index} className="note-line">
+                            {formatText(line || '')}
+                          </p>
+                        ))}
                       </div>
                     </div>
                   )}
