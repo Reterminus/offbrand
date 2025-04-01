@@ -2057,6 +2057,22 @@
   }
 }
 
+/* Mobile optimizations for deck builder */
+@media (max-width: 768px) {
+  .deck-builder-container {
+    grid-template-columns: 1fr;
+    margin: 10px 0;
+    width: 100%;
+    overflow-x: hidden;
+  }
+  
+  .deck-builder-page {
+    padding: 0 10px;
+    overflow-x: hidden;
+    width: 100%;
+  }
+}
+
 /* Card Browser */
 .card-browser {
   background-color: #2d2d2d;
@@ -2229,6 +2245,15 @@
 .current-deck.export-view {
   background-color: #222;
   min-height: 800px;
+}
+
+/* Fix mobile zooming issue when adding cards to deck */
+@media (max-width: 768px) {
+  .current-deck.export-view {
+    min-height: auto;
+    min-height: fit-content;
+    min-height: 400px;
+  }
 }
 
 .deck-header h2 {
