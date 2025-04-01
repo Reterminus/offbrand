@@ -793,6 +793,16 @@ const DeckBuilder = () => {
                             {card.class}
                           </div>
                         </div>
+                        <button 
+                          className="view-details-btn deck-card-details-btn"
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent removing the card
+                            handleCardDetailView(card, e);
+                          }}
+                          title="View card details"
+                        >
+                          ℹ
+                        </button>
                       </div>
                     ))}
                   </div>
