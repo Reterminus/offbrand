@@ -981,34 +981,6 @@ const DeckBuilder = () => {
                       </div>
                     </div>
                   )}
-                  
-                  {/* Only show Add to Deck button if the card is not a token and not from a hidden set */}
-                  {selectedCardDetails && 
-                   !selectedCardDetails.isToken && 
-                   !isCardFromHiddenSet(selectedCardDetails) && (
-                    <div className="detail-actions">
-                      <button 
-                        className="add-to-deck-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // Double check it's not a token or from hidden set before adding
-                          if (!selectedCardDetails.isToken && !isCardFromHiddenSet(selectedCardDetails)) {
-                            addCardToDeck(selectedCardDetails);
-                          }
-                          // You may choose to close the detail view after adding or keep it open
-                          // setSelectedCardDetails(null);
-                        }}
-                        disabled={
-                          selectedCardDetails.isToken || 
-                          isCardFromHiddenSet(selectedCardDetails) ||
-                          deck.filter(c => c._id === selectedCardDetails._id).length >= 3 || 
-                          deck.length >= 40
-                        }
-                      >
-                        Add to Deck ({deck.filter(c => c._id === selectedCardDetails._id).length}/3)
-                      </button>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
