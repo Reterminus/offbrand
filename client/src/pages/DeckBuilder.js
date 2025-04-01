@@ -32,24 +32,20 @@ const DeckBuilder = () => {
           getSets()
         ]);
         
-        // Get cards from hidden sets
-        const hiddenSets = setsData.filter(set => set.hidden);
-        const cardsFromHiddenSets = new Set();
-        
-        // Collect IDs of all cards in hidden sets
-        hiddenSets.forEach(set => {
-          if (set.cards && Array.isArray(set.cards)) {
+        // Identify cards from hidden sets
+        const hiddenSetCardIds = new Set();
+        setsData.forEach(set => {
+          if (set.hidden && set.cards && Array.isArray(set.cards)) {
             set.cards.forEach(cardId => {
-              cardsFromHiddenSets.add(cardId.toString());
+              hiddenSetCardIds.add(cardId.toString());
             });
           }
         });
         
-        // Filter out token cards AND cards from hidden sets
-        const filteredCards = cardsData.filter(card => 
-          !card.isToken && 
-          !cardsFromHiddenSets.has(card._id.toString())
-        );
+        // Filter out both token cards and cards from hidden sets
+        const filteredCards = cardsData.filter(card => {
+          return !card.isToken && !hiddenSetCardIds.has(card._id.toString());
+        });
         
         setCards(filteredCards);
         setFilteredCards(filteredCards);
@@ -986,7 +982,7 @@ const DeckBuilder = () => {
                     </div>
                   )}
                   
-                  {/* Only show deck action buttons if the card is not a token and not from a hidden set */}
+                  {/* Only show Add to Deck button if the card is not a token and not from a hidden set */}
                   {selectedCardDetails && 
                    !selectedCardDetails.isToken && 
                    !isCardFromHiddenSet(selectedCardDetails) && (
@@ -999,6 +995,8 @@ const DeckBuilder = () => {
                           if (!selectedCardDetails.isToken && !isCardFromHiddenSet(selectedCardDetails)) {
                             addCardToDeck(selectedCardDetails);
                           }
+                          // You may choose to close the detail view after adding or keep it open
+                          // setSelectedCardDetails(null);
                         }}
                         disabled={
                           selectedCardDetails.isToken || 
@@ -1008,17 +1006,6 @@ const DeckBuilder = () => {
                         }
                       >
                         Add to Deck ({deck.filter(c => c._id === selectedCardDetails._id).length}/3)
-                      </button>
-                      
-                      <button 
-                        className="remove-from-deck-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeCardFromDeck(selectedCardDetails._id);
-                        }}
-                        disabled={deck.filter(c => c._id === selectedCardDetails._id).length === 0}
-                      >
-                        Remove Card
                       </button>
                     </div>
                   )}
