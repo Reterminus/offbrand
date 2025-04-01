@@ -559,14 +559,17 @@ const DeckBuilder = () => {
   // Helper function to check if a card belongs to a hidden set
   const isCardFromHiddenSet = (card) => {
     // If we don't have sets data yet, assume it's not from a hidden set
-    if (!sets || sets.length === 0) return false;
+    if (!sets || sets.length === 0 || !card || !card._id) return false;
     
     // Check if this card belongs to any hidden set
-    return sets.some(set => 
+    const isHidden = sets.some(set => 
       set.hidden && 
       set.cards && 
-      set.cards.includes(card._id)
+      Array.isArray(set.cards) && 
+      set.cards.some(cardId => cardId === card._id || cardId.toString() === card._id.toString())
     );
+    
+    return isHidden;
   };
 
   // If still loading
@@ -966,17 +969,27 @@ const DeckBuilder = () => {
                   )}
                   
                   {/* Only show Add to Deck button if the card is not a token and not from a hidden set */}
-                  {!selectedCardDetails.isToken && !isCardFromHiddenSet(selectedCardDetails) && (
+                  {selectedCardDetails && 
+                   !selectedCardDetails.isToken && 
+                   !isCardFromHiddenSet(selectedCardDetails) && (
                     <div className="detail-actions">
                       <button 
                         className="add-to-deck-btn"
                         onClick={(e) => {
                           e.stopPropagation();
-                          addCardToDeck(selectedCardDetails);
+                          // Double check it's not a token or from hidden set before adding
+                          if (!selectedCardDetails.isToken && !isCardFromHiddenSet(selectedCardDetails)) {
+                            addCardToDeck(selectedCardDetails);
+                          }
                           // You may choose to close the detail view after adding or keep it open
                           // setSelectedCardDetails(null);
                         }}
-                        disabled={deck.filter(c => c._id === selectedCardDetails._id).length >= 3 || deck.length >= 40}
+                        disabled={
+                          selectedCardDetails.isToken || 
+                          isCardFromHiddenSet(selectedCardDetails) ||
+                          deck.filter(c => c._id === selectedCardDetails._id).length >= 3 || 
+                          deck.length >= 40
+                        }
                       >
                         Add to Deck ({deck.filter(c => c._id === selectedCardDetails._id).length}/3)
                       </button>
