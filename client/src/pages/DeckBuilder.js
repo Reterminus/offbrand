@@ -776,7 +776,7 @@ const DeckBuilder = () => {
                 className="detail-header"
                 onClick={handleDetailClick}
               >
-                <h3 className="card-title">{hoveredRelatedCard ? hoveredRelatedCard.title : selectedCardDetails.title}</h3>
+                <h3 className="card-title">{selectedCardDetails.title}</h3>
                 <button 
                   className="close-detail-btn" 
                   onClick={handleDetailClose}
