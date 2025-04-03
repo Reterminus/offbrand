@@ -298,9 +298,7 @@ const EditCard = () => {
       }
       
       // Append keywords if selected
-      if (formData.keywords.length > 0) {
-        data.append('keywords', JSON.stringify(formData.keywords));
-      }
+      data.append('keywords', JSON.stringify(formData.keywords));
       
       // Append related cards if selected
       if (formData.relatedCards.length > 0) {
