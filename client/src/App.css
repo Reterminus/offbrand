@@ -2345,7 +2345,51 @@
   .current-deck.export-view {
     min-height: auto;
     min-height: fit-content;
-    min-height: 400px;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .export-view .deck-cards {
+    max-height: none;
+    overflow-y: visible;
+    overflow-x: hidden;
+    width: 100%;
+  }
+  
+  .deck-builder-container {
+    grid-template-columns: 1fr;
+    margin: 10px 0;
+    width: 100%;
+    overflow-x: hidden;
+  }
+  
+  .deck-builder-page {
+    padding: 0 10px;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .card-browser {
+    width: 100%;
+    overflow: hidden;
+  }
+  
+  .card-browser-grid {
+    width: 100%;
+    max-height: 50vh;
+  }
+  
+  .browsable-card {
+    transform: none !important;
+  }
+  
+  .export-card {
+    width: 100%;
   }
 }
 
@@ -3632,4 +3676,72 @@
   width: 16px;
   height: 16px;
   accent-color: #4285f4;
+}
+
+/* Deck export state - prevents page zooming and layout shifts */
+body.exporting-deck {
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+  position: fixed;
+}
+
+body.exporting-deck .deck-builder-interface {
+  overflow: visible !important;
+}
+
+body.exporting-deck .current-deck.export-view {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+body.exporting-deck .export-view .deck-cards {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* Mobile touchscreen improvements */
+@media (hover: none) and (pointer: coarse) {
+  .deck-builder-container {
+    overflow-x: hidden;
+    width: 100%;
+  }
+  
+  .card-browser, 
+  .current-deck.export-view {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
+  .card-browser-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 8px;
+  }
+  
+  .browsable-card {
+    /* Prevent hover effects on touch screens which can cause layout shifts */
+    transform: none !important;
+    transition: none !important;
+  }
+  
+  .browsable-card:hover {
+    transform: none !important;
+  }
+  
+  /* Prevent zooming on form inputs */
+  input[type="text"],
+  input[type="number"],
+  select {
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+  
+  /* Ensure deck cards are properly constrained */
+  .deck-card-list {
+    width: 100%;
+  }
+  
+  .export-card {
+    width: 100%;
+    margin-right: 0;
+  }
 }

@@ -385,14 +385,27 @@ const DeckBuilder = () => {
     try {
       setExportingDeck(true);
       
+      // Add a class to prevent layout shifts during export
+      document.body.classList.add('exporting-deck');
+      
       // Small delay to ensure the DOM has updated and images are loaded
       await new Promise(resolve => setTimeout(resolve, 300));
       
       const canvas = await html2canvas(deckRef.current, {
         backgroundColor: '#1a1a1a',
-        scale: 2,
+        scale: window.innerWidth <= 768 ? 1 : 2, // Lower scale on mobile
         logging: false,
-        useCORS: true
+        useCORS: true,
+        allowTaint: true,
+        imageTimeout: 15000, // Increase timeout for image loading
+        onclone: (clonedDoc) => {
+          // Adjust any clone document elements if needed
+          const clonedDeckRef = clonedDoc.querySelector('.export-view');
+          if (clonedDeckRef) {
+            clonedDeckRef.style.maxHeight = 'none';
+            clonedDeckRef.style.overflow = 'visible';
+          }
+        }
       });
       
       const image = canvas.toDataURL('image/png');
@@ -401,10 +414,13 @@ const DeckBuilder = () => {
       link.download = `${selectedClass || 'Shadowverse'}_Deck_${new Date().toISOString().split('T')[0]}.png`;
       link.click();
       
+      // Remove the export class
+      document.body.classList.remove('exporting-deck');
       setExportingDeck(false);
     } catch (err) {
       console.error('Error exporting deck:', err);
       alert('Failed to export deck as image. Please try again.');
+      document.body.classList.remove('exporting-deck');
       setExportingDeck(false);
     }
   };
