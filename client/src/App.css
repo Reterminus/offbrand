@@ -2226,6 +2226,8 @@
   transition: transform 0.2s;
   background-color: #222;
   z-index: 1;
+  align-self: start; /* Prevent vertical stretching */
+  height: fit-content; /* Ensure height is determined by content */
 }
 
 .browsable-card:hover {
