@@ -2142,6 +2142,7 @@
   grid-template-columns: minmax(300px, 1fr) minmax(300px, 1fr);
   gap: 20px;
   margin: 20px 0;
+  align-items: start;
 }
 
 @media (max-width: 1000px) {
@@ -2175,6 +2176,9 @@
   position: relative;
   overflow: visible;
   z-index: 1;
+  height: calc(100vh - 200px);
+  display: flex;
+  flex-direction: column;
 }
 
 .card-browser h2 {
@@ -2190,11 +2194,12 @@
   grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
   gap: 10px;
   margin-top: 20px;
-  max-height: 700px;
+  flex-grow: 1;
   overflow-y: auto;
   overflow-x: hidden;
   padding-right: 10px;
   position: relative;
+  height: auto;
 }
 
 /* Scrollbar styling for card browser */
@@ -2337,14 +2342,17 @@
 /* Export view styles */
 .current-deck.export-view {
   background-color: #222;
-  min-height: 800px;
+  height: calc(100vh - 200px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* Fix mobile zooming issue when adding cards to deck */
 @media (max-width: 768px) {
   .current-deck.export-view {
     min-height: auto;
-    min-height: fit-content;
+    height: auto;
     max-height: calc(100vh - 100px);
     overflow-y: auto;
     overflow-x: hidden;
@@ -2377,6 +2385,7 @@
   .card-browser {
     width: 100%;
     overflow: hidden;
+    height: auto;
   }
   
   .card-browser-grid {
@@ -2472,24 +2481,24 @@
   padding-right: 10px;
 }
 
-/* Export view - no max height for better capture */
+/* Export view - scrollable in build mode but not during export */
 .export-view .deck-cards {
+  flex-grow: 1;
+  overflow-y: auto;
   max-height: none;
-  overflow-y: visible;
+  height: auto;
 }
 
-.deck-cards::-webkit-scrollbar {
-  width: 8px;
+/* Ensure export view deck header doesn't scroll */
+.deck-header {
+  flex-shrink: 0;
 }
 
-.deck-cards::-webkit-scrollbar-track {
-  background: #222;
-  border-radius: 4px;
-}
-
-.deck-cards::-webkit-scrollbar-thumb {
-  background: #555;
-  border-radius: 4px;
+/* Special handling for export state */
+body.exporting-deck .export-view .deck-cards {
+  max-height: none !important;
+  overflow-y: visible !important;
+  height: auto !important;
 }
 
 .empty-deck {
@@ -3744,4 +3753,19 @@ body.exporting-deck .export-view .deck-cards {
     width: 100%;
     margin-right: 0;
   }
+}
+
+/* Scrollbar styling */
+.deck-cards::-webkit-scrollbar {
+  width: 8px;
+}
+
+.deck-cards::-webkit-scrollbar-track {
+  background: #222;
+  border-radius: 4px;
+}
+
+.deck-cards::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
 }

@@ -404,6 +404,12 @@ const DeckBuilder = () => {
           if (clonedDeckRef) {
             clonedDeckRef.style.maxHeight = 'none';
             clonedDeckRef.style.overflow = 'visible';
+            
+            // Hide all view-details-btn elements in the cloned document before rendering to canvas
+            const detailButtons = clonedDeckRef.querySelectorAll('.view-details-btn');
+            detailButtons.forEach(button => {
+              button.style.display = 'none';
+            });
           }
         }
       });
