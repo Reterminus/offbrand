@@ -21,6 +21,7 @@ const CardList = () => {
   const [selectedRarity, setSelectedRarity] = useState('');
   const [selectedSet, setSelectedSet] = useState('');
   const [selectedCreator, setSelectedCreator] = useState('');
+  const [selectedCost, setSelectedCost] = useState('');
   const [creators, setCreators] = useState([]);
   const [showNotesForCard, setShowNotesForCard] = useState(null);
   const cardRefs = useRef({});
@@ -197,8 +198,19 @@ const CardList = () => {
       result = result.filter(card => card.creator === selectedCreator);
     }
     
+    // Filter by cost
+    if (selectedCost !== '') {
+      const cost = parseInt(selectedCost);
+      if (cost < 10) {
+        result = result.filter(card => card.cost === cost);
+      } else {
+        // 10+ cost
+        result = result.filter(card => card.cost >= 10);
+      }
+    }
+    
     setFilteredCards(result);
-  }, [searchTerm, selectedClass, selectedRarity, selectedSet, selectedCreator, cards, sets, showHiddenSetCards, cardsFromHiddenSets]);
+  }, [searchTerm, selectedClass, selectedRarity, selectedSet, selectedCreator, cards, sets, showHiddenSetCards, cardsFromHiddenSets, selectedCost]);
 
   // Calculate detail position when window is resized
   useEffect(() => {
@@ -391,6 +403,11 @@ const CardList = () => {
     setSelectedCreator(e.target.value);
   };
 
+  // Handle cost filter change
+  const handleCostChange = (e) => {
+    setSelectedCost(e.target.value);
+  };
+
   // Clear all filters
   const handleClearFilters = () => {
     setSearchTerm('');
@@ -398,6 +415,7 @@ const CardList = () => {
     setSelectedRarity('');
     setSelectedSet('');
     setSelectedCreator('');
+    setSelectedCost('');
   };
 
   // Class options for the filter dropdown
@@ -566,6 +584,14 @@ const CardList = () => {
             {rarityOptions.map(option => (
               <option key={option} value={option}>{option}</option>
             ))}
+          </select>
+          
+          <select value={selectedCost} onChange={handleCostChange}>
+            <option value="">All Costs</option>
+            {[...Array(10).keys()].map(i => (
+              <option key={i} value={i}>{i}</option>
+            ))}
+            <option value="10">10+</option>
           </select>
           
           <select value={selectedSet} onChange={handleSetChange}>
