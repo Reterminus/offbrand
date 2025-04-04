@@ -2494,11 +2494,38 @@
   flex-shrink: 0;
 }
 
+body.exporting-deck .deck-header {
+  position: relative !important;
+  flex-shrink: 0 !important;
+  display: block !important;
+}
+
 /* Special handling for export state */
+body.exporting-deck {
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+  position: fixed;
+}
+
+body.exporting-deck .deck-builder-interface {
+  overflow: visible !important;
+}
+
+body.exporting-deck .current-deck.export-view {
+  max-height: none !important;
+  overflow: visible !important;
+  height: auto !important;
+  display: block !important; /* Switch from flex to block during export */
+  position: relative;
+}
+
 body.exporting-deck .export-view .deck-cards {
   max-height: none !important;
-  overflow-y: visible !important;
+  overflow: visible !important;
   height: auto !important;
+  flex-grow: 0 !important;
+  display: block !important;
 }
 
 .empty-deck {

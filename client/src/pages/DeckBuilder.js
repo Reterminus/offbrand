@@ -402,8 +402,18 @@ const DeckBuilder = () => {
           // Adjust any clone document elements if needed
           const clonedDeckRef = clonedDoc.querySelector('.export-view');
           if (clonedDeckRef) {
+            // Make sure we capture the full content
+            clonedDeckRef.style.height = 'auto';
             clonedDeckRef.style.maxHeight = 'none';
             clonedDeckRef.style.overflow = 'visible';
+            
+            // Also adjust the deck-cards container to be fully visible
+            const deckCardsContainer = clonedDeckRef.querySelector('.deck-cards');
+            if (deckCardsContainer) {
+              deckCardsContainer.style.maxHeight = 'none';
+              deckCardsContainer.style.overflow = 'visible';
+              deckCardsContainer.style.height = 'auto';
+            }
             
             // Hide all view-details-btn elements in the cloned document before rendering to canvas
             const detailButtons = clonedDeckRef.querySelectorAll('.view-details-btn');
