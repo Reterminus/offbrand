@@ -179,9 +179,17 @@ const EditCard = () => {
       ...formData,
       imageSource: source,
       image: null,
-      imageUrl: formData.imageUrl
+      imageUrl: formData.imageUrl && source === 'url' ? formData.imageUrl : ''
     });
     setPreview(source === 'url' ? formData.imageUrl : null);
+  };
+
+  const handleKeywordChange = (e) => {
+    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+    setFormData({
+      ...formData,
+      keywords: selectedOptions
+    });
   };
 
   const handleRelatedCardSearch = (e) => {
@@ -298,7 +306,7 @@ const EditCard = () => {
       }
       
       // Update the card
-      await updateCard(id, data);
+      const response = await updateCard(id, data);
       
       // Handle set assignment
       if (formData.setId) {

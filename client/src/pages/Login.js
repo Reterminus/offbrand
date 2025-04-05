@@ -13,6 +13,7 @@ const Login = () => {
   });
   const [error, setError] = useState(null);
   const [initMessage, setInitMessage] = useState(null);
+  const [initLoading, setInitLoading] = useState(false);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -44,6 +45,31 @@ const Login = () => {
     
     if (success) {
       navigate('/');
+    }
+  };
+
+  const handleInitAdmin = async () => {
+    setInitLoading(true);
+    setInitMessage(null);
+    setError(null);
+    
+    try {
+      const response = await initAdmin();
+      
+      // Check if credentials were returned in the response
+      if (response.credentials) {
+        setFormData({
+          username: response.credentials.username,
+          password: response.credentials.password
+        });
+        setInitMessage(`Admin user created successfully. Username and password have been filled in for you.`);
+      } else {
+        setInitMessage(response.message || 'Admin user created successfully. Username: dumpster, Password: @bsolutemor@lity');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to initialize admin user. It may already exist.');
+    } finally {
+      setInitLoading(false);
     }
   };
 
@@ -101,6 +127,22 @@ const Login = () => {
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
+        
+        {/* Admin initialization section - commented out after initial setup
+        <div className="init-admin-section">
+          <p>First time setup? Initialize the admin account:</p>
+          <button 
+            className="btn btn-secondary init-btn"
+            onClick={handleInitAdmin}
+            disabled={initLoading}
+          >
+            {initLoading ? 'Initializing...' : 'Initialize Admin User'}
+          </button>
+          <small className="form-text">
+            This will create an admin user with username: dumpster and password: @bsolutemor@lity
+          </small>
+        </div>
+        */}
       </div>
     </div>
   );

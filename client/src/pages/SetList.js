@@ -26,6 +26,14 @@ const SetList = () => {
     fetchSets();
   }, []);
 
+  const handleEdit = (id) => {
+    navigate(`/sets/edit/${id}`);
+  };
+
+  const handleView = (id) => {
+    navigate(`/sets/${id}`);
+  };
+
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this set? This action cannot be undone.')) {
       try {

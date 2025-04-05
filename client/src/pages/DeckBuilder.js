@@ -602,6 +602,22 @@ const DeckBuilder = () => {
     setHoveredRelatedCard(null);
   };
 
+  // Helper function to check if a card belongs to a hidden set
+  const isCardFromHiddenSet = (card) => {
+    // If we don't have sets data yet, assume it's not from a hidden set
+    if (!sets || sets.length === 0 || !card || !card._id) return false;
+    
+    // Check if this card belongs to any hidden set
+    const isHidden = sets.some(set => 
+      set.hidden && 
+      set.cards && 
+      Array.isArray(set.cards) && 
+      set.cards.some(cardId => cardId === card._id || cardId.toString() === card._id.toString())
+    );
+    
+    return isHidden;
+  };
+
   // If still loading
   if (loading) {
     return <div className="loading">Loading cards...</div>;
@@ -614,6 +630,7 @@ const DeckBuilder = () => {
 
   // Card counts for the view
   const cardCounts = getCardCounts();
+  const groupedDeckCards = getGroupedDeckCards();
 
   return (
     <div className="deck-builder-page">

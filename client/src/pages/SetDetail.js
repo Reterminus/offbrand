@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getSet, getCards, addCardToSet, removeCardFromSet } from '../services/api';
 import { sortCards } from '../utils/cardUtils';
 import { formatText } from '../utils/textUtils';
@@ -7,6 +7,7 @@ import { AuthContext } from '../context/AuthContext';
 
 const SetDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { isAdmin } = useContext(AuthContext);
   const [set, setSet] = useState(null);
   const [allCards, setAllCards] = useState([]);

@@ -5,6 +5,8 @@ const ImagePositionSelector = ({ imageUrl, initialPosition, onChange }) => {
   const imageRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState({ x: 50, y: 50 });
+  const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
+  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const lastUpdateRef = useRef(0);
   const positionRef = useRef(position);
 
@@ -43,8 +45,19 @@ const ImagePositionSelector = ({ imageUrl, initialPosition, onChange }) => {
   useEffect(() => {
     const updateSizes = () => {
       if (containerRef.current) {
+        setContainerSize({
+          width: containerRef.current.offsetWidth,
+          height: containerRef.current.offsetHeight
+        });
+        
         const img = new Image();
         img.src = imageUrl;
+        img.onload = () => {
+          setImageSize({
+            width: img.naturalWidth,
+            height: img.naturalHeight
+          });
+        };
       }
     };
 

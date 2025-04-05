@@ -119,6 +119,14 @@ const CreateCard = () => {
     setPreview(null);
   };
 
+  const handleKeywordChange = (e) => {
+    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+    setFormData({
+      ...formData,
+      keywords: selectedOptions
+    });
+  };
+
   const handleRelatedCardSearch = (e) => {
     const searchTerm = e.target.value.toLowerCase();
     setRelatedCardSearch(searchTerm);
