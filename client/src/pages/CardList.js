@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useContext, useMemo, useCallback } 
 import { Link, useNavigate } from 'react-router-dom';
 import { getCards, deleteCard, getSets, getKeywords, getCard } from '../services/api';
 import { sortCards } from '../utils/cardUtils';
-import { formatText } from '../utils/textUtils';
 import { applyFilters } from '../utils/filterUtils';
 import { debounce } from '../utils/debounce';
 import CardItem from '../components/CardItem';
@@ -14,7 +13,6 @@ const CardList = () => {
   const { isAdmin } = useContext(AuthContext);
   const [cards, setCards] = useState([]);
   const [sets, setSets] = useState([]);
-  const [keywords, setKeywords] = useState([]);
   const [filteredCards, setFilteredCards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -72,7 +70,6 @@ const CardList = () => {
         setCreators(uniqueCreators);
         setCards(cardsData);
         setSets(setsData);
-        setKeywords(keywordsData);
         setLoading(false);
       } catch (err) {
         setError('Failed to fetch data. Please try again later.');
@@ -179,7 +176,8 @@ const CardList = () => {
     selectedCreator, 
     selectedCost, 
     cardsFromHiddenSets, 
-    showHiddenSetCards
+    showHiddenSetCards,
+    cards.length
   ]);
 
   // Update filteredCards state when memoized value changes
@@ -298,18 +296,6 @@ const CardList = () => {
     e.stopPropagation();
   }, []);
 
-  // Handle double click to show notes
-  const handleDoubleClick = useCallback((card) => {
-    if (card.notes && card.notes.trim() !== '') {
-      setShowNotesForCard(card._id);
-    }
-  }, []);
-
-  // Set ref for card element
-  const setCardRef = useCallback((id, element) => {
-    cardRefs.current[id] = element;
-  }, []);
-
   // Handle search input change
   const handleSearchChange = useCallback((e) => {
     setSearchTerm(e.target.value);
@@ -348,12 +334,6 @@ const CardList = () => {
     setSelectedSet('');
     setSelectedCreator('');
     setSelectedCost('');
-  }, []);
-
-  // Add handler to close mobile detail view
-  const handleCloseMobileDetail = useCallback(() => {
-    setActiveCardId(null);
-    setShowNotesForCard(null);
   }, []);
 
   // Handle clicking on a related card to show its details
