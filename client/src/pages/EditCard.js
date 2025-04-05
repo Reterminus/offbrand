@@ -179,7 +179,7 @@ const EditCard = () => {
       ...formData,
       imageSource: source,
       image: null,
-      imageUrl: formData.imageUrl && source === 'url' ? formData.imageUrl : ''
+      imageUrl: formData.imageUrl
     });
     setPreview(source === 'url' ? formData.imageUrl : null);
   };

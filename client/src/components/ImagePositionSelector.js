@@ -45,9 +45,6 @@ const ImagePositionSelector = ({ imageUrl, initialPosition, onChange }) => {
       if (containerRef.current) {
         const img = new Image();
         img.src = imageUrl;
-        img.onload = () => {
-          // No need to set imageSize or containerSize here
-        };
       }
     };
 

@@ -296,6 +296,18 @@ const CardList = () => {
     e.stopPropagation();
   }, []);
 
+  // Handle double click to show notes
+  const handleDoubleClick = useCallback((card) => {
+    if (card.notes && card.notes.trim() !== '') {
+      setShowNotesForCard(card._id);
+    }
+  }, []);
+
+  // Set ref for card element
+  const setCardRef = useCallback((id, element) => {
+    cardRefs.current[id] = element;
+  }, []);
+
   // Handle search input change
   const handleSearchChange = useCallback((e) => {
     setSearchTerm(e.target.value);
@@ -334,6 +346,12 @@ const CardList = () => {
     setSelectedSet('');
     setSelectedCreator('');
     setSelectedCost('');
+  }, []);
+
+  // Add handler to close mobile detail view
+  const handleCloseMobileDetail = useCallback(() => {
+    setActiveCardId(null);
+    setShowNotesForCard(null);
   }, []);
 
   // Handle clicking on a related card to show its details
