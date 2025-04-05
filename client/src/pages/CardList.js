@@ -1,8 +1,12 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, { useState, useEffect, useRef, useContext, useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getCards, deleteCard, getSets, getKeywords, getCard } from '../services/api';
 import { sortCards } from '../utils/cardUtils';
 import { formatText } from '../utils/textUtils';
+import { applyFilters } from '../utils/filterUtils';
+import { debounce } from '../utils/debounce';
+import CardItem from '../components/CardItem';
+import CardDetailModal from '../components/CardDetailModal';
 import { AuthContext } from '../context/AuthContext';
 
 const CardList = () => {
@@ -31,6 +35,7 @@ const CardList = () => {
   const [showHiddenSetCards, setShowHiddenSetCards] = useState(false);
   const [cardsFromHiddenSets, setCardsFromHiddenSets] = useState([]);
 
+  // Fetch data on component mount
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -39,8 +44,6 @@ const CardList = () => {
           getSets(),
           getKeywords()
         ]);
-        
-        const sortedCards = sortCards(cardsData);
         
         // Identify cards from hidden sets for admin toggle functionality
         const hiddenSets = setsData.filter(set => set.hidden);
@@ -58,16 +61,16 @@ const CardList = () => {
             });
           }
         });
-        setCardsFromHiddenSets(hiddenSetCards);
         
-        const uniqueCreators = [...new Set(sortedCards
+        // Get unique creators from cards for filtering
+        const uniqueCreators = [...new Set(cardsData
           .map(card => card.creator)
           .filter(creator => creator && creator.trim() !== '')
           .sort())];
         
+        setCardsFromHiddenSets(hiddenSetCards);
         setCreators(uniqueCreators);
-        setCards(sortedCards);
-        setFilteredCards(sortedCards);
+        setCards(cardsData);
         setSets(setsData);
         setKeywords(keywordsData);
         setLoading(false);
@@ -80,156 +83,129 @@ const CardList = () => {
     fetchData();
   }, []);
 
+  // Memoize sorted cards to avoid unnecessary re-sorting
+  const sortedCards = useMemo(() => {
+    return sortCards(cards);
+  }, [cards]);
+
   // Preload related cards data when a card is selected for the detail modal
   useEffect(() => {
-    if (selectedCardDetails && selectedCardDetails.relatedCards && selectedCardDetails.relatedCards.length > 0) {
-      const preloadRelatedCardsData = async () => {
-        const relatedCardIds = selectedCardDetails.relatedCards.map(card => card._id);
-        const newPreloadedCards = { ...preloadedRelatedCards };
-        
-        // For each related card that's not already preloaded
-        for (const relatedCard of selectedCardDetails.relatedCards) {
-          if (!preloadedRelatedCards[relatedCard._id]) {
-            try {
-              // Check if the full card data is in our local cache
-              const cachedCard = cards.find(card => card._id === relatedCard._id);
-              if (cachedCard) {
-                // Create a copy and sort its related cards
-                const cardWithSortedRelatedCards = {...cachedCard};
-                if (cardWithSortedRelatedCards.relatedCards && Array.isArray(cardWithSortedRelatedCards.relatedCards)) {
-                  cardWithSortedRelatedCards.relatedCards = sortCards(cardWithSortedRelatedCards.relatedCards);
-                }
-                newPreloadedCards[relatedCard._id] = cardWithSortedRelatedCards;
-              } else {
-                // Otherwise fetch it (don't await here, let it happen in parallel)
-                getCard(relatedCard._id, true)
-                  .then(cardData => {
-                    // Sort the related cards before caching
-                    if (cardData.relatedCards && Array.isArray(cardData.relatedCards)) {
-                      cardData.relatedCards = sortCards(cardData.relatedCards);
-                    }
-                    setPreloadedRelatedCards(prev => ({
-                      ...prev,
-                      [relatedCard._id]: cardData
-                    }));
-                  })
-                  .catch(err => console.error(`Error preloading card ${relatedCard._id}:`, err));
-              }
-            } catch (err) {
-              console.error(`Error preloading related card ${relatedCard._id}:`, err);
-            }
-          }
-        }
-        
-        // Update the preloaded cards state with any cached cards we found
-        if (Object.keys(newPreloadedCards).length > Object.keys(preloadedRelatedCards).length) {
-          setPreloadedRelatedCards(newPreloadedCards);
-        }
-      };
-      
-      preloadRelatedCardsData();
+    if (!selectedCardDetails || !selectedCardDetails.relatedCards || selectedCardDetails.relatedCards.length === 0) {
+      return;
     }
+    
+    const preloadRelatedCardsData = async () => {
+      const newPreloadedCards = { ...preloadedRelatedCards };
+      let hasNewCards = false;
+      
+      // For each related card that's not already preloaded
+      for (const relatedCard of selectedCardDetails.relatedCards) {
+        if (preloadedRelatedCards[relatedCard._id]) continue;
+        
+        try {
+          // Check if the full card data is in our local cache
+          const cachedCard = cards.find(card => card._id === relatedCard._id);
+          if (cachedCard) {
+            // Create a copy and sort its related cards
+            const cardWithSortedRelatedCards = {...cachedCard};
+            if (cardWithSortedRelatedCards.relatedCards && Array.isArray(cardWithSortedRelatedCards.relatedCards)) {
+              cardWithSortedRelatedCards.relatedCards = sortCards(cardWithSortedRelatedCards.relatedCards);
+            }
+            newPreloadedCards[relatedCard._id] = cardWithSortedRelatedCards;
+            hasNewCards = true;
+          } else {
+            // Otherwise fetch it (don't await here, let it happen in parallel)
+            getCard(relatedCard._id, true)
+              .then(cardData => {
+                // Sort the related cards before caching
+                if (cardData.relatedCards && Array.isArray(cardData.relatedCards)) {
+                  cardData.relatedCards = sortCards(cardData.relatedCards);
+                }
+                setPreloadedRelatedCards(prev => ({
+                  ...prev,
+                  [relatedCard._id]: cardData
+                }));
+              })
+              .catch(err => console.error(`Error preloading card ${relatedCard._id}:`, err));
+          }
+        } catch (err) {
+          console.error(`Error preloading related card ${relatedCard._id}:`, err);
+        }
+      }
+      
+      // Update the preloaded cards state with any cached cards we found
+      if (hasNewCards) {
+        setPreloadedRelatedCards(newPreloadedCards);
+      }
+    };
+    
+    preloadRelatedCardsData();
   }, [selectedCardDetails, cards, preloadedRelatedCards]);
 
-  // Filter cards when search term or selected filters change
+  // Memoize the selected set data to avoid repeated lookups
+  const selectedSetData = useMemo(() => {
+    if (!selectedSet || selectedSet === 'tokens' || !sets.length) return null;
+    return sets.find(set => set._id === selectedSet);
+  }, [selectedSet, sets]);
+
+  // Memoize search term in lowercase to avoid repeated conversion
+  const searchTermLower = useMemo(() => {
+    return searchTerm.trim().toLowerCase();
+  }, [searchTerm]);
+
+  // Memoize filtered cards based on all filter criteria
+  const memoizedFilteredCards = useMemo(() => {
+    if (cards.length === 0) return [];
+    
+    // Use the common filter utility function
+    return applyFilters(sortedCards, {
+      searchTerm: searchTermLower,
+      selectedClass,
+      selectedRarity,
+      selectedSet,
+      selectedSetData,
+      selectedCreator,
+      selectedCost,
+      cardsFromHiddenSets,
+      showHiddenSetCards
+    });
+  }, [
+    sortedCards, 
+    searchTermLower, 
+    selectedClass, 
+    selectedRarity, 
+    selectedSet, 
+    selectedSetData, 
+    selectedCreator, 
+    selectedCost, 
+    cardsFromHiddenSets, 
+    showHiddenSetCards
+  ]);
+
+  // Update filteredCards state when memoized value changes
   useEffect(() => {
-    if (cards.length === 0) return;
-    
-    let result = [...cards];
-    
-    // Filter cards from hidden sets if toggle is off
-    if (!showHiddenSetCards && cardsFromHiddenSets.length > 0) {
-      result = result.filter(card => !cardsFromHiddenSets.includes(card._id.toString()));
-    }
-    
-    if (searchTerm.trim() !== '') {
-      const searchTermLower = searchTerm.toLowerCase();
-      result = result.filter(card => {
-        if (card.title.toLowerCase().includes(searchTermLower)) {
-          return true;
-        }
-        
-        if (card.trait && card.trait.toLowerCase().includes(searchTermLower)) {
-          return true;
-        }
-        
-        if ((!card.cardType || card.cardType === 'Follower') && 
-            ((card.unevolvedDescription && card.unevolvedDescription.toLowerCase().includes(searchTermLower)) || 
-             (card.evolvedDescription && card.evolvedDescription.toLowerCase().includes(searchTermLower)))) {
-          return true;
-        }
-        
-        if (card.cardType === 'Spell' && 
-            card.spellDescription && 
-            card.spellDescription.toLowerCase().includes(searchTermLower)) {
-          return true;
-        }
-        
-        if (card.cardType === 'Amulet' && 
-            card.amuletDescription && 
-            card.amuletDescription.toLowerCase().includes(searchTermLower)) {
-          return true;
-        }
-        
-        return false;
-      });
-    }
-    
-    if (selectedClass !== '') {
-      result = result.filter(card => card.class === selectedClass);
-    }
-    
-    if (selectedRarity !== '') {
-      result = result.filter(card => card.rarity === selectedRarity);
-    }
+    setFilteredCards(memoizedFilteredCards);
+  }, [memoizedFilteredCards]);
 
-    if (selectedSet !== '') {
-      if (selectedSet === 'tokens') {
-        result = result.filter(card => card.isToken === true);
-      } else {
-        const selectedSetData = sets.find(set => set._id === selectedSet);
-        if (selectedSetData) {
-          result = result.filter(card => selectedSetData.cards.includes(card._id));
-        }
+  // Debounced resize handler to prevent performance issues
+  const handleResize = useCallback(debounce(() => {
+    const newPositions = {};
+    Object.keys(cardRefs.current).forEach(id => {
+      const cardElement = cardRefs.current[id];
+      if (cardElement) {
+        const rect = cardElement.getBoundingClientRect();
+        const windowWidth = window.innerWidth;
+        // Calculate the center position of the card
+        const cardCenter = rect.left + (rect.width / 2);
+        // If the card's center is in the right half of the screen, show detail on the left
+        newPositions[id] = cardCenter > windowWidth / 2 ? 'left' : 'right';
       }
-    }
-
-    if (selectedCreator !== '') {
-      result = result.filter(card => card.creator === selectedCreator);
-    }
-    
-    // Filter by cost
-    if (selectedCost !== '') {
-      const cost = parseInt(selectedCost);
-      if (cost < 10) {
-        result = result.filter(card => card.cost === cost);
-      } else {
-        // 10+ cost
-        result = result.filter(card => card.cost >= 10);
-      }
-    }
-    
-    setFilteredCards(result);
-  }, [searchTerm, selectedClass, selectedRarity, selectedSet, selectedCreator, cards, sets, showHiddenSetCards, cardsFromHiddenSets, selectedCost]);
+    });
+    setDetailPositions(newPositions);
+  }, 150), []);
 
   // Calculate detail position when window is resized
   useEffect(() => {
-    const handleResize = () => {
-      const newPositions = {};
-      Object.keys(cardRefs.current).forEach(id => {
-        const cardElement = cardRefs.current[id];
-        if (cardElement) {
-          const rect = cardElement.getBoundingClientRect();
-          const windowWidth = window.innerWidth;
-          // Calculate the center position of the card
-          const cardCenter = rect.left + (rect.width / 2);
-          // If the card's center is in the right half of the screen, show detail on the left
-          newPositions[id] = cardCenter > windowWidth / 2 ? 'left' : 'right';
-        }
-      });
-      setDetailPositions(newPositions);
-    };
-
     // Initial calculation
     handleResize();
 
@@ -240,106 +216,64 @@ const CardList = () => {
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [filteredCards]);
+  }, [filteredCards, handleResize]);
 
-  const handleEdit = (id) => {
+  // Memoize class and rarity options
+  const classOptions = useMemo(() => [
+    'Neutral', 'Forestcraft', 'Swordcraft', 'Runecraft', 
+    'Dragoncraft', 'Shadowcraft', 'Bloodcraft', 'Havencraft', 
+    'Portalcraft'
+  ], []);
+
+  const rarityOptions = useMemo(() => ['Bronze', 'Silver', 'Gold', 'Legendary'], []);
+
+  // Handler functions - memoized to prevent unnecessary re-creations
+  const handleEdit = useCallback((id) => {
     navigate(`/edit/${id}`);
-  };
+  }, [navigate]);
 
-  const handleDelete = async (id) => {
+  const handleDelete = useCallback(async (id) => {
     if (window.confirm('Are you sure you want to delete this card?')) {
       try {
         await deleteCard(id);
-        // Re-sort the cards after deletion
-        const updatedCards = cards.filter(card => card._id !== id);
-        const sortedCards = sortCards(updatedCards);
-        setCards(sortedCards);
-        setFilteredCards(sortedCards.filter(card => {
-          let match = true;
-          
-          if (searchTerm.trim() !== '') {
-            const searchTermLower = searchTerm.toLowerCase();
-            
-            // Check title
-            let textMatch = card.title.toLowerCase().includes(searchTermLower);
-
-            // Check trait
-            if (!textMatch && card.trait) {
-              textMatch = card.trait.toLowerCase().includes(searchTermLower);
-            }
-            
-            // Check descriptions based on card type
-            if (!textMatch && (!card.cardType || card.cardType === 'Follower')) {
-              textMatch = (card.unevolvedDescription && card.unevolvedDescription.toLowerCase().includes(searchTermLower)) || 
-                         (card.evolvedDescription && card.evolvedDescription.toLowerCase().includes(searchTermLower));
-            }
-            
-            if (!textMatch && card.cardType === 'Spell') {
-              textMatch = card.spellDescription && card.spellDescription.toLowerCase().includes(searchTermLower);
-            }
-            
-            if (!textMatch && card.cardType === 'Amulet') {
-              textMatch = card.amuletDescription && card.amuletDescription.toLowerCase().includes(searchTermLower);
-            }
-            
-            match = match && textMatch;
-          }
-          
-          if (selectedClass !== '') {
-            match = match && card.class === selectedClass;
-          }
-          
-          if (selectedRarity !== '') {
-            match = match && card.rarity === selectedRarity;
-          }
-          
-          if (selectedSet !== '') {
-            if (selectedSet === 'tokens') {
-              match = match && card.isToken === true;
-            } else {
-              const selectedSetData = sets.find(set => set._id === selectedSet);
-              match = match && (selectedSetData && selectedSetData.cards.includes(card._id));
-            }
-          }
-          
-          if (selectedCreator !== '') {
-            match = match && card.creator === selectedCreator;
-          }
-          
-          return match;
-        }));
+        
+        // Update cards state
+        setCards(prevCards => {
+          const updatedCards = prevCards.filter(card => card._id !== id);
+          return updatedCards;
+        });
       } catch (err) {
         setError('Failed to delete card. Please try again later.');
       }
     }
-  };
+  }, []);
 
   // Prevent event propagation to avoid triggering parent events
-  const handleButtonClick = (e) => {
+  const handleButtonClick = useCallback((e) => {
     e.stopPropagation();
-  };
+  }, []);
 
   // Check if we're on a mobile/tablet device
-  const isMobileOrTablet = () => {
+  const isMobileOrTablet = useCallback(() => {
     return window.innerWidth <= 1200;
-  };
+  }, []);
 
   // Handle mouse enter/leave for hover effect on desktop
-  const handleMouseEnter = (id) => {
+  const handleMouseEnter = useCallback((id) => {
     if (!isMobileOrTablet()) {
       setActiveCardId(id);
     }
-  };
+  }, [isMobileOrTablet]);
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = useCallback(() => {
     if (!isMobileOrTablet()) {
       setActiveCardId(null);
       setShowNotesForCard(null);
     }
-  };
+  }, [isMobileOrTablet]);
 
   // Handle card click for showing the detail modal
-  const handleCardClick = (card, e) => {
+  const handleCardClick = useCallback((card, e) => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -351,91 +285,79 @@ const CardList = () => {
       cardDataToShow.relatedCards = sortCards(cardDataToShow.relatedCards);
     }
     
-    // Log for debugging
-    console.log('Selected card notes:', cardDataToShow.notes);
     setSelectedCardDetails(cardDataToShow);
-  };
+  }, []);
 
   // Close the detail modal
-  const handleDetailClose = () => {
+  const handleDetailClose = useCallback(() => {
     setSelectedCardDetails(null);
-  };
+  }, []);
 
   // Prevent event propagation in modal
-  const handleDetailClick = (e) => {
+  const handleDetailClick = useCallback((e) => {
     e.stopPropagation();
-  };
+  }, []);
 
   // Handle double click to show notes
-  const handleDoubleClick = (card) => {
+  const handleDoubleClick = useCallback((card) => {
     if (card.notes && card.notes.trim() !== '') {
       setShowNotesForCard(card._id);
     }
-  };
+  }, []);
 
   // Set ref for card element
-  const setCardRef = (id, element) => {
+  const setCardRef = useCallback((id, element) => {
     cardRefs.current[id] = element;
-  };
+  }, []);
 
   // Handle search input change
-  const handleSearchChange = (e) => {
+  const handleSearchChange = useCallback((e) => {
     setSearchTerm(e.target.value);
-  };
+  }, []);
 
   // Handle class filter change
-  const handleClassChange = (e) => {
+  const handleClassChange = useCallback((e) => {
     setSelectedClass(e.target.value);
-  };
+  }, []);
 
   // Handle rarity filter change
-  const handleRarityChange = (e) => {
+  const handleRarityChange = useCallback((e) => {
     setSelectedRarity(e.target.value);
-  };
+  }, []);
 
   // Handle set filter change
-  const handleSetChange = (e) => {
+  const handleSetChange = useCallback((e) => {
     setSelectedSet(e.target.value);
-  };
+  }, []);
 
   // Handle creator filter change
-  const handleCreatorChange = (e) => {
+  const handleCreatorChange = useCallback((e) => {
     setSelectedCreator(e.target.value);
-  };
+  }, []);
 
   // Handle cost filter change
-  const handleCostChange = (e) => {
+  const handleCostChange = useCallback((e) => {
     setSelectedCost(e.target.value);
-  };
+  }, []);
 
   // Clear all filters
-  const handleClearFilters = () => {
+  const handleClearFilters = useCallback(() => {
     setSearchTerm('');
     setSelectedClass('');
     setSelectedRarity('');
     setSelectedSet('');
     setSelectedCreator('');
     setSelectedCost('');
-  };
-
-  // Class options for the filter dropdown
-  const classOptions = [
-    'Neutral', 'Forestcraft', 'Swordcraft', 'Runecraft', 
-    'Dragoncraft', 'Shadowcraft', 'Bloodcraft', 'Havencraft', 
-    'Portalcraft'
-  ];
-
-  // Rarity options for the filter dropdown
-  const rarityOptions = ['Bronze', 'Silver', 'Gold', 'Legendary'];
+  }, []);
 
   // Add handler to close mobile detail view
-  const handleCloseMobileDetail = () => {
+  const handleCloseMobileDetail = useCallback(() => {
     setActiveCardId(null);
     setShowNotesForCard(null);
-  };
+  }, []);
 
   // Handle clicking on a related card to show its details
-  const handleRelatedCardClick = async (relatedCard, e) => {
+  const handleRelatedCardClick = useCallback(async (relatedCard, e) => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -515,22 +437,22 @@ const CardList = () => {
         relatedCards: []
       });
     }
-  };
+  }, [cards, preloadedRelatedCards]);
 
   // Handle hover on related card to show its name in the title
-  const handleRelatedCardMouseEnter = (relatedCard) => {
+  const handleRelatedCardMouseEnter = useCallback((relatedCard) => {
     setHoveredRelatedCard(relatedCard);
-  };
+  }, []);
 
   // Handle hover end on related card to restore original title
-  const handleRelatedCardMouseLeave = () => {
+  const handleRelatedCardMouseLeave = useCallback(() => {
     setHoveredRelatedCard(null);
-  };
+  }, []);
 
   // Handle toggle for hidden set cards
-  const handleToggleHiddenSetCards = () => {
+  const handleToggleHiddenSetCards = useCallback(() => {
     setShowHiddenSetCards(prev => !prev);
-  };
+  }, []);
 
   if (loading) {
     return <div className="loading">Loading cards...</div>;
@@ -626,378 +548,35 @@ const CardList = () => {
       ) : (
         <div className="card-grid">
           {filteredCards.map(card => (
-            <div 
-              className="card-container" 
+            <CardItem
               key={card._id}
-              ref={(el) => setCardRef(card._id, el)}
-              onMouseEnter={() => handleMouseEnter(card._id)}
-              onMouseLeave={handleMouseLeave}
-              onClick={(e) => handleCardClick(card, e)}
-              style={{ zIndex: activeCardId === card._id ? 1000 : 1 }}
-            >
-              <div className="card">
-                <img 
-                  src={card.imageUrl} 
-                  alt={card.title} 
-                  className="card-image" 
-                />
-                {card.isToken && <div className="token-label">Token</div>}
-                {isAdmin && (
-                  <div className="card-actions">
-                    <button 
-                      className="btn btn-edit"
-                      onClick={(e) => {
-                        handleButtonClick(e);
-                        handleEdit(card._id);
-                      }}
-                    >
-                      Edit
-                    </button>
-                    <button 
-                      className="btn btn-danger"
-                      onClick={(e) => {
-                        handleButtonClick(e);
-                        handleDelete(card._id);
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                )}
-              </div>
-              
-              <div 
-                className={`card-detail ${activeCardId === card._id ? 'visible' : ''}`}
-                style={{
-                  left: detailPositions[card._id] === 'left' ? 'auto' : 'calc(100% + 20px)',
-                  right: detailPositions[card._id] === 'left' ? 'calc(100% + 20px)' : 'auto'
-                }}
-              >
-                <h3 className="card-title">{card.title}</h3>
-                
-                <div className="card-metadata">
-                  <div className="card-metadata-row">
-                    <div>
-                      <span className="card-cost">{card.cost}</span>
-                      <span className="card-class" title={card.class}>{card.class}</span>
-                    </div>
-                    <span className={`card-rarity card-rarity-${card.rarity.toLowerCase()}`}>{card.rarity}</span>
-                  </div>
-                  
-                  <div className="card-metadata-row">
-                    <div>
-                      {card.trait && (
-                        <span className="card-trait">
-                          Trait: {card.trait}
-                        </span>
-                      )}
-                      {card.isToken && !card.trait && (
-                        <span className="card-token-badge">
-                          Token
-                        </span>
-                      )}
-                    </div>
-                    <span className={`card-type-badge ${card.cardType?.toLowerCase() || 'follower'}`}>
-                      {card.cardType || 'Follower'}
-                    </span>
-                  </div>
-                  
-                  {card.trait && card.isToken && (
-                    <div className="card-metadata-row token-row">
-                      <div>
-                        <span className="card-token-badge">
-                          Token
-                        </span>
-                      </div>
-                      <div></div>
-                    </div>
-                  )}
-                </div>
-                
-                {/* Follower card details */}
-                {(!card.cardType || card.cardType === 'Follower') && (
-                  <div className="card-descriptions">
-                    <div className="description-section follower-section">
-                      <h4 className="description-title">Unevolved</h4>
-                      <div className="stats-row">
-                        <span>Attack: <span className="attack-value">{card.unevolvedAttack}</span></span>
-                        <span>Defense: <span className="defense-value">{card.unevolvedDefense}</span></span>
-                      </div>
-                      <p className="card-description">{formatText(card.unevolvedDescription)}</p>
-                    </div>
-                    
-                    <div className="description-section">
-                      <h4 className="description-title">Evolved</h4>
-                      <div className="stats-row">
-                        <span>Attack: <span className="attack-value">{card.evolvedAttack}</span></span>
-                        <span>Defense: <span className="defense-value">{card.evolvedDefense}</span></span>
-                      </div>
-                      <p className="card-description">{formatText(card.evolvedDescription)}</p>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Spell card details */}
-                {card.cardType === 'Spell' && (
-                  <div className="card-descriptions" style={{ border: 'none', borderBottom: 'none' }}>
-                    <div 
-                      className="description-section spell-section" 
-                      style={{ border: 'none', borderBottom: 'none' }}
-                    >
-                      <h4 className="description-title">Spell Effect</h4>
-                      <p className="card-description">{formatText(card.spellDescription)}</p>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Amulet card details */}
-                {card.cardType === 'Amulet' && (
-                  <div className="card-descriptions">
-                    <div className="description-section amulet-section" style={{ border: 'none', borderBottom: 'none' }}>
-                      <h4 className="description-title">Amulet Effect</h4>
-                      <p className="card-description">{formatText(card.amuletDescription)}</p>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Notes section inside the detail window */}
-                {(card.notes && card.notes.trim() !== '') || (card.keywords && card.keywords.length > 0) ? (
-                  <div 
-                    className={`card-notes-section ${showNotesForCard === card._id ? 'show' : ''}`}
-                  >
-                    <div className="card-notes-divider"></div>
-                    
-                    {/* Keywords section */}
-                    {card.keywords && card.keywords.length > 0 && (
-                      <div className="card-keywords">
-                        {card.keywords.map(keyword => (
-                          <div 
-                            key={keyword._id} 
-                            className="keyword-banner"
-                          >
-                            <div 
-                              className="keyword-overlay"
-                              style={{
-                                backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5)), url(${keyword.imageUrl})`,
-                                backgroundPosition: keyword.imagePosition || '50% 50%',
-                                backgroundSize: 'cover'
-                              }}
-                            >
-                              <h5 className="keyword-title">{keyword.title}</h5>
-                              <div className="keyword-description-scrollable">
-                                <p className="keyword-description">{keyword.description}</p>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    
-                    {/* Notes content */}
-                    {card.notes && card.notes.trim() !== '' && (
-                      <div className="card-notes-content">
-                        {card.notes.split('\n').filter(line => line.trim() !== '').map((line, index) => (
-                          <div key={index} className="note-line">
-                            {formatText(line)}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ) : null}
-              </div>
-            </div>
+              card={card}
+              isAdmin={isAdmin}
+              isActive={activeCardId === card._id}
+              showNotes={showNotesForCard === card._id}
+              detailPosition={detailPositions[card._id]}
+              handleMouseEnter={handleMouseEnter}
+              handleMouseLeave={handleMouseLeave}
+              handleCardClick={handleCardClick}
+              handleButtonClick={handleButtonClick}
+              handleEdit={handleEdit}
+              handleDelete={handleDelete}
+              setCardRef={setCardRef}
+            />
           ))}
         </div>
       )}
 
       {/* Full Detail Modal */}
-      {selectedCardDetails && (
-        <div 
-          className="deck-builder-card-detail card-list-detail-modal"
-          onClick={handleDetailClose}
-        >
-          <div 
-            className="detail-header"
-            onClick={handleDetailClick}
-          >
-            <h3 className="card-title">{selectedCardDetails.title}</h3>
-            <button 
-              className="close-detail-btn" 
-              onClick={handleDetailClose}
-            >
-              ×
-            </button>
-          </div>
-          
-          <div 
-            className="card-detail-content"
-            onClick={handleDetailClick}
-          >
-            <div className="card-detail-image">
-              <img 
-                src={selectedCardDetails.imageUrl} 
-                alt={selectedCardDetails.title} 
-              />
-            </div>
-            
-            <div className="card-detail-info">
-              <div className="card-metadata">
-                <div className="card-metadata-row">
-                  <div>
-                    <span className="card-cost">{selectedCardDetails.cost}</span>
-                    <span className="card-class" title={selectedCardDetails.class}>
-                      {selectedCardDetails.class}
-                    </span>
-                  </div>
-                  <span className={`card-rarity card-rarity-${selectedCardDetails.rarity.toLowerCase()}`}>
-                    {selectedCardDetails.rarity}
-                  </span>
-                </div>
-                
-                <div className="card-metadata-row">
-                  <div>
-                    {selectedCardDetails.trait && (
-                      <span className="card-trait">
-                        Trait: {selectedCardDetails.trait}
-                      </span>
-                    )}
-                    {selectedCardDetails.isToken && !selectedCardDetails.trait && (
-                      <span className="card-token-badge">
-                        Token
-                      </span>
-                    )}
-                  </div>
-                  <span className={`card-type-badge ${selectedCardDetails.cardType?.toLowerCase() || 'follower'}`}>
-                    {selectedCardDetails.cardType || 'Follower'}
-                  </span>
-                </div>
-                
-                {selectedCardDetails.trait && selectedCardDetails.isToken && (
-                  <div className="card-metadata-row token-row">
-                    <div>
-                      <span className="card-token-badge">
-                        Token
-                      </span>
-                    </div>
-                    <div></div>
-                  </div>
-                )}
-              </div>
-              
-              {/* Follower card details */}
-              {(!selectedCardDetails.cardType || selectedCardDetails.cardType === 'Follower') && (
-                <div className="card-descriptions">
-                  <div className="description-section follower-section">
-                    <h4 className="description-title">Unevolved</h4>
-                    <div className="stats-row">
-                      <span>Attack: <span className="attack-value">{selectedCardDetails.unevolvedAttack}</span></span>
-                      <span>Defense: <span className="defense-value">{selectedCardDetails.unevolvedDefense}</span></span>
-                    </div>
-                    <p className="card-description">{formatText(selectedCardDetails.unevolvedDescription)}</p>
-                  </div>
-                  
-                  <div className="description-section">
-                    <h4 className="description-title">Evolved</h4>
-                    <div className="stats-row">
-                      <span>Attack: <span className="attack-value">{selectedCardDetails.evolvedAttack}</span></span>
-                      <span>Defense: <span className="defense-value">{selectedCardDetails.evolvedDefense}</span></span>
-                    </div>
-                    <p className="card-description">{formatText(selectedCardDetails.evolvedDescription)}</p>
-                  </div>
-                </div>
-              )}
-              
-              {/* Spell card details */}
-              {selectedCardDetails.cardType === 'Spell' && (
-                <div className="card-descriptions">
-                  <div className="description-section spell-section" style={{ border: 'none', borderBottom: 'none' }}>
-                    <h4 className="description-title">Spell Effect</h4>
-                    <p className="card-description">{formatText(selectedCardDetails.spellDescription)}</p>
-                  </div>
-                </div>
-              )}
-              
-              {/* Amulet card details */}
-              {selectedCardDetails.cardType === 'Amulet' && (
-                <div className="card-descriptions">
-                  <div className="description-section amulet-section" style={{ border: 'none', borderBottom: 'none' }}>
-                    <h4 className="description-title">Amulet Effect</h4>
-                    <p className="card-description">{formatText(selectedCardDetails.amuletDescription)}</p>
-                  </div>
-                </div>
-              )}
-              
-              {/* Divider before Keywords/Related Cards/Notes */}
-              <div className="card-notes-divider"></div>
-              
-              {/* Related Cards section - Move above Keywords */}
-              {selectedCardDetails.relatedCards && selectedCardDetails.relatedCards.length > 0 && (
-                <div className="related-cards-section">
-                  <h4 className="related-cards-title">
-                    {hoveredRelatedCard ? hoveredRelatedCard.title : "Related Cards"}
-                  </h4>
-                  <div className="related-cards-grid cards-only">
-                    {selectedCardDetails.relatedCards.map(relatedCard => (
-                      <div 
-                        key={relatedCard._id} 
-                        className="related-card cards-only"
-                        onClick={(e) => handleRelatedCardClick(relatedCard, e)}
-                        onMouseEnter={() => handleRelatedCardMouseEnter(relatedCard)}
-                        onMouseLeave={handleRelatedCardMouseLeave}
-                      >
-                        <div className="related-card-image">
-                          <img src={relatedCard.imageUrl} alt={relatedCard.title} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {/* Keywords section */}
-              {selectedCardDetails.keywords && selectedCardDetails.keywords.length > 0 && (
-                <div className="card-keywords">
-                  {selectedCardDetails.keywords.map(keyword => (
-                    <div 
-                      key={keyword._id} 
-                      className="keyword-banner"
-                    >
-                      <div 
-                        className="keyword-overlay"
-                        style={{
-                          backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5)), url(${keyword.imageUrl})`,
-                          backgroundPosition: keyword.imagePosition || '50% 50%',
-                          backgroundSize: 'cover'
-                        }}
-                      >
-                        <h5 className="keyword-title">{keyword.title}</h5>
-                        <div className="keyword-description-scrollable">
-                          <p className="keyword-description">{keyword.description}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-              
-              {/* Card Notes section */}
-              {selectedCardDetails.notes && (
-                <div className="card-notes-section">
-                  <h4 className="notes-title">Details</h4>
-                  <div className="notes-content">
-                    {selectedCardDetails.notes.split('\n').map((line, index) => (
-                      <p key={index} className="note-line">
-                        {formatText(line || '')}
-                      </p>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      <CardDetailModal
+        cardDetails={selectedCardDetails}
+        handleDetailClose={handleDetailClose}
+        handleDetailClick={handleDetailClick}
+        handleRelatedCardClick={handleRelatedCardClick}
+        handleRelatedCardMouseEnter={handleRelatedCardMouseEnter}
+        handleRelatedCardMouseLeave={handleRelatedCardMouseLeave}
+        hoveredRelatedCard={hoveredRelatedCard}
+      />
     </div>
   );
 };
