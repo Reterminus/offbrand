@@ -3807,7 +3807,7 @@ body.exporting-deck .export-view .deck-cards {
 }
 
 .format-btn {
-  padding: 4px 8px;
+  padding: 4px 12px;
   font-size: 14px;
   border-radius: 3px;
   background-color: #333;
@@ -3815,6 +3815,7 @@ body.exporting-deck .export-view .deck-cards {
   border: 1px solid #444;
   cursor: pointer;
   transition: all 0.2s;
+  min-width: 40px;
 }
 
 .format-btn:hover {
