@@ -2946,7 +2946,7 @@ body.exporting-deck .export-view .deck-cards {
 .card-detail-content {
   display: flex;
   width: 100%;
-  max-width: 860px;
+  max-width: 850px;
   background-color: #1a1a1a;
   border-radius: 0 0 8px 8px;
   overflow: hidden;
@@ -2957,7 +2957,7 @@ body.exporting-deck .export-view .deck-cards {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  max-width: 860px;
+  max-width: 850px;
   background-color: #2a2a2a;
   padding: 10px 15px;
   border-radius: 8px 8px 0 0;

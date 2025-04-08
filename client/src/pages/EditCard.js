@@ -184,14 +184,6 @@ const EditCard = () => {
     setPreview(source === 'url' ? formData.imageUrl : null);
   };
 
-  const handleKeywordChange = (e) => {
-    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
-    setFormData({
-      ...formData,
-      keywords: selectedOptions
-    });
-  };
-
   const handleRelatedCardSearch = (e) => {
     const searchTerm = e.target.value.toLowerCase();
     setRelatedCardSearch(searchTerm);
@@ -304,9 +296,6 @@ const EditCard = () => {
       if (formData.relatedCards.length > 0) {
         data.append('relatedCards', JSON.stringify(formData.relatedCards));
       }
-      
-      // Update the card
-      const response = await updateCard(id, data);
       
       // Handle set assignment
       if (formData.setId) {
