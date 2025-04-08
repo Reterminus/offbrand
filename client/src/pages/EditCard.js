@@ -318,6 +318,9 @@ const EditCard = () => {
         }
       }
       
+      // Update the card data
+      await updateCard(id, data);
+      
       // Always navigate to the main page
       navigate('/');
     } catch (err) {
@@ -350,24 +353,28 @@ const EditCard = () => {
     
     // Only apply if there's selected text
     if (start !== end) {
-      const selectedText = formData[fieldName].substring(start, end);
-      const newText = 
-        formData[fieldName].substring(0, start) + 
-        '**' + selectedText + '**' + 
-        formData[fieldName].substring(end);
+      const currentText = formData[fieldName];
+      const selectedText = currentText.substring(start, end);
       
+      // Create the new text with asterisks around the selection
+      const newText = 
+        currentText.substring(0, start) + 
+        '**' + selectedText + '**' + 
+        currentText.substring(end);
+      
+      // Update form data
       setFormData({
         ...formData,
         [fieldName]: newText
       });
       
-      // Reset focus after state update
+      // Reset focus and set cursor position after the formatted text
       setTimeout(() => {
         textarea.focus();
-        // Try to position cursor after the insertion
-        textarea.selectionStart = end + 4; // 4 is the length of **selectedText**
-        textarea.selectionEnd = end + 4;
-      }, 0);
+        const newPosition = start + selectedText.length + 4; // Adding 4 for the **text**
+        textarea.selectionStart = newPosition;
+        textarea.selectionEnd = newPosition;
+      }, 10);
     }
   };
 
