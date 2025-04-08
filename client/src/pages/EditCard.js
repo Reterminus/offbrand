@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getCard, updateCard, getSets, addCardToSet, getKeywords, getCards } from '../services/api';
+import { getCard, getSets, addCardToSet, getKeywords, getCards } from '../services/api';
 
 const EditCard = () => {
   const navigate = useNavigate();
