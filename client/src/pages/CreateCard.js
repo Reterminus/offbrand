@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createCard, getSets, addCardToSet, getKeywords, getCards } from '../services/api';
 
@@ -39,6 +39,12 @@ const CreateCard = () => {
   // Add state for searching related cards
   const [relatedCardSearch, setRelatedCardSearch] = useState('');
   const [filteredRelatedCards, setFilteredRelatedCards] = useState([]);
+
+  // Add refs for each description textarea
+  const unevolvedDescRef = useRef(null);
+  const evolvedDescRef = useRef(null);
+  const spellDescRef = useRef(null);
+  const amuletDescRef = useRef(null);
 
   // Fetch available sets, keywords, and cards when component mounts
   useEffect(() => {
@@ -270,6 +276,37 @@ const CreateCard = () => {
   // Card type options
   const cardTypeOptions = ['Follower', 'Spell', 'Amulet'];
 
+  // Add a function to handle applying bold formatting
+  const handleBoldClick = (textareaRef, fieldName) => {
+    if (!textareaRef.current) return;
+    
+    const textarea = textareaRef.current;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    
+    // Only apply if there's selected text
+    if (start !== end) {
+      const selectedText = formData[fieldName].substring(start, end);
+      const newText = 
+        formData[fieldName].substring(0, start) + 
+        '**' + selectedText + '**' + 
+        formData[fieldName].substring(end);
+      
+      setFormData({
+        ...formData,
+        [fieldName]: newText
+      });
+      
+      // Reset focus after state update
+      setTimeout(() => {
+        textarea.focus();
+        // Try to position cursor after the insertion
+        textarea.selectionStart = end + 4; // 4 is the length of **selectedText**
+        textarea.selectionEnd = end + 4;
+      }, 0);
+    }
+  };
+
   return (
     <div className="create-card-page">
       <div className="header">
@@ -460,6 +497,15 @@ const CreateCard = () => {
             
             <div className="form-group">
               <label htmlFor="unevolvedDescription">Unevolved Description</label>
+              <div className="text-formatting-toolbar">
+                <button
+                  type="button"
+                  className="btn btn-sm btn-secondary format-btn"
+                  onClick={() => handleBoldClick(unevolvedDescRef, 'unevolvedDescription')}
+                >
+                  <strong>B</strong>
+                </button>
+              </div>
               <textarea
                 id="unevolvedDescription"
                 name="unevolvedDescription"
@@ -468,6 +514,7 @@ const CreateCard = () => {
                 onChange={handleChange}
                 placeholder="Enter unevolved card description (optional)"
                 rows="4"
+                ref={unevolvedDescRef}
               ></textarea>
               <small className="form-text">
                 Press Enter for line breaks. They will be preserved in the card view.
@@ -509,6 +556,15 @@ const CreateCard = () => {
             
             <div className="form-group">
               <label htmlFor="evolvedDescription">Evolved Description</label>
+              <div className="text-formatting-toolbar">
+                <button
+                  type="button"
+                  className="btn btn-sm btn-secondary format-btn"
+                  onClick={() => handleBoldClick(evolvedDescRef, 'evolvedDescription')}
+                >
+                  <strong>B</strong>
+                </button>
+              </div>
               <textarea
                 id="evolvedDescription"
                 name="evolvedDescription"
@@ -517,6 +573,7 @@ const CreateCard = () => {
                 onChange={handleChange}
                 placeholder="Enter evolved card description (optional)"
                 rows="4"
+                ref={evolvedDescRef}
               ></textarea>
               <small className="form-text">
                 Press Enter for line breaks. They will be preserved in the card view.
@@ -529,6 +586,15 @@ const CreateCard = () => {
         {formData.cardType === 'Spell' && (
           <div className="form-group">
             <label htmlFor="spellDescription">Spell Description *</label>
+            <div className="text-formatting-toolbar">
+              <button
+                type="button"
+                className="btn btn-sm btn-secondary format-btn"
+                onClick={() => handleBoldClick(spellDescRef, 'spellDescription')}
+              >
+                <strong>B</strong>
+              </button>
+            </div>
             <textarea
               id="spellDescription"
               name="spellDescription"
@@ -538,6 +604,7 @@ const CreateCard = () => {
               placeholder="Enter spell description"
               rows="4"
               required
+              ref={spellDescRef}
             ></textarea>
             <small className="form-text">
               Press Enter for line breaks. They will be preserved in the card view.
@@ -549,6 +616,15 @@ const CreateCard = () => {
         {formData.cardType === 'Amulet' && (
           <div className="form-group">
             <label htmlFor="amuletDescription">Amulet Description *</label>
+            <div className="text-formatting-toolbar">
+              <button
+                type="button"
+                className="btn btn-sm btn-secondary format-btn"
+                onClick={() => handleBoldClick(amuletDescRef, 'amuletDescription')}
+              >
+                <strong>B</strong>
+              </button>
+            </div>
             <textarea
               id="amuletDescription"
               name="amuletDescription"
@@ -558,6 +634,7 @@ const CreateCard = () => {
               placeholder="Enter amulet description"
               rows="4"
               required
+              ref={amuletDescRef}
             ></textarea>
             <small className="form-text">
               Press Enter for line breaks. They will be preserved in the card view.
