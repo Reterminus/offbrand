@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getSets, deleteSet, updateSetOrder } from '../services/api';
+import { getSets, deleteSet, updateSetOrder, swapSetOrder } from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 
 const SetList = () => {
@@ -52,14 +52,7 @@ const SetList = () => {
     
     try {
       const prevSet = sets[currentIndex - 1];
-      const currentSet = sets[currentIndex];
-      
-      // Swap orders
-      await updateSetOrder(currentSet._id, prevSet.order);
-      await updateSetOrder(prevSet._id, currentSet.order);
-      
-      // Refresh sets
-      const updatedSets = await getSets();
+      const updatedSets = await swapSetOrder(setId, prevSet._id);
       setSets(updatedSets);
     } catch (err) {
       setError('Failed to reorder sets. Please try again.');
@@ -75,14 +68,7 @@ const SetList = () => {
     
     try {
       const nextSet = sets[currentIndex + 1];
-      const currentSet = sets[currentIndex];
-      
-      // Swap orders
-      await updateSetOrder(currentSet._id, nextSet.order);
-      await updateSetOrder(nextSet._id, currentSet.order);
-      
-      // Refresh sets
-      const updatedSets = await getSets();
+      const updatedSets = await swapSetOrder(setId, nextSet._id);
       setSets(updatedSets);
     } catch (err) {
       setError('Failed to reorder sets. Please try again.');

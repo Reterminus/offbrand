@@ -183,4 +183,40 @@ router.patch('/:id/order', admin, async (req, res) => {
   }
 });
 
+// Swap order of two sets - admin only
+router.post('/swap-order', admin, async (req, res) => {
+  try {
+    const { firstSetId, secondSetId } = req.body;
+    
+    if (!firstSetId || !secondSetId) {
+      return res.status(400).json({ message: 'Both set IDs are required' });
+    }
+    
+    // Get both sets
+    const firstSet = await Set.findById(firstSetId);
+    const secondSet = await Set.findById(secondSetId);
+    
+    if (!firstSet || !secondSet) {
+      return res.status(404).json({ message: 'One or both sets not found' });
+    }
+    
+    // Swap orders
+    const tempOrder = firstSet.order;
+    firstSet.order = secondSet.order;
+    secondSet.order = tempOrder;
+    
+    // Save both sets in parallel
+    await Promise.all([
+      firstSet.save(),
+      secondSet.save()
+    ]);
+    
+    // Get all sets with new order
+    const sets = await Set.find({}).sort({ order: 1 });
+    res.json(sets);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
 module.exports = router; 
