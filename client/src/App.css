@@ -2567,12 +2567,14 @@ body.exporting-deck .export-view .deck-cards {
   color: white;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
 }
 
 .export-card[style*="background-image"] .deck-card-title {
   color: white;
   font-weight: bold;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  transition: color 0.3s ease;
 }
 
 .export-card[style*="background-image"] .deck-card-class {
@@ -2587,6 +2589,19 @@ body.exporting-deck .export-view .deck-cards {
 .export-card[style*="background-image"]:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+  filter: brightness(1.1);
+}
+
+.export-card[style*="background-image"]:hover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  pointer-events: none;
 }
 
 .export-card:last-child {

@@ -814,11 +814,12 @@ const DeckBuilder = () => {
                         onMouseLeave={() => setHoveredCardId(null)}
                         title="Click to remove one copy"
                         style={card.bannerImageUrl ? {
-                          backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, ${hoveredCardId === card._id ? '0.4' : '0.7'}), rgba(0, 0, 0, ${hoveredCardId === card._id ? '0.2' : '0.5'})), url(${card.bannerImageUrl})`,
+                          backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url(${card.bannerImageUrl})`,
                           backgroundPosition: card.bannerImagePosition || '50% 50%',
                           backgroundSize: card.bannerImageZoom ? `${card.bannerImageZoom}%` : 'cover',
                           position: 'relative',
-                          transition: 'all 0.2s ease'
+                          transition: 'all 0.3s ease',
+                          opacity: hoveredCardId === card._id ? 1 : 0.8
                         } : {}}
                       >
                         <div className="export-card-count">{count}x</div>
