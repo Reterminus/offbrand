@@ -21,6 +21,8 @@ const DeckBuilder = () => {
   const [hoveredRelatedCard, setHoveredRelatedCard] = useState(null);
   const [preloadedRelatedCards, setPreloadedRelatedCards] = useState({});
   const [sets, setSets] = useState([]);
+  // Add a state to track which card is being hovered
+  const [hoveredCardId, setHoveredCardId] = useState(null);
 
   // Fetch all cards on component mount
   useEffect(() => {
@@ -808,12 +810,15 @@ const DeckBuilder = () => {
                         key={`export-${card._id}`} 
                         className="deck-card export-card"
                         onClick={() => removeCardFromDeck(card._id)}
+                        onMouseEnter={() => setHoveredCardId(card._id)}
+                        onMouseLeave={() => setHoveredCardId(null)}
                         title="Click to remove one copy"
                         style={card.bannerImageUrl ? {
-                          backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url(${card.bannerImageUrl})`,
+                          backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, ${hoveredCardId === card._id ? '0.4' : '0.7'}), rgba(0, 0, 0, ${hoveredCardId === card._id ? '0.2' : '0.5'})), url(${card.bannerImageUrl})`,
                           backgroundPosition: card.bannerImagePosition || '50% 50%',
                           backgroundSize: card.bannerImageZoom ? `${card.bannerImageZoom}%` : 'cover',
-                          position: 'relative'
+                          position: 'relative',
+                          transition: 'all 0.2s ease'
                         } : {}}
                       >
                         <div className="export-card-count">{count}x</div>
