@@ -420,6 +420,24 @@ const EditCard = () => {
     }
   };
 
+  // Update the useEffect to sync bannerZoom and bannerPosition changes to formData automatically
+  useEffect(() => {
+    if (formData.bannerImageUrl) {
+      setFormData(prevFormData => ({
+        ...prevFormData,
+        bannerImagePosition: `${bannerPosition.x}% ${bannerPosition.y}%`
+      }));
+    }
+  }, [bannerPosition]);
+
+  useEffect(() => {
+    // This effect watches for zoom changes and updates formData
+    if (formData.bannerImageUrl) {
+      // We don't need to update bannerImagePosition for zoom changes
+      // Just ensuring the preview will update with this dependency
+    }
+  }, [bannerZoom]);
+
   if (loading) {
     return <div className="loading">Loading card...</div>;
   }
@@ -910,26 +928,9 @@ const EditCard = () => {
                   onClick={() => {
                     setBannerPosition({ x: 50, y: 50 });
                     setBannerZoom(100);
-                    setFormData({
-                      ...formData,
-                      bannerImagePosition: '50% 50%'
-                    });
                   }}
                 >
                   Reset Position
-                </button>
-                <button 
-                  type="button" 
-                  className="apply-position-btn"
-                  onClick={() => {
-                    // Update the formData with the current position
-                    setFormData({
-                      ...formData,
-                      bannerImagePosition: `${bannerPosition.x}% ${bannerPosition.y}%`
-                    });
-                  }}
-                >
-                  Apply Position
                 </button>
               </div>
             </div>
@@ -999,7 +1000,7 @@ const EditCard = () => {
               </div>
             </div>
             <div className="banner-editor-help">
-              <small>Drag the image to adjust position. Use the slider to zoom in/out. Click "Apply Position" when satisfied.</small>
+              <small>Drag the image to adjust position. Use the slider to zoom in/out. Changes apply automatically.</small>
             </div>
           </div>
         )}
@@ -1011,7 +1012,7 @@ const EditCard = () => {
               style={{
                 backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4)), url(${formData.bannerImageUrl})`,
                 backgroundPosition: formData.bannerImagePosition,
-                backgroundSize: 'cover',
+                backgroundSize: `${bannerZoom}%`,
                 height: '80px',
                 borderRadius: '8px',
                 marginBottom: '20px',

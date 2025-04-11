@@ -204,22 +204,10 @@ const CreateCard = () => {
     setIsDragging(false);
   };
 
-  // Apply banner position
-  const applyBannerPosition = () => {
-    setFormData({
-      ...formData,
-      bannerImagePosition: `${bannerPosition.x}% ${bannerPosition.y}%`
-    });
-  };
-
   // Reset banner position
   const resetBannerPosition = () => {
     setBannerPosition({ x: 50, y: 50 });
     setBannerZoom(100);
-    setFormData({
-      ...formData,
-      bannerImagePosition: '50% 50%'
-    });
   };
 
   const handleKeywordChange = (e) => {
@@ -413,6 +401,21 @@ const CreateCard = () => {
       }, 10);
     }
   };
+
+  // Add these new useEffect hooks after other state management code
+  useEffect(() => {
+    if (formData.bannerImageUrl) {
+      setFormData(prevFormData => ({
+        ...prevFormData,
+        bannerImagePosition: `${bannerPosition.x}% ${bannerPosition.y}%`
+      }));
+    }
+  }, [bannerPosition]);
+
+  useEffect(() => {
+    // This effect watches for zoom changes and updates the preview
+    // No need to update formData directly for zoom
+  }, [bannerZoom]);
 
   return (
     <div className="create-card-page">
@@ -902,13 +905,6 @@ const CreateCard = () => {
                   >
                     Reset
                   </button>
-                  <button 
-                    type="button" 
-                    className="btn btn-primary"
-                    onClick={applyBannerPosition}
-                  >
-                    Apply Position
-                  </button>
                 </div>
               </div>
               
@@ -943,7 +939,7 @@ const CreateCard = () => {
                     fontSize: '18px'
                   }}
                 >
-                  <span>Click and drag to position - {formData.title || "Card Title"}</span>
+                  <span>Position updates automatically - {formData.title || "Card Title"}</span>
                 </div>
               </div>
             </div>
@@ -955,7 +951,7 @@ const CreateCard = () => {
                 style={{
                   backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4)), url(${formData.bannerImageUrl})`,
                   backgroundPosition: formData.bannerImagePosition,
-                  backgroundSize: 'cover',
+                  backgroundSize: `${bannerZoom}%`,
                   height: '80px',
                   borderRadius: '8px',
                   marginBottom: '20px',
