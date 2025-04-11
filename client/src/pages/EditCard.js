@@ -47,6 +47,10 @@ const EditCard = () => {
   const [allCards, setAllCards] = useState([]);
   const [relatedCardSearch, setRelatedCardSearch] = useState('');
   const [filteredRelatedCards, setFilteredRelatedCards] = useState([]);
+  const [bannerZoom, setBannerZoom] = useState(100);
+  const [bannerPosition, setBannerPosition] = useState({ x: 50, y: 50 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -211,6 +215,13 @@ const EditCard = () => {
     setFormData({
       ...formData,
       bannerImagePosition: position
+    });
+    
+    // Update the bannerPosition state for the advanced editor
+    const [xPos, yPos] = position.split(' ').map(val => parseInt(val));
+    setBannerPosition({
+      x: xPos,
+      y: yPos
     });
   };
 
@@ -874,6 +885,124 @@ const EditCard = () => {
             <option value="100% 100%">Bottom Right</option>
           </select>
         </div>
+        
+        {formData.bannerImageUrl && (
+          <div className="banner-advanced-editor">
+            <h4 className="advanced-editor-title">Advanced Banner Position Editor</h4>
+            <div className="banner-editor-controls">
+              <div className="zoom-control">
+                <label htmlFor="banner-zoom">Zoom:</label>
+                <input 
+                  type="range" 
+                  id="banner-zoom" 
+                  min="100" 
+                  max="300" 
+                  value={bannerZoom || 100} 
+                  onChange={(e) => setBannerZoom(parseInt(e.target.value))}
+                  className="zoom-slider"
+                />
+                <span className="zoom-value">{bannerZoom || 100}%</span>
+              </div>
+              <div className="position-buttons">
+                <button 
+                  type="button" 
+                  className="reset-position-btn"
+                  onClick={() => {
+                    setBannerPosition({ x: 50, y: 50 });
+                    setBannerZoom(100);
+                    setFormData({
+                      ...formData,
+                      bannerImagePosition: '50% 50%'
+                    });
+                  }}
+                >
+                  Reset Position
+                </button>
+                <button 
+                  type="button" 
+                  className="apply-position-btn"
+                  onClick={() => {
+                    // Update the formData with the current position
+                    setFormData({
+                      ...formData,
+                      bannerImagePosition: `${bannerPosition.x}% ${bannerPosition.y}%`
+                    });
+                  }}
+                >
+                  Apply Position
+                </button>
+              </div>
+            </div>
+            
+            <div 
+              className="draggable-banner-container"
+              style={{
+                position: 'relative',
+                height: '200px',
+                overflow: 'hidden',
+                borderRadius: '8px',
+                cursor: 'grab',
+                margin: '10px 0'
+              }}
+              onMouseDown={(e) => {
+                setIsDragging(true);
+                setDragStart({
+                  x: e.clientX,
+                  y: e.clientY
+                });
+              }}
+              onMouseMove={(e) => {
+                if (!isDragging) return;
+                
+                const deltaX = e.clientX - dragStart.x;
+                const deltaY = e.clientY - dragStart.y;
+                
+                // Calculate new position as percentage
+                const newX = Math.max(0, Math.min(100, bannerPosition.x - (deltaX / 5)));
+                const newY = Math.max(0, Math.min(100, bannerPosition.y - (deltaY / 5)));
+                
+                setBannerPosition({
+                  x: newX,
+                  y: newY
+                });
+                
+                setDragStart({
+                  x: e.clientX,
+                  y: e.clientY
+                });
+              }}
+              onMouseUp={() => {
+                setIsDragging(false);
+              }}
+              onMouseLeave={() => {
+                setIsDragging(false);
+              }}
+            >
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4)), url(${formData.bannerImageUrl})`,
+                  backgroundPosition: `${bannerPosition.x}% ${bannerPosition.y}%`,
+                  backgroundSize: `${bannerZoom || 100}%`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontWeight: 'bold'
+                }}
+              >
+                <span>Drag to position • Slide to zoom</span>
+              </div>
+            </div>
+            <div className="banner-editor-help">
+              <small>Drag the image to adjust position. Use the slider to zoom in/out. Click "Apply Position" when satisfied.</small>
+            </div>
+          </div>
+        )}
         
         {formData.bannerImageUrl && (
           <div className="banner-preview">

@@ -39,6 +39,12 @@ const CreateCard = () => {
   const [keywords, setKeywords] = useState([]);
   const [allCards, setAllCards] = useState([]);
 
+  // Add state for draggable banner image
+  const [bannerZoom, setBannerZoom] = useState(100);
+  const [bannerPosition, setBannerPosition] = useState({ x: 50, y: 50 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
   // Add state for searching related cards
   const [relatedCardSearch, setRelatedCardSearch] = useState('');
   const [filteredRelatedCards, setFilteredRelatedCards] = useState([]);
@@ -144,6 +150,75 @@ const CreateCard = () => {
     setFormData({
       ...formData,
       bannerImagePosition: position
+    });
+    
+    // Update the bannerPosition state for the advanced editor
+    const [xPos, yPos] = position.split(' ').map(val => parseInt(val));
+    setBannerPosition({
+      x: xPos,
+      y: yPos
+    });
+  };
+
+  // Handle banner zoom change
+  const handleBannerZoomChange = (e) => {
+    setBannerZoom(parseInt(e.target.value));
+  };
+
+  // Handle drag start
+  const handleDragStart = (e) => {
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX,
+      y: e.clientY
+    });
+    e.preventDefault();
+  };
+
+  // Handle drag move
+  const handleDragMove = (e) => {
+    if (!isDragging) return;
+    
+    const dx = e.clientX - dragStart.x;
+    const dy = e.clientY - dragStart.y;
+    
+    // Calculate new position (with constraints)
+    const newX = Math.max(0, Math.min(100, bannerPosition.x - dx * 0.5));
+    const newY = Math.max(0, Math.min(100, bannerPosition.y - dy * 0.5));
+    
+    setBannerPosition({
+      x: newX,
+      y: newY
+    });
+    
+    setDragStart({
+      x: e.clientX,
+      y: e.clientY
+    });
+    
+    e.preventDefault();
+  };
+
+  // Handle drag end
+  const handleDragEnd = () => {
+    setIsDragging(false);
+  };
+
+  // Apply banner position
+  const applyBannerPosition = () => {
+    setFormData({
+      ...formData,
+      bannerImagePosition: `${bannerPosition.x}% ${bannerPosition.y}%`
+    });
+  };
+
+  // Reset banner position
+  const resetBannerPosition = () => {
+    setBannerPosition({ x: 50, y: 50 });
+    setBannerZoom(100);
+    setFormData({
+      ...formData,
+      bannerImagePosition: '50% 50%'
     });
   };
 
@@ -802,26 +877,99 @@ const CreateCard = () => {
         </div>
         
         {formData.bannerImageUrl && (
-          <div className="banner-preview">
-            <div 
-              className="keyword-banner-preview"
-              style={{
-                backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4)), url(${formData.bannerImageUrl})`,
-                backgroundPosition: formData.bannerImagePosition,
-                backgroundSize: 'cover',
-                height: '80px',
-                borderRadius: '8px',
-                marginBottom: '20px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontWeight: 'bold'
-              }}
-            >
-              <span>Banner Preview - {formData.title || "Card Title"}</span>
+          <>
+            <div className="advanced-banner-editor">
+              <h4>Advanced Banner Position Editor</h4>
+              
+              <div className="banner-controls">
+                <div className="zoom-control">
+                  <label>Zoom: {bannerZoom}%</label>
+                  <input 
+                    type="range" 
+                    min="100" 
+                    max="300" 
+                    value={bannerZoom} 
+                    onChange={handleBannerZoomChange} 
+                    className="zoom-slider"
+                  />
+                </div>
+                
+                <div className="position-actions">
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary"
+                    onClick={resetBannerPosition}
+                  >
+                    Reset
+                  </button>
+                  <button 
+                    type="button" 
+                    className="btn btn-primary"
+                    onClick={applyBannerPosition}
+                  >
+                    Apply Position
+                  </button>
+                </div>
+              </div>
+              
+              <div 
+                className="draggable-banner-container"
+                style={{
+                  cursor: isDragging ? 'grabbing' : 'grab',
+                  height: '200px',
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  position: 'relative',
+                  marginBottom: '20px',
+                }}
+                onMouseDown={handleDragStart}
+                onMouseMove={handleDragMove}
+                onMouseUp={handleDragEnd}
+                onMouseLeave={handleDragEnd}
+              >
+                <div
+                  className="draggable-banner"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4)), url(${formData.bannerImageUrl})`,
+                    backgroundPosition: `${bannerPosition.x}% ${bannerPosition.y}%`,
+                    backgroundSize: `${bannerZoom}%`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    fontSize: '18px'
+                  }}
+                >
+                  <span>Click and drag to position - {formData.title || "Card Title"}</span>
+                </div>
+              </div>
             </div>
-          </div>
+
+            <div className="banner-preview">
+              <h4>Banner Preview</h4>
+              <div 
+                className="keyword-banner-preview"
+                style={{
+                  backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4)), url(${formData.bannerImageUrl})`,
+                  backgroundPosition: formData.bannerImagePosition,
+                  backgroundSize: 'cover',
+                  height: '80px',
+                  borderRadius: '8px',
+                  marginBottom: '20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontWeight: 'bold'
+                }}
+              >
+                <span>Banner Preview - {formData.title || "Card Title"}</span>
+              </div>
+            </div>
+          </>
         )}
         
         <div className="form-group">
