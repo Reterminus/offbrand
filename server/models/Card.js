@@ -90,6 +90,14 @@ const CardSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  bannerImageUrl: {
+    type: String,
+    default: ''
+  },
+  bannerImagePosition: {
+    type: String,
+    default: '50% 50%'
+  },
   creator: {
     type: String,
     trim: true,

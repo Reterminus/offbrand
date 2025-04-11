@@ -2558,6 +2558,35 @@ body.exporting-deck .export-view .deck-cards {
   border-radius: 6px;
   margin-bottom: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* Style for cards with banner backgrounds */
+.export-card[style*="background-image"] {
+  padding: 15px 20px;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.export-card[style*="background-image"] .deck-card-title {
+  color: white;
+  font-weight: bold;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+.export-card[style*="background-image"] .deck-card-class {
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+.export-card[style*="background-image"] .deck-card-cost {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.export-card[style*="background-image"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
 }
 
 .export-card:last-child {

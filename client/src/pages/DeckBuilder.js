@@ -809,15 +809,23 @@ const DeckBuilder = () => {
                         className="deck-card export-card"
                         onClick={() => removeCardFromDeck(card._id)}
                         title="Click to remove one copy"
+                        style={card.bannerImageUrl ? {
+                          backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url(${card.bannerImageUrl})`,
+                          backgroundPosition: card.bannerImagePosition || '50% 50%',
+                          backgroundSize: 'cover',
+                          position: 'relative'
+                        } : {}}
                       >
                         <div className="export-card-count">{count}x</div>
-                        <div className="export-card-thumbnail">
-                          <img 
-                            src={card.imageUrl} 
-                            alt={card.title} 
-                            className="mini-card-image" 
-                          />
-                        </div>
+                        {!card.bannerImageUrl && (
+                          <div className="export-card-thumbnail">
+                            <img 
+                              src={card.imageUrl} 
+                              alt={card.title} 
+                              className="mini-card-image" 
+                            />
+                          </div>
+                        )}
                         <div className="deck-card-info">
                           <div className="deck-card-cost">{card.cost}</div>
                           <div className="deck-card-title">{card.title}</div>

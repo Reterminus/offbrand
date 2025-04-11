@@ -31,11 +31,14 @@ const EditCard = () => {
     image: null,
     imageUrl: '',
     imageSource: 'url', // Default to 'url' since we'll be loading an existing image
+    bannerImageUrl: '', // Add banner image URL for deck display
+    bannerImagePosition: '50% 50%', // Add banner image position
     setId: '',
     keywords: [],
     relatedCards: []
   });
   const [preview, setPreview] = useState(null);
+  const [bannerPreview, setBannerPreview] = useState(null); // Add banner preview state
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
@@ -89,6 +92,8 @@ const EditCard = () => {
           image: null,
           imageUrl: cardData.imageUrl || '',
           imageSource: 'url',
+          bannerImageUrl: cardData.bannerImageUrl || '',
+          bannerImagePosition: cardData.bannerImagePosition || '50% 50%',
           setId: cardSetId || '',
           keywords: keywordIds,
           relatedCards: cardData.relatedCards ? cardData.relatedCards.map(c => c._id) : []
@@ -97,6 +102,7 @@ const EditCard = () => {
         setSets(setsData);
         setKeywords(keywordsData);
         setPreview(cardData.imageUrl);
+        setBannerPreview(cardData.bannerImageUrl);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching data:', err);
@@ -189,6 +195,25 @@ const EditCard = () => {
     setPreview(source === 'url' ? formData.imageUrl : null);
   };
 
+  // Handle banner image URL change
+  const handleBannerImageChange = (e) => {
+    const url = e.target.value;
+    setFormData({
+      ...formData,
+      bannerImageUrl: url
+    });
+    setBannerPreview(url);
+  };
+
+  // Handle banner image position change
+  const handleBannerPositionChange = (e) => {
+    const position = e.target.value;
+    setFormData({
+      ...formData,
+      bannerImagePosition: position
+    });
+  };
+
   const handleRelatedCardSearch = (e) => {
     const searchTerm = e.target.value.toLowerCase();
     setRelatedCardSearch(searchTerm);
@@ -272,6 +297,12 @@ const EditCard = () => {
       data.append('class', formData.class);
       data.append('notes', formData.notes);
       data.append('creator', formData.creator || '');
+      
+      // Append banner image data
+      if (formData.bannerImageUrl) {
+        data.append('bannerImageUrl', formData.bannerImageUrl);
+      }
+      data.append('bannerImagePosition', formData.bannerImagePosition || '50% 50%');
       
       // Append fields based on card type
       if (formData.cardType === 'Follower') {
@@ -804,6 +835,68 @@ const EditCard = () => {
             <div className="image-preview-text">No image available</div>
           )}
         </div>
+        
+        {/* Banner Image Section for Deck Display */}
+        <h3 className="section-title">Deck Banner Image</h3>
+        <div className="form-group">
+          <label htmlFor="bannerImageUrl">Banner Image URL (Optional)</label>
+          <input
+            type="url"
+            id="bannerImageUrl"
+            name="bannerImageUrl"
+            className="form-control"
+            value={formData.bannerImageUrl}
+            onChange={handleBannerImageChange}
+            placeholder="Enter banner image URL for deck display"
+          />
+          <small className="form-text">
+            This image will be used as a background in the deck builder. Similar to keyword banners.
+          </small>
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="bannerImagePosition">Banner Image Position</label>
+          <select
+            id="bannerImagePosition"
+            name="bannerImagePosition"
+            className="form-control"
+            value={formData.bannerImagePosition}
+            onChange={handleBannerPositionChange}
+          >
+            <option value="50% 50%">Center</option>
+            <option value="50% 0%">Top</option>
+            <option value="50% 100%">Bottom</option>
+            <option value="0% 50%">Left</option>
+            <option value="100% 50%">Right</option>
+            <option value="0% 0%">Top Left</option>
+            <option value="100% 0%">Top Right</option>
+            <option value="0% 100%">Bottom Left</option>
+            <option value="100% 100%">Bottom Right</option>
+          </select>
+        </div>
+        
+        {formData.bannerImageUrl && (
+          <div className="banner-preview">
+            <div 
+              className="keyword-banner-preview"
+              style={{
+                backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4)), url(${formData.bannerImageUrl})`,
+                backgroundPosition: formData.bannerImagePosition,
+                backgroundSize: 'cover',
+                height: '80px',
+                borderRadius: '8px',
+                marginBottom: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                fontWeight: 'bold'
+              }}
+            >
+              <span>Banner Preview - {formData.title || "Card Title"}</span>
+            </div>
+          </div>
+        )}
         
         {/* Replace the existing keyword selection with a more intuitive interface */}
         <div className="form-group">

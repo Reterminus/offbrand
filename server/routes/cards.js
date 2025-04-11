@@ -129,6 +129,8 @@ router.post('/', admin, upload.single('image'), async (req, res) => {
       notes,
       creator,
       imageUrl,
+      bannerImageUrl,
+      bannerImagePosition,
       keywords,
       relatedCards
     } = req.body;
@@ -156,7 +158,9 @@ router.post('/', admin, upload.single('image'), async (req, res) => {
       class: cardClass,
       notes: notes || '',
       creator: creator || '',
-      imageUrl: finalImageUrl
+      imageUrl: finalImageUrl,
+      bannerImageUrl: bannerImageUrl || '',
+      bannerImagePosition: bannerImagePosition || '50% 50%'
     };
     
     // Handle keywords if provided
@@ -225,6 +229,8 @@ router.patch('/:id', admin, upload.single('image'), async (req, res) => {
       notes,
       creator,
       imageUrl,
+      bannerImageUrl,
+      bannerImagePosition,
       keywords,
       relatedCards
     } = req.body;
@@ -241,6 +247,15 @@ router.patch('/:id', admin, upload.single('image'), async (req, res) => {
       notes: notes || '',
       creator: creator || ''
     };
+
+    // Update banner image fields if provided
+    if (bannerImageUrl !== undefined) {
+      updateData.bannerImageUrl = bannerImageUrl;
+    }
+    
+    if (bannerImagePosition !== undefined) {
+      updateData.bannerImagePosition = bannerImagePosition;
+    }
 
     console.log('Update data being applied:', updateData);
     
