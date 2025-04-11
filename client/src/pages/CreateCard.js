@@ -856,6 +856,17 @@ const CreateCard = () => {
                     onChange={handleBannerZoomChange} 
                     className="zoom-slider"
                   />
+                  <div className="zoom-input-container">
+                    <input
+                      type="number"
+                      min="100"
+                      max="300"
+                      value={bannerZoom}
+                      onChange={(e) => setBannerZoom(Math.min(300, Math.max(100, parseInt(e.target.value) || 100)))}
+                      className="zoom-text-input"
+                    />
+                    <span className="zoom-unit">%</span>
+                  </div>
                 </div>
                 
                 <div className="position-actions">

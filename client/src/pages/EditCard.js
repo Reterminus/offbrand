@@ -922,7 +922,17 @@ const EditCard = () => {
                   onChange={(e) => setBannerZoom(parseInt(e.target.value))}
                   className="zoom-slider"
                 />
-                <span className="zoom-value">{bannerZoom || 100}%</span>
+                <div className="zoom-input-container">
+                  <input
+                    type="number"
+                    min="100"
+                    max="300"
+                    value={bannerZoom || 100}
+                    onChange={(e) => setBannerZoom(Math.min(300, Math.max(100, parseInt(e.target.value) || 100)))}
+                    className="zoom-text-input"
+                  />
+                  <span className="zoom-unit">%</span>
+                </div>
               </div>
               <div className="position-buttons">
                 <button 
