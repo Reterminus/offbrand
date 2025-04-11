@@ -3832,3 +3832,216 @@ body.exporting-deck .export-view .deck-cards {
   padding: 4px 8px;
   font-size: 14px;
 }
+
+/* Set Reordering UI */
+.reorder-mode {
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.set-list .reorder-item {
+  border: 2px solid #444;
+  background-color: #333;
+  transition: all 0.3s ease;
+  position: relative;
+  margin-bottom: 15px;
+  padding: 15px;
+}
+
+.set-list .reorder-item:hover {
+  background-color: #3a3a3a;
+  transform: translateY(-2px);
+}
+
+.set-position {
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #222;
+  border-radius: 50%;
+  border: 2px solid #555;
+  color: #fff;
+  font-weight: bold;
+  font-size: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.position-number {
+  font-family: 'Arial', sans-serif;
+}
+
+.set-reorder-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-left: auto;
+  min-width: 180px;
+}
+
+.move-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.btn-move {
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 4px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-move:hover:not(:disabled) {
+  background-color: #444;
+  transform: translateY(-2px);
+}
+
+.btn-move:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.move-top, .move-bottom {
+  font-size: 22px;
+}
+
+.position-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.position-selector label {
+  color: #bbb;
+  font-size: 14px;
+}
+
+.position-selector select {
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 8px 10px;
+  flex-grow: 1;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.position-selector select:focus {
+  outline: none;
+  border-color: #6d9feb;
+}
+
+.reorder-instructions {
+  background-color: #2d2d2d;
+  border-left: 4px solid #5b9bd5;
+  padding: 12px 15px;
+  margin: 15px 0;
+  border-radius: 0 4px 4px 0;
+  color: #ddd;
+  font-size: 15px;
+}
+
+.reorder-instructions p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reorder-controls {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-success {
+  background-color: #2e7d32;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-success:hover:not(:disabled) {
+  background-color: #388e3c;
+}
+
+.btn-success:disabled {
+  background-color: #235a27;
+  cursor: not-allowed;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Responsive adjustments for the reordering UI */
+@media (max-width: 768px) {
+  .set-reorder-controls {
+    min-width: auto;
+    width: 100%;
+    margin-top: 15px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .move-buttons {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .position-selector {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .set-position {
+    position: relative;
+    left: 0;
+    top: 0;
+    transform: none;
+    margin-bottom: 10px;
+    align-self: flex-start;
+  }
+
+  .reorder-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .set-list .reorder-item {
+    padding: 15px 10px;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reorder-controls {
+    flex-direction: column;
+  }
+}

@@ -214,20 +214,6 @@ export const updateSetOrder = async (id, order) => {
   }
 };
 
-// Swap order of two sets
-export const swapSetOrder = async (firstSetId, secondSetId) => {
-  try {
-    const response = await api.post(`${SETS_URL}/swap-order`, { 
-      firstSetId, 
-      secondSetId 
-    });
-    return response.data;
-  } catch (error) {
-    console.error(`Error swapping set orders:`, error);
-    throw error;
-  }
-};
-
 // Delete a set
 export const deleteSet = async (id) => {
   try {
