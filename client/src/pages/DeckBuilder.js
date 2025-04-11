@@ -812,7 +812,7 @@ const DeckBuilder = () => {
                         style={card.bannerImageUrl ? {
                           backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url(${card.bannerImageUrl})`,
                           backgroundPosition: card.bannerImagePosition || '50% 50%',
-                          backgroundSize: 'cover',
+                          backgroundSize: card.bannerImageZoom ? `${card.bannerImageZoom}%` : 'cover',
                           position: 'relative'
                         } : {}}
                       >
@@ -1005,7 +1005,7 @@ const DeckBuilder = () => {
                             style={{
                               backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5)), url(${keyword.imageUrl})`,
                               backgroundPosition: keyword.imagePosition || '50% 50%',
-                              backgroundSize: 'cover'
+                              backgroundSize: keyword.imageZoom ? `${keyword.imageZoom}%` : 'cover'
                             }}
                           >
                             <h5 className="keyword-title">{keyword.title}</h5>

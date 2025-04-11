@@ -33,6 +33,7 @@ const EditCard = () => {
     imageSource: 'url', // Default to 'url' since we'll be loading an existing image
     bannerImageUrl: '', // Add banner image URL for deck display
     bannerImagePosition: '50% 50%', // Add banner image position
+    bannerImageZoom: 100, // Add banner image zoom
     setId: '',
     keywords: [],
     relatedCards: []
@@ -98,6 +99,7 @@ const EditCard = () => {
           imageSource: 'url',
           bannerImageUrl: cardData.bannerImageUrl || '',
           bannerImagePosition: cardData.bannerImagePosition || '50% 50%',
+          bannerImageZoom: cardData.bannerImageZoom || 100,
           setId: cardSetId || '',
           keywords: keywordIds,
           relatedCards: cardData.relatedCards ? cardData.relatedCards.map(c => c._id) : []
@@ -314,6 +316,7 @@ const EditCard = () => {
         data.append('bannerImageUrl', formData.bannerImageUrl);
       }
       data.append('bannerImagePosition', formData.bannerImagePosition || '50% 50%');
+      data.append('bannerImageZoom', bannerZoom || 100);
       
       // Append fields based on card type
       if (formData.cardType === 'Follower') {

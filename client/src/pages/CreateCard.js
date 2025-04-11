@@ -24,45 +24,42 @@ const CreateCard = () => {
     creator: '',
     image: null,
     imageUrl: '',
-    imageSource: 'url', // Changed default to 'url'
-    bannerImageUrl: '', // Add banner image URL for deck display
-    bannerImagePosition: '50% 50%', // Add banner image position
-    setId: '', // Added setId field
+    imageSource: 'file',
+    bannerImageUrl: '',
+    bannerImagePosition: '50% 50%',
+    bannerImageZoom: 100,
+    setId: '',
     keywords: [],
     relatedCards: []
   });
   const [preview, setPreview] = useState(null);
-  const [bannerPreview, setBannerPreview] = useState(null); // Add banner preview state
+  const [bannerPreview, setBannerPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [sets, setSets] = useState([]); // Added state for sets
+  const [sets, setSets] = useState([]);
   const [keywords, setKeywords] = useState([]);
   const [allCards, setAllCards] = useState([]);
 
-  // Add state for draggable banner image
   const [bannerZoom, setBannerZoom] = useState(100);
   const [bannerPosition, setBannerPosition] = useState({ x: 50, y: 50 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
-  // Add state for searching related cards
   const [relatedCardSearch, setRelatedCardSearch] = useState('');
   const [filteredRelatedCards, setFilteredRelatedCards] = useState([]);
 
-  // Add refs for each description textarea
   const unevolvedDescRef = useRef(null);
   const evolvedDescRef = useRef(null);
   const spellDescRef = useRef(null);
   const amuletDescRef = useRef(null);
 
-  // Fetch available sets, keywords, and cards when component mounts
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [setsData, keywordsData, cardsData] = await Promise.all([
           getSets(),
           getKeywords(),
-          getCards(false) // Pass false to get all cards including from hidden sets
+          getCards(false)
         ]);
         setSets(setsData);
         setKeywords(keywordsData);
@@ -78,7 +75,6 @@ const CreateCard = () => {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     
-    // Special handling for card type changes
     if (name === 'cardType') {
       setFormData({
         ...formData,
@@ -104,7 +100,6 @@ const CreateCard = () => {
         imageSource: 'file'
       });
       
-      // Create a preview URL for the selected image
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result);
@@ -134,7 +129,6 @@ const CreateCard = () => {
     setPreview(null);
   };
 
-  // Handle banner image URL change
   const handleBannerImageChange = (e) => {
     const url = e.target.value;
     setFormData({
@@ -144,7 +138,6 @@ const CreateCard = () => {
     setBannerPreview(url);
   };
 
-  // Handle banner image position change
   const handleBannerPositionChange = (e) => {
     const position = e.target.value;
     setFormData({
@@ -152,7 +145,6 @@ const CreateCard = () => {
       bannerImagePosition: position
     });
     
-    // Update the bannerPosition state for the advanced editor
     const [xPos, yPos] = position.split(' ').map(val => parseInt(val));
     setBannerPosition({
       x: xPos,
@@ -160,12 +152,10 @@ const CreateCard = () => {
     });
   };
 
-  // Handle banner zoom change
   const handleBannerZoomChange = (e) => {
     setBannerZoom(parseInt(e.target.value));
   };
 
-  // Handle drag start
   const handleDragStart = (e) => {
     setIsDragging(true);
     setDragStart({
@@ -175,14 +165,12 @@ const CreateCard = () => {
     e.preventDefault();
   };
 
-  // Handle drag move
   const handleDragMove = (e) => {
     if (!isDragging) return;
     
     const dx = e.clientX - dragStart.x;
     const dy = e.clientY - dragStart.y;
     
-    // Calculate new position (with constraints)
     const newX = Math.max(0, Math.min(100, bannerPosition.x - dx * 0.5));
     const newY = Math.max(0, Math.min(100, bannerPosition.y - dy * 0.5));
     
@@ -199,12 +187,10 @@ const CreateCard = () => {
     e.preventDefault();
   };
 
-  // Handle drag end
   const handleDragEnd = () => {
     setIsDragging(false);
   };
 
-  // Reset banner position
   const resetBannerPosition = () => {
     setBannerPosition({ x: 50, y: 50 });
     setBannerZoom(100);
@@ -228,7 +214,7 @@ const CreateCard = () => {
     }
     
     const filtered = allCards
-      .filter(card => card._id !== formData._id) // Prevent self-reference
+      .filter(card => card._id !== formData._id)
       .filter(card => 
         card.title.toLowerCase().includes(searchTerm) ||
         card.class.toLowerCase().includes(searchTerm) ||
@@ -264,14 +250,12 @@ const CreateCard = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Basic validation
     if (!formData.title || !formData.rarity || !formData.class || 
         formData.cost === undefined || (!formData.image && !formData.imageUrl)) {
       setError('Please fill in all required fields and provide an image.');
       return;
     }
     
-    // Card type specific validation
     if (formData.cardType === 'Follower') {
       if (formData.unevolvedAttack === undefined || formData.unevolvedDefense === undefined ||
           formData.evolvedAttack === undefined || formData.evolvedDefense === undefined) {
@@ -301,13 +285,12 @@ const CreateCard = () => {
       data.append('notes', formData.notes);
       data.append('creator', formData.creator);
       
-      // Append banner image data
       if (formData.bannerImageUrl) {
         data.append('bannerImageUrl', formData.bannerImageUrl);
         data.append('bannerImagePosition', formData.bannerImagePosition);
+        data.append('bannerImageZoom', bannerZoom || 100);
       }
       
-      // Append fields based on card type
       if (formData.cardType === 'Follower') {
         data.append('unevolvedAttack', formData.unevolvedAttack);
         data.append('unevolvedDefense', formData.unevolvedDefense);
@@ -321,32 +304,26 @@ const CreateCard = () => {
         data.append('amuletDescription', formData.amuletDescription);
       }
       
-      // Append either the file or the URL
       if (formData.imageSource === 'file' && formData.image) {
         data.append('image', formData.image);
       } else if (formData.imageSource === 'url' && formData.imageUrl) {
         data.append('imageUrl', formData.imageUrl);
       }
       
-      // Append keywords if selected
       if (formData.keywords.length > 0) {
         data.append('keywords', JSON.stringify(formData.keywords));
       }
       
-      // Append related cards if selected
       if (formData.relatedCards.length > 0) {
         data.append('relatedCards', JSON.stringify(formData.relatedCards));
       }
       
-      // Create the card
       const createdCard = await createCard(data);
       
-      // If a set was selected, add the card to the set
       if (formData.setId) {
         await addCardToSet(formData.setId, createdCard._id);
       }
       
-      // Always navigate to the main page
       navigate('/');
     } catch (err) {
       setError('Failed to create card. Please try again.');
@@ -354,20 +331,16 @@ const CreateCard = () => {
     }
   };
 
-  // Rarity options
   const rarityOptions = ['Bronze', 'Silver', 'Gold', 'Legendary'];
   
-  // Class options
   const classOptions = [
     'Neutral', 'Forestcraft', 'Swordcraft', 'Runecraft', 
     'Dragoncraft', 'Shadowcraft', 'Bloodcraft', 'Havencraft', 
     'Portalcraft'
   ];
   
-  // Card type options
   const cardTypeOptions = ['Follower', 'Spell', 'Amulet'];
 
-  // Add a function to handle applying bold formatting
   const handleBoldClick = (textareaRef, fieldName) => {
     if (!textareaRef.current) return;
     
@@ -375,34 +348,29 @@ const CreateCard = () => {
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     
-    // Only apply if there's selected text
     if (start !== end) {
       const currentText = formData[fieldName];
       const selectedText = currentText.substring(start, end);
       
-      // Create the new text with asterisks around the selection
       const newText = 
         currentText.substring(0, start) + 
         '**' + selectedText + '**' + 
         currentText.substring(end);
       
-      // Update form data
       setFormData({
         ...formData,
         [fieldName]: newText
       });
       
-      // Reset focus and set cursor position after the formatted text
       setTimeout(() => {
         textarea.focus();
-        const newPosition = start + selectedText.length + 4; // Adding 4 for the **text**
+        const newPosition = start + selectedText.length + 4;
         textarea.selectionStart = newPosition;
         textarea.selectionEnd = newPosition;
       }, 10);
     }
   };
 
-  // Add these new useEffect hooks after other state management code
   useEffect(() => {
     if (formData.bannerImageUrl) {
       setFormData(prevFormData => ({
@@ -413,8 +381,6 @@ const CreateCard = () => {
   }, [bannerPosition]);
 
   useEffect(() => {
-    // This effect watches for zoom changes and updates the preview
-    // No need to update formData directly for zoom
   }, [bannerZoom]);
 
   return (
@@ -455,7 +421,6 @@ const CreateCard = () => {
           />
         </div>
         
-        {/* Add Set Selection */}
         <div className="form-group">
           <label htmlFor="setId">Add to Set (Optional)</label>
           <select
@@ -569,7 +534,6 @@ const CreateCard = () => {
           </div>
         </div>
         
-        {/* Follower-specific fields */}
         {formData.cardType === 'Follower' && (
           <>
             <h3 className="section-title">Unevolved Stats</h3>
@@ -692,7 +656,6 @@ const CreateCard = () => {
           </>
         )}
         
-        {/* Spell-specific fields */}
         {formData.cardType === 'Spell' && (
           <div className="form-group">
             <label htmlFor="spellDescription">Spell Description *</label>
@@ -722,7 +685,6 @@ const CreateCard = () => {
           </div>
         )}
         
-        {/* Amulet-specific fields */}
         {formData.cardType === 'Amulet' && (
           <div className="form-group">
             <label htmlFor="amuletDescription">Amulet Description *</label>
@@ -840,7 +802,6 @@ const CreateCard = () => {
           )}
         </div>
         
-        {/* Banner Image Section for Deck Display */}
         <h3 className="section-title">Deck Banner Image</h3>
         <div className="form-group">
           <label htmlFor="bannerImageUrl">Banner Image URL (Optional)</label>
@@ -979,7 +940,6 @@ const CreateCard = () => {
                     id={`keyword-${keyword._id}`}
                     checked={formData.keywords.includes(keyword._id)}
                     onChange={() => {
-                      // Toggle this keyword in the selected keywords
                       const newKeywords = formData.keywords.includes(keyword._id)
                         ? formData.keywords.filter(id => id !== keyword._id)
                         : [...formData.keywords, keyword._id];
@@ -1020,12 +980,10 @@ const CreateCard = () => {
           )}
         </div>
         
-        {/* Replace the existing Related Cards Selection */}
         <div className="form-group">
           <label>Related Cards</label>
           
           <div className="related-cards-manager">
-            {/* Search input for related cards */}
             <div className="related-cards-search">
               <input
                 type="text"
@@ -1035,7 +993,6 @@ const CreateCard = () => {
                 className="form-control"
               />
               
-              {/* Search results dropdown */}
               {filteredRelatedCards.length > 0 && (
                 <div className="related-cards-search-results">
                   {filteredRelatedCards.map(card => (
@@ -1061,7 +1018,6 @@ const CreateCard = () => {
               )}
             </div>
             
-            {/* Currently selected related cards */}
             <div className="selected-related-cards">
               <h4>Selected Related Cards</h4>
               

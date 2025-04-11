@@ -20,6 +20,10 @@ const KeywordSchema = new mongoose.Schema({
     type: String,
     default: '50% 50%'
   },
+  imageZoom: {
+    type: Number,
+    default: 100
+  },
   createdAt: {
     type: Date,
     default: Date.now

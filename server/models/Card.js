@@ -98,6 +98,10 @@ const CardSchema = new mongoose.Schema({
     type: String,
     default: '50% 50%'
   },
+  bannerImageZoom: {
+    type: Number,
+    default: 100
+  },
   creator: {
     type: String,
     trim: true,
