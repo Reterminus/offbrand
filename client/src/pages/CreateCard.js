@@ -119,6 +119,16 @@ const CreateCard = () => {
     setPreview(url);
   };
 
+  const handleImageSourceChange = (source) => {
+    setFormData({
+      ...formData,
+      imageSource: source,
+      image: null,
+      imageUrl: ''
+    });
+    setPreview(null);
+  };
+
   const handleBannerImageChange = (e) => {
     const url = e.target.value;
     setFormData({
@@ -241,8 +251,8 @@ const CreateCard = () => {
     e.preventDefault();
     
     if (!formData.title || !formData.rarity || !formData.class || 
-        formData.cost === undefined || !formData.imageUrl) {
-      setError('Please fill in all required fields and provide an image URL.');
+        formData.cost === undefined || (!formData.image && !formData.imageUrl)) {
+      setError('Please fill in all required fields and provide an image.');
       return;
     }
     
@@ -720,28 +730,33 @@ const CreateCard = () => {
           </small>
         </div>
         
-        <div className="form-section">
-          <h3 className="section-title">Card Image</h3>
-          
-          <div className="form-group">
-            <label htmlFor="imageUrl">Image URL *</label>
-            <input
-              type="text"
-              id="imageUrl"
-              name="imageUrl"
-              value={formData.imageUrl}
-              onChange={handleImageUrlChange}
-              placeholder="Enter image URL"
-              className="form-control"
-            />
-          </div>
-          
-          {preview && (
-            <div className="image-preview">
-              <img src={preview} alt="Preview" />
+        <div className="form-group">
+          <label>Card Image Source</label>
+          <div className="image-source-options">
+            <div className="image-source-option selected">
+              <span>Image URL</span>
             </div>
-          )}
+          </div>
         </div>
+        
+        <div className="form-group">
+          <label htmlFor="imageUrl">Image URL *</label>
+          <input
+            type="text"
+            id="imageUrl"
+            name="imageUrl"
+            value={formData.imageUrl}
+            onChange={handleImageUrlChange}
+            placeholder="Enter image URL"
+            required
+          />
+        </div>
+        
+        {preview && (
+          <div className="image-preview">
+            <img src={preview} alt="Preview" />
+          </div>
+        )}
         
         <h3 className="section-title">Deck Banner Image</h3>
         <div className="form-group">

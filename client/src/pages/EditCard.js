@@ -191,6 +191,16 @@ const EditCard = () => {
     setPreview(url);
   };
 
+  const handleImageSourceChange = (source) => {
+    setFormData({
+      ...formData,
+      imageSource: source,
+      image: null,
+      imageUrl: formData.imageUrl && source === 'url' ? formData.imageUrl : ''
+    });
+    setPreview(source === 'url' ? formData.imageUrl : null);
+  };
+
   // Handle banner image URL change
   const handleBannerImageChange = (e) => {
     const url = e.target.value;
@@ -263,9 +273,10 @@ const EditCard = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Basic validation
     if (!formData.title || !formData.rarity || !formData.class || 
-        formData.cost === undefined || !formData.imageUrl) {
-      setError('Please fill in all required fields and provide an image URL.');
+        formData.cost === undefined || (!formData.image && !formData.imageUrl)) {
+      setError('Please fill in all required fields and provide an image.');
       return;
     }
     
@@ -321,8 +332,12 @@ const EditCard = () => {
         data.append('amuletDescription', formData.amuletDescription);
       }
       
-      // Append image URL
-      data.append('imageUrl', formData.imageUrl);
+      // Append either the file or the URL
+      if (formData.imageSource === 'file' && formData.image) {
+        data.append('image', formData.image);
+      } else if (formData.imageSource === 'url' && formData.imageUrl) {
+        data.append('imageUrl', formData.imageUrl);
+      }
       
       // Append keywords if selected
       data.append('keywords', JSON.stringify(formData.keywords));
@@ -781,29 +796,33 @@ const EditCard = () => {
           </small>
         </div>
         
-        {/* Replace the Image Source section with just the Image URL input */}
-        <div className="form-section">
-          <h3 className="section-title">Card Image</h3>
-          
-          <div className="form-group">
-            <label htmlFor="imageUrl">Image URL *</label>
-            <input
-              type="text"
-              id="imageUrl"
-              name="imageUrl"
-              value={formData.imageUrl}
-              onChange={handleImageUrlChange}
-              placeholder="Enter image URL"
-              className="form-control"
-            />
-          </div>
-          
-          {preview && (
-            <div className="image-preview">
-              <img src={preview} alt="Preview" />
+        <div className="form-group">
+          <label>Card Image Source</label>
+          <div className="image-source-options">
+            <div className="image-source-option selected">
+              <span>Image URL</span>
             </div>
-          )}
+          </div>
         </div>
+        
+        <div className="form-group">
+          <label htmlFor="imageUrl">Image URL *</label>
+          <input
+            type="text"
+            id="imageUrl"
+            name="imageUrl"
+            value={formData.imageUrl}
+            onChange={handleImageUrlChange}
+            placeholder="Enter image URL"
+            required
+          />
+        </div>
+        
+        {preview && (
+          <div className="image-preview">
+            <img src={preview} alt="Preview" />
+          </div>
+        )}
         
         {/* Banner Image Section for Deck Display */}
         <h3 className="section-title">Deck Banner Image</h3>

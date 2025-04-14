@@ -138,14 +138,14 @@ router.post('/', admin, upload.single('image'), async (req, res) => {
     
     let finalImageUrl = imageUrl;
     
-    // If a file was uploaded, use that instead of the imageUrl (keeping this for backwards compatibility)
+    // If a file was uploaded, use that instead of the imageUrl
     if (req.file) {
       finalImageUrl = `${req.protocol}://${req.get('host')}/${req.file.path}`;
     }
     
-    // Check if we have an image URL
+    // Check if we have either a file or an imageUrl
     if (!finalImageUrl) {
-      return res.status(400).json({ message: 'An image URL is required' });
+      return res.status(400).json({ message: 'Either an image file or image URL is required' });
     }
     
     // Create base card object
@@ -300,7 +300,7 @@ router.patch('/:id', admin, upload.single('image'), async (req, res) => {
     
     // Handle image update
     if (req.file) {
-      // If a file is uploaded (keeping for backwards compatibility)
+      // If a new file is uploaded
       updateData.imageUrl = `${req.protocol}://${req.get('host')}/${req.file.path}`;
       
       // Delete old image if it's a local file
