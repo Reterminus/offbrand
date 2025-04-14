@@ -316,6 +316,26 @@ const DeckBuilder = () => {
     setSelectedClass(className);
   };
 
+  // Add new function to reset class selection and go back to class selection screen
+  const handleBackToClassSelection = () => {
+    // Confirm if deck has cards to prevent accidental loss
+    if (deck.length > 0) {
+      if (!window.confirm('Going back will clear your current deck. Continue?')) {
+        return;
+      }
+    }
+    
+    // Reset class and deck
+    setSelectedClass('');
+    setDeck([]);
+    
+    // Also reset any filters
+    setSearchTerm('');
+    setSelectedCost('');
+    setSelectedCardType('');
+    setSelectedCardDetails(null);
+  };
+
   // Handle searching
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -638,8 +658,17 @@ const DeckBuilder = () => {
     <div className="deck-builder-page">
       <div className="header">
         <h1>Deck Builder</h1>
-        {deck.length > 0 && (
-          <div className="header-actions">
+        <div className="header-actions">
+          {selectedClass && (
+            <button 
+              className="btn btn-secondary" 
+              onClick={handleBackToClassSelection}
+              style={{ marginRight: '10px' }}
+            >
+              Back to Class Selection
+            </button>
+          )}
+          {deck.length > 0 && (
             <button 
               className="btn" 
               onClick={exportDeck}
@@ -647,8 +676,8 @@ const DeckBuilder = () => {
             >
               {exportingDeck ? 'Exporting...' : 'Export Deck as Image'}
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {!selectedClass ? (
