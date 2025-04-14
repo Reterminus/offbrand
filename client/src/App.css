@@ -2578,8 +2578,9 @@ body.exporting-deck .export-view .deck-cards {
 }
 
 .export-card[style*="background-image"] .deck-card-class {
-  color: rgba(255, 255, 255, 0.8);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+  filter: brightness(130%) saturate(120%);
+  font-weight: bold;
 }
 
 .export-card[style*="background-image"] .deck-card-cost {
@@ -2728,6 +2729,17 @@ body.exporting-deck .export-view .deck-cards {
 .deck-card-class.bloodcraft { color: #CD5C5C; }
 .deck-card-class.havencraft { color: #FFFFFF; }
 .deck-card-class.portalcraft { color: #00FFFF; }
+
+/* Export view class colors - enhanced brightness for better contrast over dark backgrounds */
+.export-card .deck-card-class.neutral { color: #e8e8e8; }
+.export-card .deck-card-class.forestcraft { color: #a0ff9d; }
+.export-card .deck-card-class.swordcraft { color: #ffe44d; }
+.export-card .deck-card-class.runecraft { color: #6a92ff; }
+.export-card .deck-card-class.dragoncraft { color: #ffa142; }
+.export-card .deck-card-class.shadowcraft { color: #d17fef; }
+.export-card .deck-card-class.bloodcraft { color: #ff7b7b; }
+.export-card .deck-card-class.havencraft { color: #FFFFFF; }
+.export-card .deck-card-class.portalcraft { color: #4dffff; }
 
 /* Improved keyword banners in card details */
 .keyword-banner {
