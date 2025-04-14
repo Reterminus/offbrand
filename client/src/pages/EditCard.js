@@ -798,31 +798,75 @@ const EditCard = () => {
         
         <div className="form-group">
           <label>Card Image Source</label>
-          <div className="image-source-options">
-            <div className="image-source-option selected">
-              <span>Image URL</span>
-            </div>
+          <div className="image-source-toggle">
+            <button
+              type="button"
+              className={`btn ${formData.imageSource === 'url' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => handleImageSourceChange('url')}
+            >
+              Image URL
+            </button>
+            <button
+              type="button"
+              className={`btn ${formData.imageSource === 'file' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => handleImageSourceChange('file')}
+            >
+              Upload File
+            </button>
           </div>
         </div>
-        
-        <div className="form-group">
-          <label htmlFor="imageUrl">Image URL *</label>
-          <input
-            type="text"
-            id="imageUrl"
-            name="imageUrl"
-            value={formData.imageUrl}
-            onChange={handleImageUrlChange}
-            placeholder="Enter image URL"
-            required
-          />
-        </div>
-        
-        {preview && (
-          <div className="image-preview">
-            <img src={preview} alt="Preview" />
+
+        {formData.imageSource === 'file' ? (
+          <div className="form-group">
+            <label htmlFor="image">Card Image {!preview && '*'}</label>
+            <input
+              type="file"
+              id="image"
+              name="image"
+              className="form-control"
+              onChange={handleImageChange}
+              accept="image/*"
+              required={formData.imageSource === 'file' && !preview}
+            />
+            <small className="form-text">
+              Upload a new image for your card or keep the existing one. Max size: 5MB. Supported formats: JPEG, PNG, GIF.
+            </small>
+          </div>
+        ) : (
+          <div className="form-group">
+            <label htmlFor="imageUrl">Image URL {!preview && '*'}</label>
+            <input
+              type="url"
+              id="imageUrl"
+              name="imageUrl"
+              className="form-control"
+              value={formData.imageUrl}
+              onChange={handleImageUrlChange}
+              placeholder="Enter image URL (e.g., https://imgur.com/your-image.jpg)"
+              required={formData.imageSource === 'url' && !preview}
+            />
+            <small className="form-text">
+              Enter a direct link to your image. Imgur and similar image hosting services are supported.
+            </small>
           </div>
         )}
+        
+        <div className="image-preview">
+          {preview ? (
+            <img 
+              src={preview} 
+              alt="Card preview" 
+              onError={() => {
+                setPreview(null);
+                if (formData.imageSource === 'url') {
+                  setError('Failed to load image. Please check the URL and try again.');
+                }
+              }}
+            />
+          ) : (
+            <div className="image-preview-text">No image available</div>
+          )}
+        </div>
         
         {/* Banner Image Section for Deck Display */}
         <h3 className="section-title">Deck Banner Image</h3>
