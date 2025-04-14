@@ -112,6 +112,11 @@ export const createCard = async (formData) => {
       formData.set('relatedCards', JSON.stringify(relatedCards));
     }
     
+    // Ensure we have the image URL
+    if (!formData.get('imageUrl')) {
+      throw new Error('Image URL is required');
+    }
+    
     const response = await api.post(CARDS_URL, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -132,6 +137,11 @@ export const updateCard = async (id, formData) => {
       // Convert to JSON string if it's not already
       const relatedCards = formData.get('relatedCards');
       formData.set('relatedCards', JSON.stringify(relatedCards));
+    }
+    
+    // Ensure we have the image URL
+    if (!formData.get('imageUrl')) {
+      throw new Error('Image URL is required');
     }
     
     const response = await api.patch(`${CARDS_URL}/${id}`, formData, {

@@ -24,7 +24,7 @@ const CreateCard = () => {
     creator: '',
     image: null,
     imageUrl: '',
-    imageSource: 'file',
+    imageSource: 'url',
     bannerImageUrl: '',
     bannerImagePosition: '50% 50%',
     bannerImageZoom: 100,
@@ -117,16 +117,6 @@ const CreateCard = () => {
       imageSource: 'url'
     });
     setPreview(url);
-  };
-
-  const handleImageSourceChange = (source) => {
-    setFormData({
-      ...formData,
-      imageSource: source,
-      image: null,
-      imageUrl: ''
-    });
-    setPreview(null);
   };
 
   const handleBannerImageChange = (e) => {
@@ -251,8 +241,8 @@ const CreateCard = () => {
     e.preventDefault();
     
     if (!formData.title || !formData.rarity || !formData.class || 
-        formData.cost === undefined || (!formData.image && !formData.imageUrl)) {
-      setError('Please fill in all required fields and provide an image.');
+        formData.cost === undefined || !formData.imageUrl) {
+      setError('Please fill in all required fields and provide an image URL.');
       return;
     }
     
@@ -730,75 +720,26 @@ const CreateCard = () => {
           </small>
         </div>
         
-        <div className="form-group">
-          <label>Card Image Source</label>
-          <div className="image-source-toggle">
-            <button
-              type="button"
-              className={`btn ${formData.imageSource === 'file' ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => handleImageSourceChange('file')}
-            >
-              Upload File
-            </button>
-            <button
-              type="button"
-              className={`btn ${formData.imageSource === 'url' ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => handleImageSourceChange('url')}
-            >
-              Image URL
-            </button>
-          </div>
-        </div>
-
-        {formData.imageSource === 'file' ? (
-          <div className="form-group">
-            <label htmlFor="image">Card Image *</label>
-            <input
-              type="file"
-              id="image"
-              name="image"
-              className="form-control"
-              onChange={handleImageChange}
-              accept="image/*"
-              required={formData.imageSource === 'file'}
-            />
-            <small className="form-text">
-              Upload an image for your card. Max size: 5MB. Supported formats: JPEG, PNG, GIF.
-            </small>
-          </div>
-        ) : (
+        <div className="form-section">
+          <h3 className="section-title">Card Image</h3>
+          
           <div className="form-group">
             <label htmlFor="imageUrl">Image URL *</label>
             <input
-              type="url"
+              type="text"
               id="imageUrl"
               name="imageUrl"
-              className="form-control"
               value={formData.imageUrl}
               onChange={handleImageUrlChange}
-              placeholder="Enter image URL (e.g., https://imgur.com/your-image.jpg)"
-              required={formData.imageSource === 'url'}
+              placeholder="Enter image URL"
+              className="form-control"
             />
-            <small className="form-text">
-              Enter a direct link to your image. Imgur and similar image hosting services are supported.
-            </small>
           </div>
-        )}
-        
-        <div className="image-preview">
-          {preview ? (
-            <img 
-              src={preview} 
-              alt="Card preview" 
-              onError={() => {
-                setPreview(null);
-                if (formData.imageSource === 'url') {
-                  setError('Failed to load image. Please check the URL and try again.');
-                }
-              }}
-            />
-          ) : (
-            <div className="image-preview-text">Image preview will appear here</div>
+          
+          {preview && (
+            <div className="image-preview">
+              <img src={preview} alt="Preview" />
+            </div>
           )}
         </div>
         
