@@ -10,9 +10,6 @@ const EditCard = () => {
   const spellDescRef = useRef(null);
   const amuletDescRef = useRef(null);
   
-  // Add tab state
-  const [activeTab, setActiveTab] = useState('basic');
-  
   const [formData, setFormData] = useState({
     title: '',
     cardType: 'Follower',
@@ -444,11 +441,6 @@ const EditCard = () => {
     }
   }, [bannerZoom]);
 
-  // Tab change handler
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-  };
-
   if (loading) {
     return <div className="loading">Loading card...</div>;
   }
@@ -459,592 +451,726 @@ const EditCard = () => {
         <h1>Edit Card</h1>
       </div>
       
-      {/* Tab navigation */}
-      <div className="card-form-tabs">
-        <button 
-          className={`tab-button ${activeTab === 'basic' ? 'active' : ''}`} 
-          onClick={() => handleTabChange('basic')}
-        >
-          Basic Info
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'details' ? 'active' : ''}`} 
-          onClick={() => handleTabChange('details')}
-        >
-          Card Details
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'images' ? 'active' : ''}`} 
-          onClick={() => handleTabChange('images')}
-        >
-          Images
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'references' ? 'active' : ''}`} 
-          onClick={() => handleTabChange('references')}
-        >
-          References
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'notes' ? 'active' : ''}`} 
-          onClick={() => handleTabChange('notes')}
-        >
-          Notes
-        </button>
-      </div>
-      
-      <form className="edit-card-form" onSubmit={handleSubmit}>
+      <form className="create-card-form" onSubmit={handleSubmit}>
         <h2 className="form-title">Card Details</h2>
         
         {error && <div className="error">{error}</div>}
         
-        {/* Basic Info Tab */}
-        <div className={`tab-content ${activeTab === 'basic' ? 'active' : ''}`}>
+        <div className="form-group">
+          <label htmlFor="title">Title *</label>
+          <input
+            type="text"
+            id="title"
+            name="title"
+            className="form-control"
+            value={formData.title}
+            onChange={handleChange}
+            placeholder="Enter card title"
+            required
+          />
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="creator">Creator</label>
+          <input
+            type="text"
+            id="creator"
+            name="creator"
+            className="form-control"
+            value={formData.creator}
+            onChange={handleChange}
+            placeholder="Card creator's name or username"
+          />
+        </div>
+        
+        {/* Add Set Selection */}
+        <div className="form-group">
+          <label htmlFor="setId">Add to Set (Optional)</label>
+          <select
+            id="setId"
+            name="setId"
+            className="form-control"
+            value={formData.setId}
+            onChange={handleChange}
+          >
+            <option value="">-- Select a Set --</option>
+            {sets.map(set => (
+              <option key={set._id} value={set._id}>{set.name}</option>
+            ))}
+          </select>
+          <small className="form-text">
+            If selected, the card will be added to this set after updating.
+          </small>
+        </div>
+        
+        <div className="form-row">
           <div className="form-group">
-            <label htmlFor="title">Title *</label>
+            <label htmlFor="cardType">Card Type *</label>
+            <select
+              id="cardType"
+              name="cardType"
+              className="form-control"
+              value={formData.cardType}
+              onChange={handleChange}
+              required
+            >
+              {cardTypeOptions.map(option => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="trait">Trait (Optional)</label>
             <input
               type="text"
-              id="title"
-              name="title"
-              value={formData.title}
+              id="trait"
+              name="trait"
+              className="form-control"
+              value={formData.trait}
               onChange={handleChange}
+              placeholder="Enter card trait"
+            />
+          </div>
+          
+          <div className="form-group checkbox-group">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                name="isToken"
+                checked={formData.isToken}
+                onChange={handleChange}
+              />
+              Token Card
+            </label>
+          </div>
+        </div>
+        
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="cost" className="cost-label">Cost (PP) *</label>
+            <input
+              type="number"
+              id="cost"
+              name="cost"
+              className="form-control"
+              value={formData.cost}
+              onChange={handleChange}
+              placeholder="0"
+              min="0"
               required
             />
           </div>
           
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="cardType">Card Type *</label>
-              <select
-                id="cardType"
-                name="cardType"
-                value={formData.cardType}
-                onChange={handleChange}
-                required
-              >
-                {cardTypeOptions.map(type => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </select>
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="cost">Cost *</label>
-              <input
-                type="number"
-                id="cost"
-                name="cost"
-                min="0"
-                value={formData.cost}
-                onChange={handleChange}
-                required
-              />
-            </div>
+          <div className="form-group">
+            <label htmlFor="rarity">Rarity *</label>
+            <select
+              id="rarity"
+              name="rarity"
+              className="form-control"
+              value={formData.rarity}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select Rarity</option>
+              {rarityOptions.map(option => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
           </div>
           
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="class">Class *</label>
-              <select
-                id="class"
-                name="class"
-                value={formData.class}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select Class</option>
-                {classOptions.map(classOption => (
-                  <option key={classOption} value={classOption}>{classOption}</option>
-                ))}
-              </select>
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="rarity">Rarity *</label>
-              <select
-                id="rarity"
-                name="rarity"
-                value={formData.rarity}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select Rarity</option>
-                {rarityOptions.map(rarityOption => (
-                  <option key={rarityOption} value={rarityOption}>{rarityOption}</option>
-                ))}
-              </select>
-            </div>
+          <div className="form-group">
+            <label htmlFor="class">Class *</label>
+            <select
+              id="class"
+              name="class"
+              className="form-control"
+              value={formData.class}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select Class</option>
+              {classOptions.map(option => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
           </div>
-          
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="trait">Trait</label>
-              <input
-                type="text"
-                id="trait"
-                name="trait"
-                value={formData.trait}
-                onChange={handleChange}
-              />
-            </div>
-            
-            <div className="form-group checkbox-group">
-              <label>
+        </div>
+        
+        {/* Follower-specific fields */}
+        {formData.cardType === 'Follower' && (
+          <>
+            <h3 className="section-title">Unevolved Stats</h3>
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="unevolvedAttack" className="attack-label">Attack *</label>
                 <input
-                  type="checkbox"
-                  name="isToken"
-                  checked={formData.isToken}
+                  type="number"
+                  id="unevolvedAttack"
+                  name="unevolvedAttack"
+                  className="form-control"
+                  value={formData.unevolvedAttack}
                   onChange={handleChange}
+                  placeholder="0"
+                  min="0"
+                  required
                 />
-                Token Card
-              </label>
-            </div>
-          </div>
-        </div>
-        
-        {/* Card Details Tab */}
-        <div className={`tab-content ${activeTab === 'details' ? 'active' : ''}`}>
-          {/* Follower card specific fields */}
-          {formData.cardType === 'Follower' && (
-            <div className="follower-form">
-              <div className="form-section">
-                <h3>Unevolved</h3>
-                
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="unevolvedAttack">Attack</label>
-                    <input
-                      type="number"
-                      id="unevolvedAttack"
-                      name="unevolvedAttack"
-                      min="0"
-                      value={formData.unevolvedAttack}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label htmlFor="unevolvedDefense">Defense</label>
-                    <input
-                      type="number"
-                      id="unevolvedDefense"
-                      name="unevolvedDefense"
-                      min="0"
-                      value={formData.unevolvedDefense}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                </div>
-                
-                <div className="form-group">
-                  <label htmlFor="unevolvedDescription">Description</label>
-                  <div className="textarea-with-controls">
-                    <div className="textarea-controls">
-                      <button 
-                        type="button" 
-                        className="format-button"
-                        onClick={() => handleBoldClick(unevolvedDescRef, 'unevolvedDescription')}
-                      >
-                        <strong>B</strong>
-                      </button>
-                    </div>
-                    <textarea
-                      ref={unevolvedDescRef}
-                      id="unevolvedDescription"
-                      name="unevolvedDescription"
-                      value={formData.unevolvedDescription}
-                      onChange={handleChange}
-                      rows="3"
-                    />
-                  </div>
-                </div>
               </div>
               
-              <div className="form-section">
-                <h3>Evolved</h3>
-                
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="evolvedAttack">Attack</label>
-                    <input
-                      type="number"
-                      id="evolvedAttack"
-                      name="evolvedAttack"
-                      min="0"
-                      value={formData.evolvedAttack}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label htmlFor="evolvedDefense">Defense</label>
-                    <input
-                      type="number"
-                      id="evolvedDefense"
-                      name="evolvedDefense"
-                      min="0"
-                      value={formData.evolvedDefense}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                </div>
-                
-                <div className="form-group">
-                  <label htmlFor="evolvedDescription">Description</label>
-                  <div className="textarea-with-controls">
-                    <div className="textarea-controls">
-                      <button 
-                        type="button" 
-                        className="format-button"
-                        onClick={() => handleBoldClick(evolvedDescRef, 'evolvedDescription')}
-                      >
-                        <strong>B</strong>
-                      </button>
-                    </div>
-                    <textarea
-                      ref={evolvedDescRef}
-                      id="evolvedDescription"
-                      name="evolvedDescription"
-                      value={formData.evolvedDescription}
-                      onChange={handleChange}
-                      rows="3"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {/* Spell card specific fields */}
-          {formData.cardType === 'Spell' && (
-            <div className="spell-form">
               <div className="form-group">
-                <label htmlFor="spellDescription">Spell Effect</label>
-                <div className="textarea-with-controls">
-                  <div className="textarea-controls">
-                    <button 
-                      type="button" 
-                      className="format-button"
-                      onClick={() => handleBoldClick(spellDescRef, 'spellDescription')}
-                    >
-                      <strong>B</strong>
-                    </button>
-                  </div>
-                  <textarea
-                    ref={spellDescRef}
-                    id="spellDescription"
-                    name="spellDescription"
-                    value={formData.spellDescription}
-                    onChange={handleChange}
-                    rows="5"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {/* Amulet card specific fields */}
-          {formData.cardType === 'Amulet' && (
-            <div className="amulet-form">
-              <div className="form-group">
-                <label htmlFor="amuletDescription">Amulet Effect</label>
-                <div className="textarea-with-controls">
-                  <div className="textarea-controls">
-                    <button 
-                      type="button" 
-                      className="format-button"
-                      onClick={() => handleBoldClick(amuletDescRef, 'amuletDescription')}
-                    >
-                      <strong>B</strong>
-                    </button>
-                  </div>
-                  <textarea
-                    ref={amuletDescRef}
-                    id="amuletDescription"
-                    name="amuletDescription"
-                    value={formData.amuletDescription}
-                    onChange={handleChange}
-                    rows="5"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-        
-        {/* Images Tab */}
-        <div className={`tab-content ${activeTab === 'images' ? 'active' : ''}`}>
-          <div className="form-section">
-            <h3>Card Image</h3>
-            
-            <div className="form-group">
-              <div className="image-source-toggle">
-                <button
-                  type="button"
-                  className={`source-button ${formData.imageSource === 'file' ? 'active' : ''}`}
-                  onClick={() => handleImageSourceChange('file')}
-                >
-                  Upload Image
-                </button>
-                <button
-                  type="button"
-                  className={`source-button ${formData.imageSource === 'url' ? 'active' : ''}`}
-                  onClick={() => handleImageSourceChange('url')}
-                >
-                  Image URL
-                </button>
-              </div>
-              
-              {formData.imageSource === 'file' ? (
-                <div className="file-upload">
-                  <input
-                    type="file"
-                    id="image"
-                    name="image"
-                    onChange={handleImageChange}
-                    accept="image/*"
-                  />
-                  <div className="upload-note">
-                    Max size: 5MB. Supported formats: JPEG, PNG, GIF
-                  </div>
-                </div>
-              ) : (
+                <label htmlFor="unevolvedDefense" className="defense-label">Defense *</label>
                 <input
-                  type="url"
-                  id="imageUrl"
-                  name="imageUrl"
-                  placeholder="https://example.com/image.jpg"
-                  value={formData.imageUrl}
-                  onChange={handleImageUrlChange}
-                />
-              )}
-            </div>
-            
-            {preview && (
-              <div className="image-preview">
-                <h4>Preview</h4>
-                <img
-                  src={preview}
-                  alt="Card preview"
-                  className="preview-image"
+                  type="number"
+                  id="unevolvedDefense"
+                  name="unevolvedDefense"
+                  className="form-control"
+                  value={formData.unevolvedDefense}
+                  onChange={handleChange}
+                  placeholder="0"
+                  min="0"
+                  required
                 />
               </div>
-            )}
-          </div>
-          
-          <div className="form-section">
-            <h3>Banner Image (Optional)</h3>
-            <div className="form-group">
-              <label htmlFor="bannerImageUrl">Banner Image URL</label>
-              <input
-                type="url"
-                id="bannerImageUrl"
-                name="bannerImageUrl"
-                placeholder="https://example.com/banner.jpg"
-                value={formData.bannerImageUrl}
-                onChange={handleBannerImageChange}
-              />
             </div>
             
-            {bannerPreview && (
-              <div className="banner-preview">
-                <h4>Banner Preview</h4>
-                <div className="banner-controls">
-                  <div className="banner-position-control">
-                    <label>Position</label>
-                    <div 
-                      className="banner-preview-image" 
-                      style={{
-                        backgroundImage: `url(${bannerPreview})`,
-                        backgroundPosition: `${bannerPosition.x}% ${bannerPosition.y}%`,
-                        backgroundSize: `${bannerZoom}%`
-                      }}
-                      onMouseDown={() => {
-                        setIsDragging(true);
-                        setDragStart({ x: 0, y: 0 });
-                      }}
-                      onMouseMove={(e) => {
-                        if (!isDragging) return;
-                        
-                        const deltaX = e.clientX - dragStart.x;
-                        const deltaY = e.clientY - dragStart.y;
-                        
-                        // Calculate new position as percentage
-                        const newX = Math.max(0, Math.min(100, bannerPosition.x - (deltaX / 5)));
-                        const newY = Math.max(0, Math.min(100, bannerPosition.y - (deltaY / 5)));
-                        
-                        setBannerPosition({
-                          x: newX,
-                          y: newY
-                        });
-                      }}
-                      onMouseUp={() => {
-                        setIsDragging(false);
-                      }}
-                      onMouseLeave={() => {
-                        setIsDragging(false);
-                      }}
-                    >
-                      <div className="position-indicator">+</div>
-                    </div>
-                    
-                    <div className="banner-zoom-control">
-                      <label>Zoom: {bannerZoom}%</label>
-                      <input
-                        type="range"
-                        min="50"
-                        max="200"
-                        value={bannerZoom}
-                        onChange={(e) => setBannerZoom(parseInt(e.target.value))}
-                      />
+            <div className="form-group">
+              <label htmlFor="unevolvedDescription">Unevolved Description</label>
+              <div className="text-formatting-toolbar">
+                <button
+                  type="button"
+                  className="btn btn-sm btn-secondary format-btn"
+                  onClick={() => handleBoldClick(unevolvedDescRef, 'unevolvedDescription')}
+                >
+                  <strong>B</strong>
+                </button>
+              </div>
+              <textarea
+                id="unevolvedDescription"
+                name="unevolvedDescription"
+                className="form-control"
+                value={formData.unevolvedDescription}
+                onChange={handleChange}
+                placeholder="Enter unevolved card description (optional)"
+                rows="4"
+                ref={unevolvedDescRef}
+              ></textarea>
+              <small className="form-text">
+                Press Enter for line breaks. They will be preserved in the card view.
+              </small>
+            </div>
+            
+            <h3 className="section-title">Evolved Stats</h3>
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="evolvedAttack" className="attack-label">Attack *</label>
+                <input
+                  type="number"
+                  id="evolvedAttack"
+                  name="evolvedAttack"
+                  className="form-control"
+                  value={formData.evolvedAttack}
+                  onChange={handleChange}
+                  placeholder="0"
+                  min="0"
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="evolvedDefense" className="defense-label">Defense *</label>
+                <input
+                  type="number"
+                  id="evolvedDefense"
+                  name="evolvedDefense"
+                  className="form-control"
+                  value={formData.evolvedDefense}
+                  onChange={handleChange}
+                  placeholder="0"
+                  min="0"
+                  required
+                />
+              </div>
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="evolvedDescription">Evolved Description</label>
+              <div className="text-formatting-toolbar">
+                <button
+                  type="button"
+                  className="btn btn-sm btn-secondary format-btn"
+                  onClick={() => handleBoldClick(evolvedDescRef, 'evolvedDescription')}
+                >
+                  <strong>B</strong>
+                </button>
+              </div>
+              <textarea
+                id="evolvedDescription"
+                name="evolvedDescription"
+                className="form-control"
+                value={formData.evolvedDescription}
+                onChange={handleChange}
+                placeholder="Enter evolved card description (optional)"
+                rows="4"
+                ref={evolvedDescRef}
+              ></textarea>
+              <small className="form-text">
+                Press Enter for line breaks. They will be preserved in the card view.
+              </small>
+            </div>
+          </>
+        )}
+        
+        {/* Spell-specific fields */}
+        {formData.cardType === 'Spell' && (
+          <div className="form-group">
+            <label htmlFor="spellDescription">Spell Description *</label>
+            <div className="text-formatting-toolbar">
+              <button
+                type="button"
+                className="btn btn-sm btn-secondary format-btn"
+                onClick={() => handleBoldClick(spellDescRef, 'spellDescription')}
+              >
+                <strong>B</strong>
+              </button>
+            </div>
+            <textarea
+              id="spellDescription"
+              name="spellDescription"
+              className="form-control"
+              value={formData.spellDescription}
+              onChange={handleChange}
+              placeholder="Enter spell description"
+              rows="4"
+              required
+              ref={spellDescRef}
+            ></textarea>
+            <small className="form-text">
+              Press Enter for line breaks. They will be preserved in the card view.
+            </small>
+          </div>
+        )}
+        
+        {/* Amulet-specific fields */}
+        {formData.cardType === 'Amulet' && (
+          <div className="form-group">
+            <label htmlFor="amuletDescription">Amulet Description *</label>
+            <div className="text-formatting-toolbar">
+              <button
+                type="button"
+                className="btn btn-sm btn-secondary format-btn"
+                onClick={() => handleBoldClick(amuletDescRef, 'amuletDescription')}
+              >
+                <strong>B</strong>
+              </button>
+            </div>
+            <textarea
+              id="amuletDescription"
+              name="amuletDescription"
+              className="form-control"
+              value={formData.amuletDescription}
+              onChange={handleChange}
+              placeholder="Enter amulet description"
+              rows="4"
+              required
+              ref={amuletDescRef}
+            ></textarea>
+            <small className="form-text">
+              Press Enter for line breaks. They will be preserved in the card view.
+            </small>
+          </div>
+        )}
+        
+        <div className="form-group">
+          <label htmlFor="notes">Card Details (Optional)</label>
+          <textarea
+            id="notes"
+            name="notes"
+            className="form-control"
+            value={formData.notes}
+            onChange={handleChange}
+            placeholder="Enter any additional details about this card"
+            rows="4"
+          ></textarea>
+          <small className="form-text">
+            Details are only visible when double-clicking on a card in the card list.
+          </small>
+        </div>
+        
+        <div className="form-group">
+          <label>Card Image Source</label>
+          <div className="image-source-toggle">
+            <button
+              type="button"
+              className={`btn ${formData.imageSource === 'file' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => handleImageSourceChange('file')}
+            >
+              Upload File
+            </button>
+            <button
+              type="button"
+              className={`btn ${formData.imageSource === 'url' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => handleImageSourceChange('url')}
+            >
+              Image URL
+            </button>
+          </div>
+        </div>
+
+        {formData.imageSource === 'file' ? (
+          <div className="form-group">
+            <label htmlFor="image">Card Image {!preview && '*'}</label>
+            <input
+              type="file"
+              id="image"
+              name="image"
+              className="form-control"
+              onChange={handleImageChange}
+              accept="image/*"
+              required={formData.imageSource === 'file' && !preview}
+            />
+            <small className="form-text">
+              Upload a new image for your card or keep the existing one. Max size: 5MB. Supported formats: JPEG, PNG, GIF.
+            </small>
+          </div>
+        ) : (
+          <div className="form-group">
+            <label htmlFor="imageUrl">Image URL {!preview && '*'}</label>
+            <input
+              type="url"
+              id="imageUrl"
+              name="imageUrl"
+              className="form-control"
+              value={formData.imageUrl}
+              onChange={handleImageUrlChange}
+              placeholder="Enter image URL (e.g., https://imgur.com/your-image.jpg)"
+              required={formData.imageSource === 'url' && !preview}
+            />
+            <small className="form-text">
+              Enter a direct link to your image. Imgur and similar image hosting services are supported.
+            </small>
+          </div>
+        )}
+        
+        <div className="image-preview">
+          {preview ? (
+            <img 
+              src={preview} 
+              alt="Card preview" 
+              onError={() => {
+                setPreview(null);
+                if (formData.imageSource === 'url') {
+                  setError('Failed to load image. Please check the URL and try again.');
+                }
+              }}
+            />
+          ) : (
+            <div className="image-preview-text">No image available</div>
+          )}
+        </div>
+        
+        {/* Banner Image Section for Deck Display */}
+        <h3 className="section-title">Deck Banner Image</h3>
+        <div className="form-group">
+          <label htmlFor="bannerImageUrl">Banner Image URL (Optional)</label>
+          <input
+            type="url"
+            id="bannerImageUrl"
+            name="bannerImageUrl"
+            className="form-control"
+            value={formData.bannerImageUrl}
+            onChange={handleBannerImageChange}
+            placeholder="Enter banner image URL for deck display"
+          />
+          <small className="form-text">
+            This image will be used as a background in the deck builder. Similar to keyword banners.
+          </small>
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="bannerImagePosition">Banner Image Position</label>
+          <select
+            id="bannerImagePosition"
+            name="bannerImagePosition"
+            className="form-control"
+            value={formData.bannerImagePosition}
+            onChange={handleBannerPositionChange}
+          >
+            <option value="50% 50%">Center</option>
+            <option value="50% 0%">Top</option>
+            <option value="50% 100%">Bottom</option>
+            <option value="0% 50%">Left</option>
+            <option value="100% 50%">Right</option>
+            <option value="0% 0%">Top Left</option>
+            <option value="100% 0%">Top Right</option>
+            <option value="0% 100%">Bottom Left</option>
+            <option value="100% 100%">Bottom Right</option>
+          </select>
+        </div>
+        
+        {formData.bannerImageUrl && (
+          <div className="banner-advanced-editor">
+            <h4 className="advanced-editor-title">Advanced Banner Position Editor</h4>
+            <div className="banner-editor-controls">
+              <div className="zoom-control">
+                <label htmlFor="banner-zoom">Zoom:</label>
+                <input 
+                  type="range" 
+                  id="banner-zoom" 
+                  min="100" 
+                  max="300" 
+                  value={bannerZoom || 100} 
+                  onChange={(e) => setBannerZoom(parseInt(e.target.value))}
+                  className="zoom-slider"
+                />
+                <div className="zoom-input-container">
+                  <input
+                    type="number"
+                    min="100"
+                    max="300"
+                    value={bannerZoom || 100}
+                    onChange={(e) => setBannerZoom(Math.min(300, Math.max(100, parseInt(e.target.value) || 100)))}
+                    className="zoom-text-input"
+                  />
+                  <span className="zoom-unit">%</span>
+                </div>
+              </div>
+              <div className="position-buttons">
+                <button 
+                  type="button" 
+                  className="reset-position-btn"
+                  onClick={() => {
+                    setBannerPosition({ x: 50, y: 50 });
+                    setBannerZoom(100);
+                  }}
+                >
+                  Reset Position
+                </button>
+              </div>
+            </div>
+            
+            <div 
+              className="draggable-banner-container"
+              style={{
+                position: 'relative',
+                height: '200px',
+                overflow: 'hidden',
+                borderRadius: '8px',
+                cursor: 'grab',
+                margin: '10px 0'
+              }}
+              onMouseDown={(e) => {
+                setIsDragging(true);
+                setDragStart({
+                  x: e.clientX,
+                  y: e.clientY
+                });
+              }}
+              onMouseMove={(e) => {
+                if (!isDragging) return;
+                
+                const deltaX = e.clientX - dragStart.x;
+                const deltaY = e.clientY - dragStart.y;
+                
+                // Calculate new position as percentage
+                const newX = Math.max(0, Math.min(100, bannerPosition.x - (deltaX / 5)));
+                const newY = Math.max(0, Math.min(100, bannerPosition.y - (deltaY / 5)));
+                
+                setBannerPosition({
+                  x: newX,
+                  y: newY
+                });
+                
+                setDragStart({
+                  x: e.clientX,
+                  y: e.clientY
+                });
+              }}
+              onMouseUp={() => {
+                setIsDragging(false);
+              }}
+              onMouseLeave={() => {
+                setIsDragging(false);
+              }}
+            >
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4)), url(${formData.bannerImageUrl})`,
+                  backgroundPosition: `${bannerPosition.x}% ${bannerPosition.y}%`,
+                  backgroundSize: `${bannerZoom || 100}%`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontWeight: 'bold'
+                }}
+              >
+                <span>Drag to position • Slide to zoom</span>
+              </div>
+            </div>
+            <div className="banner-editor-help">
+              <small>Drag the image to adjust position. Use the slider to zoom in/out. Changes apply automatically.</small>
+            </div>
+          </div>
+        )}
+        
+        {formData.bannerImageUrl && (
+          <div className="banner-preview">
+            <div 
+              className="keyword-banner-preview"
+              style={{
+                backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4)), url(${formData.bannerImageUrl})`,
+                backgroundPosition: formData.bannerImagePosition,
+                backgroundSize: `${bannerZoom}%`,
+                height: '80px',
+                borderRadius: '8px',
+                marginBottom: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                fontWeight: 'bold'
+              }}
+            >
+              <span>Banner Preview - {formData.title || "Card Title"}</span>
+            </div>
+          </div>
+        )}
+        
+        {/* Replace the existing keyword selection with a more intuitive interface */}
+        <div className="form-group">
+          <label className="form-label">Keywords:</label>
+          <div className="keywords-container">
+            {keywords.map(keyword => (
+              <div key={keyword._id} className="keyword-selection-item">
+                <div className="keyword-checkbox-wrapper">
+                  <input
+                    type="checkbox"
+                    id={`keyword-${keyword._id}`}
+                    checked={formData.keywords.includes(keyword._id)}
+                    onChange={() => {
+                      // Toggle this keyword in the selected keywords
+                      const newKeywords = formData.keywords.includes(keyword._id)
+                        ? formData.keywords.filter(id => id !== keyword._id)
+                        : [...formData.keywords, keyword._id];
+                      
+                      setFormData({
+                        ...formData,
+                        keywords: newKeywords
+                      });
+                    }}
+                    className="keyword-checkbox"
+                  />
+                  <label htmlFor={`keyword-${keyword._id}`} className="keyword-label">
+                    {keyword.title}
+                  </label>
+                </div>
+                <div 
+                  className="keyword-preview-banner"
+                  style={{
+                    backgroundImage: `url(${keyword.imageUrl})`,
+                    backgroundPosition: keyword.imagePosition || '50% 50%',
+                    backgroundSize: 'cover'
+                  }}
+                >
+                  <div className="keyword-preview-overlay">
+                    <div className="keyword-preview-content">
+                      <h5 className="keyword-preview-title">{keyword.title}</h5>
+                      <p className="keyword-preview-description">{keyword.description}</p>
                     </div>
                   </div>
                 </div>
               </div>
-            )}
+            ))}
           </div>
+          {keywords.length === 0 && (
+            <div className="no-keywords-message">
+              No keywords available. <a href="/keywords/create">Create keywords</a> to add them to cards.
+            </div>
+          )}
         </div>
         
-        {/* References Tab */}
-        <div className={`tab-content ${activeTab === 'references' ? 'active' : ''}`}>
-          <div className="form-section">
-            <h3>Card Set</h3>
-            <div className="form-group">
-              <label htmlFor="setId">Add to Set</label>
-              <select
-                id="setId"
-                name="setId"
-                value={formData.setId}
-                onChange={handleChange}
-              >
-                <option value="">None</option>
-                {sets.map(set => (
-                  <option key={set._id} value={set._id}>{set.name}</option>
-                ))}
-              </select>
-            </div>
-          </div>
+        {/* Replace the existing Related Cards Selection */}
+        <div className="form-group">
+          <label>Related Cards</label>
           
-          <div className="form-section">
-            <h3>Keywords</h3>
-            <div className="form-group">
-              <label htmlFor="keywords">Associated Keywords</label>
-              <select
-                id="keywords"
-                name="keywords"
-                multiple
-                value={formData.keywords}
-                onChange={handleChange}
-              >
-                {keywords.map(keyword => (
-                  <option key={keyword._id} value={keyword._id}>{keyword.title}</option>
-                ))}
-              </select>
-              <div className="select-hint">
-                Hold Ctrl (Cmd on Mac) to select multiple keywords
-              </div>
-            </div>
-          </div>
-          
-          <div className="form-section">
-            <h3>Related Cards</h3>
-            <div className="form-group">
-              <label htmlFor="relatedCardSearch">Search Related Cards</label>
+          <div className="related-cards-manager">
+            {/* Search input for related cards */}
+            <div className="related-cards-search">
               <input
                 type="text"
-                id="relatedCardSearch"
+                placeholder="Search for cards to relate..."
                 value={relatedCardSearch}
                 onChange={handleRelatedCardSearch}
-                placeholder="Search by name, class, rarity, or trait"
+                className="form-control"
               />
               
+              {/* Search results dropdown */}
               {filteredRelatedCards.length > 0 && (
-                <div className="search-results">
+                <div className="related-cards-search-results">
                   {filteredRelatedCards.map(card => (
                     <div 
                       key={card._id} 
-                      className="search-result-item"
+                      className="related-card-search-item"
                       onClick={() => handleAddRelatedCard(card._id)}
                     >
-                      <div className="search-result-image">
+                      <div className="related-card-search-image">
                         <img src={card.imageUrl} alt={card.title} />
                       </div>
-                      <div className="search-result-info">
-                        <div className="search-result-title">{card.title}</div>
-                        <div className="search-result-meta">
-                          {card.class} - {card.rarity} - {card.cardType}
+                      <div className="related-card-search-info">
+                        <div className="related-card-search-title">{card.title}</div>
+                        <div className="related-card-search-meta">
+                          <span>{card.class}</span>
+                          <span>{card.rarity}</span>
+                          <span>{card.cardType || 'Follower'}</span>
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
               )}
+            </div>
+            
+            {/* Currently selected related cards */}
+            <div className="selected-related-cards">
+              <h4>Selected Related Cards</h4>
               
-              {formData.relatedCards.length > 0 && (
-                <div className="related-cards-list">
-                  <h4>Selected Related Cards</h4>
-                  <ul>
-                    {formData.relatedCards.map(cardId => {
-                      const card = getRelatedCardById(cardId);
-                      return card ? (
-                        <li key={cardId} className="related-card-item">
-                          <div className="related-card-info">
-                            <img
-                              src={card.imageUrl}
-                              alt={card.title}
-                              className="related-card-thumbnail"
-                            />
-                            <span>{card.title}</span>
+              {formData.relatedCards.length === 0 ? (
+                <div className="no-related-cards">No related cards selected</div>
+              ) : (
+                <div className="selected-related-cards-list">
+                  {formData.relatedCards.map(cardId => {
+                    const card = getRelatedCardById(cardId);
+                    if (!card) return null;
+                    
+                    return (
+                      <div key={cardId} className="selected-related-card">
+                        <div className="selected-related-card-image">
+                          <img src={card.imageUrl} alt={card.title} />
+                        </div>
+                        <div className="selected-related-card-info">
+                          <div className="selected-related-card-title">{card.title}</div>
+                          <div className="selected-related-card-meta">
+                            <span>{card.class}</span>
+                            <span>{card.rarity}</span>
                           </div>
-                          <button
-                            type="button"
-                            className="remove-button"
-                            onClick={() => handleRemoveRelatedCard(cardId)}
-                          >
-                            &times;
-                          </button>
-                        </li>
-                      ) : null;
-                    })}
-                  </ul>
+                        </div>
+                        <button 
+                          type="button" 
+                          className="remove-related-card-btn"
+                          onClick={() => handleRemoveRelatedCard(cardId)}
+                        >
+                          &times;
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
-            </div>
-          </div>
-        </div>
-        
-        {/* Notes Tab */}
-        <div className={`tab-content ${activeTab === 'notes' ? 'active' : ''}`}>
-          <div className="form-section">
-            <h3>Additional Information</h3>
-            
-            <div className="form-group">
-              <label htmlFor="creator">Creator</label>
-              <input
-                type="text"
-                id="creator"
-                name="creator"
-                value={formData.creator}
-                onChange={handleChange}
-              />
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="notes">Notes</label>
-              <textarea
-                id="notes"
-                name="notes"
-                value={formData.notes}
-                onChange={handleChange}
-                rows="5"
-                placeholder="Add any design notes, ideas for future versions, or other comments about this card."
-              />
             </div>
           </div>
         </div>
@@ -1052,18 +1178,10 @@ const EditCard = () => {
         <div className="form-actions">
           <button 
             type="submit" 
-            className="btn btn-primary" 
+            className="btn submit-btn" 
             disabled={submitting}
           >
             {submitting ? 'Updating...' : 'Update Card'}
-          </button>
-          <button 
-            type="button" 
-            className="btn btn-secondary" 
-            onClick={() => navigate(-1)}
-            disabled={submitting}
-          >
-            Cancel
           </button>
         </div>
       </form>
