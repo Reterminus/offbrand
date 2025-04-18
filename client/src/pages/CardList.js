@@ -76,8 +76,8 @@ const CardList = () => {
           .flatMap(card => {
             // Skip cards with no traits
             if (!card.trait || card.trait.trim() === '') return [];
-            // Split by common delimiters (/, comma, space) and filter out empty strings
-            return card.trait.split(/[\/,\s]+/).map(t => t.trim()).filter(t => t);
+            // Split by slash only and filter out empty strings
+            return card.trait.split('/').map(t => t.trim()).filter(t => t);
           })
           .sort())];
         
