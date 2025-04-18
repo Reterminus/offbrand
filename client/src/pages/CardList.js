@@ -26,7 +26,10 @@ const CardList = () => {
   const [selectedSet, setSelectedSet] = useState('');
   const [selectedCreator, setSelectedCreator] = useState('');
   const [selectedCost, setSelectedCost] = useState('');
+  const [selectedCardType, setSelectedCardType] = useState('');
+  const [selectedTrait, setSelectedTrait] = useState('');
   const [creators, setCreators] = useState([]);
+  const [traits, setTraits] = useState([]);
   const [showNotesForCard, setShowNotesForCard] = useState(null);
   const cardRefs = useRef({});
   const [selectedCardDetails, setSelectedCardDetails] = useState(null);
@@ -68,8 +71,15 @@ const CardList = () => {
           .filter(creator => creator && creator.trim() !== '')
           .sort())];
         
+        // Get unique traits from cards for filtering
+        const uniqueTraits = [...new Set(cardsData
+          .map(card => card.trait)
+          .filter(trait => trait && trait.trim() !== '')
+          .sort())];
+        
         setCardsFromHiddenSets(hiddenSetCards);
         setCreators(uniqueCreators);
+        setTraits(uniqueTraits);
         setCards(cardsData);
         setSets(setsData);
         setKeywords(keywordsData);
@@ -166,6 +176,8 @@ const CardList = () => {
       selectedSetData,
       selectedCreator,
       selectedCost,
+      selectedCardType,
+      selectedTrait,
       cardsFromHiddenSets,
       showHiddenSetCards
     });
@@ -178,6 +190,8 @@ const CardList = () => {
     selectedSetData, 
     selectedCreator, 
     selectedCost, 
+    selectedCardType,
+    selectedTrait,
     cardsFromHiddenSets, 
     showHiddenSetCards
   ]);
@@ -226,6 +240,8 @@ const CardList = () => {
   ], []);
 
   const rarityOptions = useMemo(() => ['Bronze', 'Silver', 'Gold', 'Legendary'], []);
+
+  const cardTypeOptions = useMemo(() => ['Follower', 'Spell', 'Amulet'], []);
 
   // Handler functions - memoized to prevent unnecessary re-creations
   const handleEdit = useCallback((id) => {
@@ -340,6 +356,16 @@ const CardList = () => {
     setSelectedCost(e.target.value);
   }, []);
 
+  // Handle card type filter change
+  const handleCardTypeChange = useCallback((e) => {
+    setSelectedCardType(e.target.value);
+  }, []);
+
+  // Handle trait filter change
+  const handleTraitChange = useCallback((e) => {
+    setSelectedTrait(e.target.value);
+  }, []);
+
   // Clear all filters
   const handleClearFilters = useCallback(() => {
     setSearchTerm('');
@@ -348,6 +374,8 @@ const CardList = () => {
     setSelectedSet('');
     setSelectedCreator('');
     setSelectedCost('');
+    setSelectedCardType('');
+    setSelectedTrait('');
   }, []);
 
   // Add handler to close mobile detail view
@@ -514,6 +542,20 @@ const CardList = () => {
               <option key={i} value={i}>{i}</option>
             ))}
             <option value="10">10+</option>
+          </select>
+          
+          <select value={selectedCardType} onChange={handleCardTypeChange}>
+            <option value="">All Card Types</option>
+            {cardTypeOptions.map(option => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+          
+          <select value={selectedTrait} onChange={handleTraitChange}>
+            <option value="">All Traits</option>
+            {traits.map(trait => (
+              <option key={trait} value={trait}>{trait}</option>
+            ))}
           </select>
           
           <select value={selectedSet} onChange={handleSetChange}>

@@ -10,6 +10,8 @@
  * @param {Object} filters.selectedSetData - Selected set data object (if selectedSet is set)
  * @param {string} filters.selectedCreator - Selected creator
  * @param {string} filters.selectedCost - Selected cost 
+ * @param {string} filters.selectedCardType - Selected card type (Follower, Spell, Amulet)
+ * @param {string} filters.selectedTrait - Selected card trait
  * @param {Array} filters.cardsFromHiddenSets - IDs of cards from hidden sets
  * @param {boolean} filters.showHiddenSetCards - Whether to show cards from hidden sets
  * @returns {Array} - Filtered array of cards
@@ -23,6 +25,8 @@ export const applyFilters = (cards, filters) => {
     selectedSetData,
     selectedCreator,
     selectedCost,
+    selectedCardType,
+    selectedTrait,
     cardsFromHiddenSets = [],
     showHiddenSetCards = false
   } = filters;
@@ -77,6 +81,16 @@ export const applyFilters = (cards, filters) => {
     
     // Creator filter
     if (selectedCreator && card.creator !== selectedCreator) {
+      return false;
+    }
+    
+    // Card type filter
+    if (selectedCardType && card.cardType !== selectedCardType) {
+      return false;
+    }
+    
+    // Trait filter
+    if (selectedTrait && card.trait !== selectedTrait) {
       return false;
     }
     
