@@ -14,6 +14,11 @@ const DeckBuilder = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCost, setSelectedCost] = useState('');
   const [selectedCardType, setSelectedCardType] = useState('');
+  const [selectedClassCardType, setSelectedClassCardType] = useState('');
+  const [selectedTrait, setSelectedTrait] = useState('');
+  const [selectedRarity, setSelectedRarity] = useState('');
+  const [selectedSet, setSelectedSet] = useState('');
+  const [traits, setTraits] = useState([]);
   const deckRef = useRef(null);
   const [exportingDeck, setExportingDeck] = useState(false);
   const [selectedCardDetails, setSelectedCardDetails] = useState(null);
@@ -49,9 +54,20 @@ const DeckBuilder = () => {
           return !card.isToken && !hiddenSetCardIds.has(card._id.toString());
         });
         
+        // Extract unique traits from non-token, non-hidden set cards
+        const uniqueTraits = [...new Set(filteredCards
+          .flatMap(card => {
+            // Skip cards with no traits
+            if (!card.trait || card.trait.trim() === '') return [];
+            // Split by slash only and filter out empty strings
+            return card.trait.split('/').map(t => t.trim()).filter(t => t);
+          })
+          .sort())];
+        
+        setTraits(uniqueTraits);
         setCards(filteredCards);
         setFilteredCards(filteredCards);
-        setSets(setsData);
+        setSets(setsData.filter(set => !set.hidden)); // Only include non-hidden sets
         setLoading(false);
       } catch (err) {
         setError('Failed to fetch cards. Please try again later.');
@@ -73,11 +89,38 @@ const DeckBuilder = () => {
       result = result.filter(card => card.class === selectedClass || card.class === 'Neutral');
     }
 
-    // Filter by card type (class/neutral)
-    if (selectedCardType === 'class' && selectedClass) {
+    // Filter by class card type (class/neutral)
+    if (selectedClassCardType === 'class' && selectedClass) {
       result = result.filter(card => card.class === selectedClass);
-    } else if (selectedCardType === 'neutral') {
+    } else if (selectedClassCardType === 'neutral') {
       result = result.filter(card => card.class === 'Neutral');
+    }
+
+    // Filter by card type (Follower/Spell/Amulet)
+    if (selectedCardType && ['Follower', 'Spell', 'Amulet'].includes(selectedCardType)) {
+      result = result.filter(card => card.cardType === selectedCardType);
+    }
+
+    // Filter by rarity
+    if (selectedRarity) {
+      result = result.filter(card => card.rarity === selectedRarity);
+    }
+    
+    // Filter by trait
+    if (selectedTrait && selectedTrait.trim() !== '') {
+      result = result.filter(card => {
+        if (!card.trait) return false;
+        const cardTraits = card.trait.split('/').map(t => t.trim()).filter(t => t);
+        return cardTraits.includes(selectedTrait);
+      });
+    }
+    
+    // Filter by set
+    if (selectedSet) {
+      const selectedSetObj = sets.find(set => set._id === selectedSet);
+      if (selectedSetObj) {
+        result = result.filter(card => selectedSetObj.cards.includes(card._id));
+      }
     }
 
     // Filter by cost
@@ -173,7 +216,7 @@ const DeckBuilder = () => {
     });
 
     setFilteredCards(result);
-  }, [selectedClass, selectedCost, searchTerm, selectedCardType, cards]);
+  }, [selectedClass, selectedCost, searchTerm, selectedCardType, selectedClassCardType, selectedRarity, selectedTrait, selectedSet, cards, sets]);
 
   // Filter for class selection (first selection screen)
   const classOptions = [
@@ -193,6 +236,12 @@ const DeckBuilder = () => {
     'Havencraft': 'https://i.imgur.com/xGSGSkT.png',
     'Portalcraft': 'https://i.imgur.com/p4foy4o.png'
   };
+
+  // Card type options for dropdown
+  const cardTypeOptions = ['Follower', 'Spell', 'Amulet'];
+  
+  // Rarity options for dropdown
+  const rarityOptions = ['Bronze', 'Silver', 'Gold', 'Legendary'];
 
   // Preload related cards data when a card is selected for the detail modal
   useEffect(() => {
@@ -348,7 +397,30 @@ const DeckBuilder = () => {
 
   // Handle card type filter (class/neutral)
   const handleCardTypeChange = (e) => {
-    setSelectedCardType(e.target.value);
+    const value = e.target.value;
+    // Check if it's a class/neutral filter or a card type filter
+    if (['', 'class', 'neutral'].includes(value)) {
+      // It's a class/neutral filter
+      setSelectedClassCardType(value);
+    } else if (['Follower', 'Spell', 'Amulet'].includes(value)) {
+      // It's a card type filter
+      setSelectedCardType(value);
+    }
+  };
+
+  // Handle rarity filter
+  const handleRarityChange = (e) => {
+    setSelectedRarity(e.target.value);
+  };
+
+  // Handle trait filter
+  const handleTraitChange = (e) => {
+    setSelectedTrait(e.target.value);
+  };
+
+  // Handle set filter
+  const handleSetChange = (e) => {
+    setSelectedSet(e.target.value);
   };
 
   // Handle clearing filters
@@ -356,6 +428,10 @@ const DeckBuilder = () => {
     setSearchTerm('');
     setSelectedCost('');
     setSelectedCardType('');
+    setSelectedClassCardType('');
+    setSelectedRarity('');
+    setSelectedTrait('');
+    setSelectedSet('');
   };
 
   // Count cards in deck by cost for the mana curve
@@ -728,6 +804,7 @@ const DeckBuilder = () => {
             <div className="card-browser">
               <h2>Card Browser</h2>
               
+              {/* Display filter options */}
               <div className="filters">
                 <div className="search-bar">
                   <input
@@ -739,24 +816,51 @@ const DeckBuilder = () => {
                 </div>
                 
                 <div className="filter-group">
-                  <select value={selectedCost} onChange={handleCostChange}>
-                    <option value="">All Costs</option>
-                    {[...Array(10).keys()].map(i => (
-                      <option key={i} value={i}>{i}</option>
-                    ))}
-                    <option value="10">10+</option>
-                  </select>
-                  
-                  {/* New filter for class/neutral */}
-                  <select value={selectedCardType} onChange={handleCardTypeChange}>
-                    <option value="">All Cards</option>
-                    <option value="class">{selectedClass} Cards</option>
-                    <option value="neutral">Neutral Cards</option>
-                  </select>
-                  
-                  <button onClick={clearFilters} className="clear-filters-btn">
-                    Clear Filters
-                  </button>
+                  <div className="top-filters">
+                    <select value={selectedClassCardType} onChange={handleCardTypeChange}>
+                      <option value="">All Cards</option>
+                      <option value="class">Class Cards</option>
+                      <option value="neutral">Neutral Cards</option>
+                    </select>
+                    
+                    <select value={selectedCardType} onChange={handleCardTypeChange}>
+                      <option value="">All Types</option>
+                      {cardTypeOptions.map(option => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                    
+                    <select value={selectedRarity} onChange={handleRarityChange}>
+                      <option value="">All Rarities</option>
+                      {rarityOptions.map(option => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                    
+                    <select value={selectedCost} onChange={handleCostChange}>
+                      <option value="">All Costs</option>
+                      {[...Array(10).keys()].map(i => (
+                        <option key={i} value={i}>{i}</option>
+                      ))}
+                      <option value="10">10+</option>
+                    </select>
+                    
+                    <select value={selectedTrait} onChange={handleTraitChange}>
+                      <option value="">All Traits</option>
+                      {traits.map(trait => (
+                        <option key={trait} value={trait}>{trait}</option>
+                      ))}
+                    </select>
+                    
+                    <select value={selectedSet} onChange={handleSetChange}>
+                      <option value="">All Sets</option>
+                      {sets.map(set => (
+                        <option key={set._id} value={set._id}>{set.name}</option>
+                      ))}
+                    </select>
+                    
+                    <button onClick={clearFilters}>Clear Filters</button>
+                  </div>
                 </div>
               </div>
 
