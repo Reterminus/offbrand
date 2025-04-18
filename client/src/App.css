@@ -2200,6 +2200,7 @@
   padding-right: 10px;
   position: relative;
   height: auto;
+  min-height: 50vh; /* Minimum height to prevent layout shifts */
 }
 
 /* Scrollbar styling for card browser */
@@ -2393,6 +2394,7 @@
   .card-browser-grid {
     width: 100%;
     max-height: 50vh;
+    min-height: 30vh; /* Add minimum height for mobile as well */
   }
   
   .browsable-card {
@@ -2775,15 +2777,29 @@ body.exporting-deck .export-view .deck-cards {
 }
 
 .keyword-description-scrollable {
-  overflow: visible;
-  position: relative;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+/* Scrollbar styling for keyword description */
+.keyword-description-scrollable::-webkit-scrollbar {
+  width: 8px;
+}
+
+.keyword-description-scrollable::-webkit-scrollbar-track {
+  background: #222;
+  border-radius: 4px;
+}
+
+.keyword-description-scrollable::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
 }
 
 .keyword-description {
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.4;
   font-size: 14px;
-  margin: 0;
-  line-height: 1.5;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
 .keyword-expand-button {
@@ -3340,6 +3356,21 @@ body.exporting-deck .export-view .deck-cards {
   padding: 6px;
   background-color: rgba(0, 0, 0, 0.3);
   border-radius: 8px;
+}
+
+/* Scrollbar styling for related cards grid */
+.related-cards-grid::-webkit-scrollbar {
+  width: 8px;
+}
+
+.related-cards-grid::-webkit-scrollbar-track {
+  background: #222;
+  border-radius: 4px;
+}
+
+.related-cards-grid::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
 }
 
 .related-card {
@@ -4310,4 +4341,19 @@ body.exporting-deck .export-view .deck-cards {
   .deck-builder-page .filter-row select {
     flex: 1 1 calc(50% - 8px);
   }
+}
+
+/* Scrollbar styling for card detail modal */
+.card-list-detail-modal .card-detail-info::-webkit-scrollbar {
+  width: 8px;
+}
+
+.card-list-detail-modal .card-detail-info::-webkit-scrollbar-track {
+  background: #222;
+  border-radius: 4px;
+}
+
+.card-list-detail-modal .card-detail-info::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
 }
