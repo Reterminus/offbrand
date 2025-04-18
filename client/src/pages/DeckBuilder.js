@@ -54,17 +54,7 @@ const DeckBuilder = () => {
           return !card.isToken && !hiddenSetCardIds.has(card._id.toString());
         });
         
-        // Extract unique traits from non-token, non-hidden set cards
-        const uniqueTraits = [...new Set(filteredCards
-          .flatMap(card => {
-            // Skip cards with no traits
-            if (!card.trait || card.trait.trim() === '') return [];
-            // Split by slash only and filter out empty strings
-            return card.trait.split('/').map(t => t.trim()).filter(t => t);
-          })
-          .sort())];
-        
-        setTraits(uniqueTraits);
+        // We'll set traits later based on selected class
         setCards(filteredCards);
         setFilteredCards(filteredCards);
         setSets(setsData.filter(set => !set.hidden)); // Only include non-hidden sets
@@ -217,6 +207,33 @@ const DeckBuilder = () => {
 
     setFilteredCards(result);
   }, [selectedClass, selectedCost, searchTerm, selectedCardType, selectedClassCardType, selectedRarity, selectedTrait, selectedSet, cards, sets]);
+
+  // Update traits list when selected class changes
+  useEffect(() => {
+    if (!selectedClass || cards.length === 0) return;
+    
+    // Filter cards by selected class (and Neutral)
+    const classCards = cards.filter(card => 
+      card.class === selectedClass || card.class === 'Neutral'
+    );
+    
+    // Extract unique traits from filtered cards
+    const uniqueTraits = [...new Set(classCards
+      .flatMap(card => {
+        // Skip cards with no traits
+        if (!card.trait || card.trait.trim() === '') return [];
+        // Split by slash only and filter out empty strings
+        return card.trait.split('/').map(t => t.trim()).filter(t => t);
+      })
+      .sort())];
+    
+    setTraits(uniqueTraits);
+    
+    // Reset selected trait if it's not in the new list of traits
+    if (selectedTrait && !uniqueTraits.includes(selectedTrait)) {
+      setSelectedTrait('');
+    }
+  }, [selectedClass, cards]);
 
   // Filter for class selection (first selection screen)
   const classOptions = [
@@ -816,10 +833,10 @@ const DeckBuilder = () => {
                 </div>
                 
                 <div className="filter-group">
-                  <div className="top-filters">
+                  <div className="filter-row primary-filters">
                     <select value={selectedClassCardType} onChange={handleCardTypeChange}>
                       <option value="">All Cards</option>
-                      <option value="class">Class Cards</option>
+                      <option value="class">{selectedClass} Cards</option>
                       <option value="neutral">Neutral Cards</option>
                     </select>
                     
@@ -830,19 +847,23 @@ const DeckBuilder = () => {
                       ))}
                     </select>
                     
-                    <select value={selectedRarity} onChange={handleRarityChange}>
-                      <option value="">All Rarities</option>
-                      {rarityOptions.map(option => (
-                        <option key={option} value={option}>{option}</option>
-                      ))}
-                    </select>
-                    
                     <select value={selectedCost} onChange={handleCostChange}>
                       <option value="">All Costs</option>
                       {[...Array(10).keys()].map(i => (
                         <option key={i} value={i}>{i}</option>
                       ))}
                       <option value="10">10+</option>
+                    </select>
+
+                    <button onClick={clearFilters} className="clear-btn">Clear Filters</button>
+                  </div>
+                  
+                  <div className="filter-row secondary-filters">
+                    <select value={selectedRarity} onChange={handleRarityChange}>
+                      <option value="">All Rarities</option>
+                      {rarityOptions.map(option => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
                     </select>
                     
                     <select value={selectedTrait} onChange={handleTraitChange}>
@@ -858,8 +879,6 @@ const DeckBuilder = () => {
                         <option key={set._id} value={set._id}>{set.name}</option>
                       ))}
                     </select>
-                    
-                    <button onClick={clearFilters}>Clear Filters</button>
                   </div>
                 </div>
               </div>
