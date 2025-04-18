@@ -73,8 +73,12 @@ const CardList = () => {
         
         // Get unique traits from cards for filtering
         const uniqueTraits = [...new Set(cardsData
-          .map(card => card.trait)
-          .filter(trait => trait && trait.trim() !== '')
+          .flatMap(card => {
+            // Skip cards with no traits
+            if (!card.trait || card.trait.trim() === '') return [];
+            // Split by common delimiters (/, comma, space) and filter out empty strings
+            return card.trait.split(/[\/,\s]+/).map(t => t.trim()).filter(t => t);
+          })
           .sort())];
         
         setCardsFromHiddenSets(hiddenSetCards);

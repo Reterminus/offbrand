@@ -90,7 +90,15 @@ export const applyFilters = (cards, filters) => {
     }
     
     // Trait filter
-    if (selectedTrait && card.trait !== selectedTrait) {
+    if (selectedTrait && card.trait) {
+      // Split the trait string by common delimiters (/, comma, space) to handle multiple traits
+      const cardTraits = card.trait.split(/[\/,\s]+/).map(t => t.trim()).filter(t => t);
+      // Check if the selected trait is included in the card's traits
+      if (!cardTraits.includes(selectedTrait)) {
+        return false;
+      }
+    } else if (selectedTrait) {
+      // Card has no traits but trait filter is applied
       return false;
     }
     
