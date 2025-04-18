@@ -4261,13 +4261,15 @@ body.exporting-deck .export-view .deck-cards {
   font-size: 14px;
 }
 
-.deck-builder-page .primary-filters {
+/* Remove the border between primary and secondary filters */
+/* .deck-builder-page .primary-filters {
   border-bottom: 1px solid #444;
   padding-bottom: 8px;
-}
+} */
 
+.deck-builder-page .primary-filters,
 .deck-builder-page .secondary-filters {
-  padding-top: 4px;
+  padding-bottom: 4px;
 }
 
 .deck-builder-page .clear-btn {
@@ -4278,7 +4280,9 @@ body.exporting-deck .export-view .deck-cards {
   padding: 8px 12px;
   cursor: pointer;
   font-size: 14px;
-  white-space: nowrap;
+  width: 100%;
+  margin-top: 8px;
+  text-align: center;
 }
 
 .deck-builder-page .clear-btn:hover {
@@ -4305,10 +4309,5 @@ body.exporting-deck .export-view .deck-cards {
 @media (max-width: 768px) {
   .deck-builder-page .filter-row select {
     flex: 1 1 calc(50% - 8px);
-  }
-  
-  .deck-builder-page .clear-btn {
-    flex: 1 1 100%;
-    margin-top: 8px;
   }
 }

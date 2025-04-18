@@ -854,8 +854,6 @@ const DeckBuilder = () => {
                       ))}
                       <option value="10">10+</option>
                     </select>
-
-                    <button onClick={clearFilters} className="clear-btn">Clear Filters</button>
                   </div>
                   
                   <div className="filter-row secondary-filters">
@@ -880,6 +878,8 @@ const DeckBuilder = () => {
                       ))}
                     </select>
                   </div>
+                  
+                  <button onClick={clearFilters} className="clear-btn">Clear Filters</button>
                 </div>
               </div>
 
