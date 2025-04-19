@@ -2777,23 +2777,21 @@ body.exporting-deck .export-view .deck-cards {
 }
 
 .keyword-description-scrollable {
-  max-height: 120px;
-  overflow-y: auto;
+  max-height: none;
+  overflow-y: visible;
 }
 
-/* Scrollbar styling for keyword description */
+/* Remove scrollbar styling for keyword description */
 .keyword-description-scrollable::-webkit-scrollbar {
-  width: 8px;
+  display: none;
 }
 
 .keyword-description-scrollable::-webkit-scrollbar-track {
-  background: #222;
-  border-radius: 4px;
+  display: none;
 }
 
 .keyword-description-scrollable::-webkit-scrollbar-thumb {
-  background: #555;
-  border-radius: 4px;
+  display: none;
 }
 
 .keyword-description {
