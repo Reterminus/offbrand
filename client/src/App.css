@@ -3179,10 +3179,33 @@ body.exporting-deck .export-view .deck-cards {
   display: flex;
   flex-direction: column;
   align-items: center;
+  animation: modalFadeIn 0.3s ease-out;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.card-list-detail-modal:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
 }
 
 .card-list-detail-modal .card-detail-content {
   max-height: 80vh;
+  transition: transform 0.2s ease;
+}
+
+.card-list-detail-modal:hover .card-detail-content {
+  transform: scale(1.01);
 }
 
 .card-list-detail-modal .card-keywords {
