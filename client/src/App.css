@@ -4370,32 +4370,3 @@ body.exporting-deck .export-view .deck-cards {
   background: #555;
   border-radius: 4px;
 }
-
-/* Preloading Indicator */
-.preloading-indicator {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 10px 15px;
-  z-index: 9999;
-  text-align: center;
-  font-size: 14px;
-}
-
-.preloading-progress {
-  width: 100%;
-  height: 4px;
-  background-color: #333;
-  border-radius: 2px;
-  overflow: hidden;
-  margin-top: 5px;
-}
-
-.preloading-bar {
-  height: 100%;
-  background-color: #4CAF50;
-  transition: width 0.3s ease;
-}

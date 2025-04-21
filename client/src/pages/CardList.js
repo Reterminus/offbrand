@@ -37,8 +37,6 @@ const CardList = () => {
   const [preloadedRelatedCards, setPreloadedRelatedCards] = useState({});
   const [showHiddenSetCards, setShowHiddenSetCards] = useState(false);
   const [cardsFromHiddenSets, setCardsFromHiddenSets] = useState([]);
-  const [preloadingRelatedCards, setPreloadingRelatedCards] = useState(false);
-  const [preloadingStats, setPreloadingStats] = useState({ total: 0, loaded: 0 });
 
   // Fetch data on component mount
   useEffect(() => {
@@ -83,91 +81,42 @@ const CardList = () => {
           })
           .sort())];
         
+        // Pre-process all cards' related cards for immediate access
+        const relatedCardsCache = {};
+        
+        // First, build a map of all cards by ID for quick lookups
+        const cardsById = {};
+        cardsData.forEach(card => {
+          cardsById[card._id] = card;
+        });
+        
+        // Then, for each card with related cards, cache fully populated versions
+        cardsData.forEach(card => {
+          if (card.relatedCards && card.relatedCards.length > 0) {
+            // Create a deep copy of the related cards with full data
+            const fullRelatedCards = card.relatedCards.map(relatedCard => {
+              // If the related card reference is just an ID, get the full card data
+              if (typeof relatedCard === 'string' || !relatedCard.title) {
+                const relatedCardId = typeof relatedCard === 'string' ? relatedCard : relatedCard._id;
+                return cardsById[relatedCardId] || relatedCard;
+              }
+              return relatedCard;
+            });
+            
+            // Create a copy of the card with sorted related cards
+            const cardWithFullData = {...card};
+            cardWithFullData.relatedCards = sortCards(fullRelatedCards);
+            relatedCardsCache[card._id] = cardWithFullData;
+          }
+        });
+        
         setCardsFromHiddenSets(hiddenSetCards);
         setCreators(uniqueCreators);
         setTraits(uniqueTraits);
         setCards(cardsData);
         setSets(setsData);
         setKeywords(keywordsData);
-        
-        // Preload all related cards data
-        const preloadAllRelatedCards = async () => {
-          setPreloadingRelatedCards(true);
-          const cachedRelatedCards = {};
-          
-          // First pass: cache all known cards by ID for quick lookup
-          const cardCache = {};
-          cardsData.forEach(card => {
-            cardCache[card._id] = card;
-          });
-          
-          // Second pass: identify all related cards that need to be loaded
-          const relatedCardsToFetch = [];
-          cardsData.forEach(card => {
-            if (card.relatedCards && Array.isArray(card.relatedCards)) {
-              card.relatedCards.forEach(relatedCard => {
-                const relatedCardId = relatedCard._id || relatedCard;
-                // If the related card is not in our cards data, add to fetch list
-                if (!cardCache[relatedCardId] && !relatedCardsToFetch.includes(relatedCardId)) {
-                  relatedCardsToFetch.push(relatedCardId);
-                }
-              });
-            }
-          });
-          
-          // Store all known cards in our cache first
-          cardsData.forEach(card => {
-            // Create a copy and sort its related cards
-            const cardWithSortedRelatedCards = {...card};
-            if (cardWithSortedRelatedCards.relatedCards && Array.isArray(cardWithSortedRelatedCards.relatedCards)) {
-              cardWithSortedRelatedCards.relatedCards = sortCards(cardWithSortedRelatedCards.relatedCards);
-            }
-            cachedRelatedCards[card._id] = cardWithSortedRelatedCards;
-          });
-          
-          // If there are related cards to fetch that aren't in our current data,
-          // fetch them in batches to avoid overwhelming the server
-          if (relatedCardsToFetch.length > 0) {
-            console.log(`Preloading ${relatedCardsToFetch.length} related cards...`);
-            setPreloadingStats({ total: relatedCardsToFetch.length, loaded: 0 });
-            
-            // Fetch in batches of 5 to avoid overwhelming the server
-            const batchSize = 5;
-            for (let i = 0; i < relatedCardsToFetch.length; i += batchSize) {
-              const batch = relatedCardsToFetch.slice(i, i + batchSize);
-              await Promise.all(batch.map(async (cardId, index) => {
-                try {
-                  const cardData = await getCard(cardId, true);
-                  // Sort the related cards before caching
-                  if (cardData.relatedCards && Array.isArray(cardData.relatedCards)) {
-                    cardData.relatedCards = sortCards(cardData.relatedCards);
-                  }
-                  cachedRelatedCards[cardId] = cardData;
-                  setPreloadingStats(prev => ({ 
-                    ...prev, 
-                    loaded: prev.loaded + 1 
-                  }));
-                } catch (err) {
-                  console.error(`Error preloading card ${cardId}:`, err);
-                  setPreloadingStats(prev => ({ 
-                    ...prev, 
-                    loaded: prev.loaded + 1 
-                  }));
-                }
-              }));
-            }
-          }
-          
-          // Update state with all preloaded cards
-          setPreloadedRelatedCards(cachedRelatedCards);
-          setPreloadingRelatedCards(false);
-        };
-        
-        // Start preloading after a short delay to let the UI render first
-        setTimeout(() => {
-          preloadAllRelatedCards();
-        }, 500);
-        
+        setPreloadedRelatedCards(relatedCardsCache);
         setLoading(false);
       } catch (err) {
         setError('Failed to fetch data. Please try again later.');
@@ -426,12 +375,8 @@ const CardList = () => {
     try {
       // First check if we have this card preloaded
       if (preloadedRelatedCards[relatedCard._id]) {
-        // Sort the related cards before showing the details
-        const cardData = preloadedRelatedCards[relatedCard._id];
-        if (cardData.relatedCards && Array.isArray(cardData.relatedCards)) {
-          cardData.relatedCards = sortCards(cardData.relatedCards);
-        }
-        setSelectedCardDetails(cardData);
+        // Use the preloaded version with fully populated related cards
+        setSelectedCardDetails(preloadedRelatedCards[relatedCard._id]);
         return;
       }
       
@@ -443,53 +388,52 @@ const CardList = () => {
         const cardDataToShow = {...relatedCard};
         cardDataToShow.relatedCards = sortCards(cardDataToShow.relatedCards);
         setSelectedCardDetails(cardDataToShow);
-        
-        // Also add to cache for future use
-        setPreloadedRelatedCards(prev => ({...prev, [relatedCard._id]: cardDataToShow}));
       } else {
-        // Otherwise, try to find the full card data with populated keywords
+        // Try to find the full card data in our local cards array
         const fullCardData = cards.find(card => card._id === relatedCard._id);
         if (fullCardData) {
-          // Sort the related cards before showing the details
+          // Create a version with sorted related cards
           const cardDataToShow = {...fullCardData};
           if (cardDataToShow.relatedCards && Array.isArray(cardDataToShow.relatedCards)) {
             cardDataToShow.relatedCards = sortCards(cardDataToShow.relatedCards);
           }
           setSelectedCardDetails(cardDataToShow);
-          // Also add to cache for future use
+          
+          // Also cache this for future use
           setPreloadedRelatedCards(prev => ({...prev, [relatedCard._id]: cardDataToShow}));
         } else {
-          // Last resort - fetch from API
-          // First show basic data we have immediately (without loading indicator)
-          const basicCardData = {
+          // If we can't find it locally, show what data we have without "Loading..." text
+          // This provides a graceful offline experience
+          setSelectedCardDetails({
             ...relatedCard,
-            keywords: [],
+            keywords: relatedCard.keywords || [],
             relatedCards: []
-          };
-          setSelectedCardDetails(basicCardData);
+          });
           
-          // Fetch in background
+          // Try to fetch in background, but don't disrupt the user experience
           getCard(relatedCard._id, true)
             .then(cardData => {
-              // Sort the related cards before showing the details
-              if (cardData.relatedCards && Array.isArray(cardData.relatedCards)) {
-                cardData.relatedCards = sortCards(cardData.relatedCards);
+              // Only update the UI if the fetched card matches what's currently displayed
+              if (cardData._id === relatedCard._id) {
+                if (cardData.relatedCards && Array.isArray(cardData.relatedCards)) {
+                  cardData.relatedCards = sortCards(cardData.relatedCards);
+                }
+                setSelectedCardDetails(cardData);
+                setPreloadedRelatedCards(prev => ({...prev, [relatedCard._id]: cardData}));
               }
-              setSelectedCardDetails(cardData);
-              setPreloadedRelatedCards(prev => ({...prev, [relatedCard._id]: cardData}));
             })
             .catch(err => {
               console.error('Error fetching card details:', err);
-              // If fetch fails, keep showing the basic data we already have
+              // No need to update UI on error - we're already showing what we have
             });
         }
       }
     } catch (err) {
       console.error('Error handling related card click:', err);
-      // Fallback if anything goes wrong
+      // Fallback to showing what we have without error indicators
       setSelectedCardDetails({
         ...relatedCard,
-        keywords: [],
+        keywords: relatedCard.keywords || [],
         relatedCards: []
       });
     }
@@ -647,21 +591,6 @@ const CardList = () => {
         handleRelatedCardMouseLeave={handleRelatedCardMouseLeave}
         hoveredRelatedCard={hoveredRelatedCard}
       />
-
-      {/* Preloading indicator */}
-      {preloadingRelatedCards && (
-        <div className="preloading-indicator">
-          <p>Preloading related cards: {preloadingStats.loaded} of {preloadingStats.total}</p>
-          <div className="preloading-progress">
-            <div 
-              className="preloading-bar" 
-              style={{ 
-                width: `${preloadingStats.total ? (preloadingStats.loaded / preloadingStats.total) * 100 : 0}%` 
-              }}
-            ></div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
