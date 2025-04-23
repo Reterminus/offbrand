@@ -835,9 +835,9 @@ const DeckBuilder = () => {
                 <div className="filter-group">
                   <div className="filter-row primary-filters">
                     <select value={selectedClassCardType} onChange={handleCardTypeChange}>
-                      <option value="">All Cards</option>
-                      <option value="class">{selectedClass} Cards</option>
-                      <option value="neutral">Neutral Cards</option>
+                      <option value="">All Classes</option>
+                      <option value="class">{selectedClass}</option>
+                      <option value="neutral">Neutral</option>
                     </select>
                     
                     <select value={selectedCardType} onChange={handleCardTypeChange}>
