@@ -60,7 +60,7 @@ router.get('/:id', async (req, res) => {
 // CREATE a new keyword - admin only
 router.post('/', admin, upload.single('image'), async (req, res) => {
   try {
-    const { title, description, imagePosition, imageUrl } = req.body;
+    const { title, description, imagePosition, imageZoom, imageUrl } = req.body;
     
     let finalImageUrl = imageUrl;
     
@@ -78,7 +78,8 @@ router.post('/', admin, upload.single('image'), async (req, res) => {
       title,
       description,
       imageUrl: finalImageUrl,
-      imagePosition: imagePosition || '50% 50%'
+      imagePosition: imagePosition || '50% 50%',
+      imageZoom: Number(imageZoom) || 100
     });
     
     const savedKeyword = await newKeyword.save();
@@ -91,7 +92,7 @@ router.post('/', admin, upload.single('image'), async (req, res) => {
 // UPDATE a keyword - admin only
 router.patch('/:id', admin, upload.single('image'), async (req, res) => {
   try {
-    const { title, description, imagePosition, imageUrl } = req.body;
+    const { title, description, imagePosition, imageZoom, imageUrl } = req.body;
     
     // Create base update object
     const updateData = {
@@ -99,6 +100,11 @@ router.patch('/:id', admin, upload.single('image'), async (req, res) => {
       description,
       imagePosition: imagePosition || '50% 50%'
     };
+    
+    // Set imageZoom if provided
+    if (imageZoom !== undefined) {
+      updateData.imageZoom = Number(imageZoom) || 100;
+    }
     
     // Handle image update
     if (req.file) {
