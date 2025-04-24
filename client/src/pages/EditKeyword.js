@@ -95,9 +95,7 @@ const EditKeyword = () => {
     const url = e.target.value;
     setFormData({
       ...formData,
-      imageUrl: url,
-      image: null,
-      imageSource: 'url'
+      imageUrl: url
     });
     setPreview(url);
   };
@@ -228,17 +226,17 @@ const EditKeyword = () => {
           <div className="image-source-toggle">
             <button
               type="button"
-              className={`btn ${formData.imageSource === 'file' ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => handleImageSourceChange('file')}
-            >
-              Upload File
-            </button>
-            <button
-              type="button"
               className={`btn ${formData.imageSource === 'url' ? 'btn-primary' : 'btn-secondary'}`}
               onClick={() => handleImageSourceChange('url')}
             >
               Image URL
+            </button>
+            <button
+              type="button"
+              className={`btn ${formData.imageSource === 'file' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => handleImageSourceChange('file')}
+            >
+              Upload File
             </button>
           </div>
         </div>
