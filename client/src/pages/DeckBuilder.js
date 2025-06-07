@@ -549,7 +549,7 @@ const DeckBuilder = () => {
       // Use deck name if provided, otherwise use default name
       const fileName = deckName.trim() 
         ? `${deckName.trim()}.png`
-        : `${selectedClass}_Deck_${new Date().toISOString().split('T')[0]}.png`;
+        : `${selectedClass}_Deck.png`;
       link.download = fileName;
       link.click();
       
@@ -806,7 +806,7 @@ const DeckBuilder = () => {
       link.href = image;
       const fileName = deckName.trim() 
         ? `${deckName.trim()}_TTS.png`
-        : `${selectedClass}_Deck_TTS_${new Date().toISOString().split('T')[0]}.png`;
+        : `${selectedClass}_Deck_TTS.png`;
       link.download = fileName;
       link.click();
       

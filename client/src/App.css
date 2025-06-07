@@ -2193,7 +2193,7 @@
   position: relative;
   overflow: visible;
   z-index: 1;
-  height: calc(100vh - 100px); /* Increased height by reducing subtraction */
+  height: calc(100vh - 200px);
   display: flex;
   flex-direction: column;
 }
@@ -2208,7 +2208,7 @@
 
 .card-browser-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(130px, max-content));
   gap: 10px;
   margin-top: 20px;
   flex-grow: 1;
@@ -2217,7 +2217,8 @@
   padding-right: 10px;
   position: relative;
   height: auto;
-  min-height: 50vh; /* Minimum height to prevent layout shifts */
+  min-height: 50vh;
+  justify-content: start;
 }
 
 /* Scrollbar styling for card browser */
@@ -2236,6 +2237,7 @@
 }
 
 .browsable-card {
+  width: 130px; /* Fixed width to match minmax first value */
   position: relative;
   border-radius: 8px;
   overflow: visible;
@@ -2244,8 +2246,8 @@
   transition: transform 0.2s;
   background-color: #222;
   z-index: 1;
-  align-self: start; /* Prevent vertical stretching */
-  height: fit-content; /* Ensure height is determined by content */
+  align-self: start;
+  height: fit-content;
 }
 
 .browsable-card:hover {
@@ -2362,7 +2364,7 @@
 /* Export view styles */
 .current-deck.export-view {
   background-color: #222;
-  height: calc(100vh - 100px); /* Increased height by reducing subtraction */
+  height: calc(100vh - 200px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -2496,11 +2498,10 @@
 
 /* Deck Cards List */
 .deck-cards {
-  max-height: none; /* Remove fixed max-height */
+  max-height: 400px;
   overflow-y: auto;
   margin-top: 20px;
   padding-right: 10px;
-  flex-grow: 1; /* Allow it to fill available space */
 }
 
 /* Export view - scrollable in build mode but not during export */
