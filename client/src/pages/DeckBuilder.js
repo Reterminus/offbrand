@@ -395,6 +395,7 @@ const DeckBuilder = () => {
     // Reset class and deck
     setSelectedClass('');
     setDeck([]);
+    setDeckName('');
     
     // Also reset any filters
     setSearchTerm('');
@@ -543,10 +544,10 @@ const DeckBuilder = () => {
       const image = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.href = image;
-      // Use deck name if provided, otherwise use default format
+      // Use deck name if provided, otherwise use default name
       const fileName = deckName.trim() 
         ? `${deckName.trim()}.png`
-        : `${selectedClass}_Deck.png`;
+        : `${selectedClass}_Deck_${new Date().toISOString().split('T')[0]}.png`;
       link.download = fileName;
       link.click();
       
@@ -738,6 +739,11 @@ const DeckBuilder = () => {
     return isHidden;
   };
 
+  // Add handler for deck name changes
+  const handleDeckNameChange = (e) => {
+    setDeckName(e.target.value);
+  };
+
   // If still loading
   if (loading) {
     return <div className="loading">Loading cards...</div>;
@@ -925,16 +931,15 @@ const DeckBuilder = () => {
             {/* Current Deck - Always use export view style */}
             <div className="current-deck export-view" ref={deckRef}>
               <div className="deck-header">
-                <h2>{selectedClass} Deck ({deck.length}/40)</h2>
-                
-                <div className="deck-name-input">
+                <div className="deck-title-container">
                   <input
                     type="text"
-                    placeholder={`${selectedClass} Deck`}
                     value={deckName}
-                    onChange={(e) => setDeckName(e.target.value)}
-                    className="deck-name-field"
+                    onChange={handleDeckNameChange}
+                    placeholder={`${selectedClass} Deck`}
+                    className="deck-name-input"
                   />
+                  <span className="deck-count">({deck.length}/40)</span>
                 </div>
                 
                 <div className="deck-stats">

@@ -4371,27 +4371,42 @@ body.exporting-deck .export-view .deck-cards {
   border-radius: 4px;
 }
 
-.deck-name-input {
-  margin: 10px 0;
+.deck-title-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
   width: 100%;
 }
 
-.deck-name-field {
+.deck-name-input {
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #e0e0e0;
+  font-size: 24px;
+  font-weight: bold;
+  padding: 5px 0;
   width: 100%;
-  padding: 8px 12px;
-  font-size: 16px;
-  border: 1px solid #444;
-  border-radius: 4px;
-  background-color: #222;
-  color: #eee;
   transition: border-color 0.2s;
 }
 
-.deck-name-field:focus {
-  outline: none;
-  border-color: #666;
+.deck-name-input:hover {
+  border-bottom-color: rgba(255, 255, 255, 0.2);
 }
 
-.deck-name-field::placeholder {
-  color: #888;
+.deck-name-input:focus {
+  outline: none;
+  border-bottom-color: #4285f4;
+}
+
+.deck-name-input::placeholder {
+  color: rgba(224, 224, 224, 0.7);
+}
+
+.deck-count {
+  color: #e0e0e0;
+  font-size: 24px;
+  font-weight: bold;
+  white-space: nowrap;
 }
