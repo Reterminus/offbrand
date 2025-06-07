@@ -961,10 +961,9 @@ const DeckBuilder = () => {
                       <div 
                         key={`export-${card._id}`} 
                         className="deck-card export-card"
-                        onClick={() => removeCardFromDeck(card._id)}
+                        onClick={(e) => handleCardDetailView(card, e)}
                         onMouseEnter={() => setHoveredCardId(card._id)}
                         onMouseLeave={() => setHoveredCardId(null)}
-                        title="Click to remove one copy"
                         style={card.bannerImageUrl ? {
                           backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url(${card.bannerImageUrl})`,
                           backgroundPosition: card.bannerImagePosition || '50% 50%',
@@ -984,6 +983,7 @@ const DeckBuilder = () => {
                             />
                           </div>
                         )}
+                        
                         <div className="deck-card-info">
                           <div className="deck-card-cost">{card.cost}</div>
                           <div className="deck-card-title">{card.title}</div>
@@ -994,12 +994,11 @@ const DeckBuilder = () => {
                         <button 
                           className="view-details-btn deck-card-details-btn"
                           onClick={(e) => {
-                            e.stopPropagation(); // Prevent removing the card
-                            handleCardDetailView(card, e);
+                            e.stopPropagation();
+                            removeCardFromDeck(card._id);
                           }}
-                          title="View card details"
                         >
-                          ℹ
+                          ✕
                         </button>
                       </div>
                     ))}
