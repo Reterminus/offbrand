@@ -1033,7 +1033,24 @@
 /* Set Detail Styling */
 .header-actions {
   display: flex;
+  align-items: center;
   gap: 10px;
+}
+
+.header-actions .btn {
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .header-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .header-actions .btn {
+    width: 100%;
+    margin-right: 0 !important;
+  }
 }
 
 .header-title {
@@ -4092,57 +4109,23 @@ body.exporting-deck .export-view .deck-cards {
 
 .header-actions {
   display: flex;
-  gap: 12px;
   align-items: center;
+  gap: 10px;
 }
 
-/* Responsive adjustments for the reordering UI */
+.header-actions .btn {
+  white-space: nowrap;
+}
+
 @media (max-width: 768px) {
-  .set-reorder-controls {
-    min-width: auto;
-    width: 100%;
-    margin-top: 15px;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-between;
-  }
-
-  .move-buttons {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .position-selector {
-    width: 100%;
-    margin-top: 8px;
-  }
-
-  .set-position {
-    position: relative;
-    left: 0;
-    top: 0;
-    transform: none;
-    margin-bottom: 10px;
-    align-self: flex-start;
-  }
-
-  .reorder-item {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .set-list .reorder-item {
-    padding: 15px 10px;
-  }
-
   .header-actions {
     flex-direction: column;
-    align-items: stretch;
+    gap: 8px;
   }
-
-  .reorder-controls {
-    flex-direction: column;
+  
+  .header-actions .btn {
+    width: 100%;
+    margin-right: 0 !important;
   }
 }
 

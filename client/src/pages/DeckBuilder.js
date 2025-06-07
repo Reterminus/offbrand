@@ -29,6 +29,8 @@ const DeckBuilder = () => {
   const [sets, setSets] = useState([]);
   // Add a state to track which card is being hovered
   const [hoveredCardId, setHoveredCardId] = useState(null);
+  // Add new state for TTS export
+  const [exportingTTSDeck, setExportingTTSDeck] = useState(false);
 
   // Fetch all cards on component mount
   useEffect(() => {
@@ -744,6 +746,78 @@ const DeckBuilder = () => {
     setDeckName(e.target.value);
   };
 
+  // Add new export function for TTS deck
+  const exportTTSDeck = async () => {
+    if (!deckRef.current) return;
+    
+    // Check if deck has exactly 40 cards
+    if (deck.length !== 40) {
+      alert('A deck must have exactly 40 cards to export for TTS.');
+      return;
+    }
+    
+    try {
+      setExportingTTSDeck(true);
+      
+      // Create a canvas with the specific TTS dimensions
+      const canvas = document.createElement('canvas');
+      canvas.width = 5660;  // 10 cards × 566px
+      canvas.height = 5258; // 7 rows × 751px
+      const ctx = canvas.getContext('2d');
+      
+      // Make the background transparent
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Load all card images first
+      const loadImage = (url) => {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = "Anonymous";  // Handle CORS
+          img.onload = () => resolve(img);
+          img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
+          img.src = url;
+        });
+      };
+      
+      // Load and draw all cards
+      for (let i = 0; i < deck.length; i++) {
+        const card = deck[i];
+        const row = Math.floor(i / 10);
+        const col = i % 10;
+        
+        try {
+          const img = await loadImage(card.imageUrl);
+          ctx.drawImage(
+            img,
+            col * 566,    // x position
+            row * 751,    // y position
+            566,          // width
+            751           // height
+          );
+        } catch (err) {
+          console.error(`Failed to load card image: ${card.title}`, err);
+          throw new Error(`Failed to load card image: ${card.title}`);
+        }
+      }
+      
+      // Convert canvas to PNG and download
+      const image = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = image;
+      const fileName = deckName.trim() 
+        ? `${deckName.trim()}_TTS.png`
+        : `${selectedClass}_Deck_TTS_${new Date().toISOString().split('T')[0]}.png`;
+      link.download = fileName;
+      link.click();
+      
+      setExportingTTSDeck(false);
+    } catch (err) {
+      console.error('Error exporting TTS deck:', err);
+      alert('Failed to export deck for TTS. Please try again.');
+      setExportingTTSDeck(false);
+    }
+  };
+
   // If still loading
   if (loading) {
     return <div className="loading">Loading cards...</div>;
@@ -773,13 +847,25 @@ const DeckBuilder = () => {
             </button>
           )}
           {deck.length > 0 && (
-            <button 
-              className="btn" 
-              onClick={exportDeck}
-              disabled={exportingDeck}
-            >
-              {exportingDeck ? 'Exporting...' : 'Export Deck as Image'}
-            </button>
+            <>
+              <button 
+                className="btn" 
+                onClick={exportDeck}
+                disabled={exportingDeck}
+                style={{ marginRight: '10px' }}
+              >
+                {exportingDeck ? 'Exporting...' : 'Export Deck as Image'}
+              </button>
+              {deck.length === 40 && (
+                <button
+                  className="btn"
+                  onClick={exportTTSDeck}
+                  disabled={exportingTTSDeck}
+                >
+                  {exportingTTSDeck ? 'Generating TTS Image...' : 'Export TTS Deck Image'}
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>
