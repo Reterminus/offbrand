@@ -2208,7 +2208,7 @@
 
 .card-browser-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, max-content));
+  grid-template-columns: repeat(auto-fill, 130px);
   gap: 10px;
   margin-top: 20px;
   flex-grow: 1;
@@ -2219,6 +2219,9 @@
   height: auto;
   min-height: 50vh;
   justify-content: start;
+  align-items: start;
+  padding: 10px;
+  width: 100%;
 }
 
 /* Scrollbar styling for card browser */
@@ -2237,7 +2240,7 @@
 }
 
 .browsable-card {
-  width: 130px; /* Fixed width to match minmax first value */
+  width: 130px;
   position: relative;
   border-radius: 8px;
   overflow: visible;
@@ -2248,6 +2251,8 @@
   z-index: 1;
   align-self: start;
   height: fit-content;
+  display: flex;
+  flex-direction: column;
 }
 
 .browsable-card:hover {
@@ -3871,12 +3876,13 @@ body.exporting-deck .export-view .deck-cards {
   }
   
   .card-browser-grid {
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 8px;
+    grid-template-columns: repeat(auto-fill, 130px); /* Keep consistent with desktop */
+    gap: 10px;
+    padding: 10px;
   }
   
   .browsable-card {
-    /* Prevent hover effects on touch screens which can cause layout shifts */
+    width: 130px;
     transform: none !important;
     transition: none !important;
   }
@@ -3900,6 +3906,14 @@ body.exporting-deck .export-view .deck-cards {
   .export-card {
     width: 100%;
     margin-right: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .card-browser-grid {
+    grid-template-columns: repeat(auto-fill, 130px); /* Keep consistent with desktop */
+    gap: 10px;
+    padding: 10px;
   }
 }
 
