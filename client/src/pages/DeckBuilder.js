@@ -8,6 +8,7 @@ const DeckBuilder = () => {
   const [cards, setCards] = useState([]);
   const [filteredCards, setFilteredCards] = useState([]);
   const [deck, setDeck] = useState([]);
+  const [deckName, setDeckName] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedClass, setSelectedClass] = useState('');
@@ -542,7 +543,11 @@ const DeckBuilder = () => {
       const image = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.href = image;
-      link.download = `${selectedClass || 'Shadowverse'}_Deck_${new Date().toISOString().split('T')[0]}.png`;
+      // Use deck name if provided, otherwise use default format
+      const fileName = deckName.trim() 
+        ? `${deckName.trim()}.png`
+        : `${selectedClass}_Deck.png`;
+      link.download = fileName;
       link.click();
       
       // Remove the export class
@@ -921,6 +926,16 @@ const DeckBuilder = () => {
             <div className="current-deck export-view" ref={deckRef}>
               <div className="deck-header">
                 <h2>{selectedClass} Deck ({deck.length}/40)</h2>
+                
+                <div className="deck-name-input">
+                  <input
+                    type="text"
+                    placeholder={`${selectedClass} Deck`}
+                    value={deckName}
+                    onChange={(e) => setDeckName(e.target.value)}
+                    className="deck-name-field"
+                  />
+                </div>
                 
                 <div className="deck-stats">
                   <div className="deck-stats-row">
