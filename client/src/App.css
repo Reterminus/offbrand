@@ -1,59 +1,3 @@
-:root {
-  /* Card class colors */
-  --neutral-color: #d3d3d3;
-  --forestcraft-color: #90EE90;
-  --swordcraft-color: #FFD700;
-  --runecraft-color: #4169E1;
-  --dragoncraft-color: #FF8C00;
-  --shadowcraft-color: #BA55D3;
-  --bloodcraft-color: #CD5C5C;
-  --havencraft-color: #FFFFFF;
-  --portalcraft-color: #00FFFF;
-  
-  /* Export view colors - slightly brighter variants */
-  --neutral-color-export: #e8e8e8;
-  --forestcraft-color-export: #a0ff9d;
-  --swordcraft-color-export: #ffe44d;
-  --runecraft-color-export: #6a92ff;
-  --dragoncraft-color-export: #ffa142;
-  --shadowcraft-color-export: #d17fef;
-  --bloodcraft-color-export: #ff7b7b;
-  --havencraft-color-export: #FFFFFF;
-  --portalcraft-color-export: #4dffff;
-  
-  /* Scrollbar styles */
-  --scrollbar-width: 8px;
-  --scrollbar-track-bg: #222;
-  --scrollbar-thumb-bg: #555;
-  --scrollbar-border-radius: 4px;
-}
-
-/* Scrollbar Mixin */
-.custom-scrollbar {
-  &::-webkit-scrollbar {
-    width: var(--scrollbar-width);
-  }
-
-  &::-webkit-scrollbar-track {
-    background: var(--scrollbar-track-bg);
-    border-radius: var(--scrollbar-border-radius);
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb-bg);
-    border-radius: var(--scrollbar-border-radius);
-  }
-}
-
-/* Apply scrollbar styles */
-.card-browser-grid,
-.deck-cards,
-.deck-builder-card-detail .card-detail-info,
-.card-list-detail-modal .card-detail-info,
-.keyword-description-scrollable {
-  @extend .custom-scrollbar;
-}
-
 .App {
   min-height: 100vh;
   background-color: #1a1a1a;
@@ -2216,25 +2160,27 @@
   gap: 20px;
   margin: 20px 0;
   align-items: start;
-  width: 100%;
 }
 
-/* Responsive Layout */
 @media (max-width: 1000px) {
   .deck-builder-container {
     grid-template-columns: 1fr;
   }
 }
 
+/* Mobile optimizations for deck builder */
 @media (max-width: 768px) {
   .deck-builder-container {
+    grid-template-columns: 1fr;
     margin: 10px 0;
+    width: 100%;
     overflow-x: hidden;
   }
   
   .deck-builder-page {
     padding: 0 10px;
     overflow-x: hidden;
+    width: 100%;
   }
 }
 
@@ -2275,7 +2221,19 @@
 }
 
 /* Scrollbar styling for card browser */
-/* Scrollbar styles moved to .custom-scrollbar */
+.card-browser-grid::-webkit-scrollbar {
+  width: 8px;
+}
+
+.card-browser-grid::-webkit-scrollbar-track {
+  background: #222;
+  border-radius: 4px;
+}
+
+.card-browser-grid::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
 
 .browsable-card {
   position: relative;
@@ -2383,15 +2341,15 @@
 }
 
 /* Class colors */
-.card-class-small.neutral { color: var(--neutral-color); }
-.card-class-small.forestcraft { color: var(--forestcraft-color); }
-.card-class-small.swordcraft { color: var(--swordcraft-color); }
-.card-class-small.runecraft { color: var(--runecraft-color); }
-.card-class-small.dragoncraft { color: var(--dragoncraft-color); }
-.card-class-small.shadowcraft { color: var(--shadowcraft-color); }
-.card-class-small.bloodcraft { color: var(--bloodcraft-color); }
-.card-class-small.havencraft { color: var(--havencraft-color); }
-.card-class-small.portalcraft { color: var(--portalcraft-color); }
+.card-class-small.neutral { color: #d3d3d3; }
+.card-class-small.forestcraft { color: #90EE90; }
+.card-class-small.swordcraft { color: #FFD700; }
+.card-class-small.runecraft { color: #4169E1; }
+.card-class-small.dragoncraft { color: #FF8C00; }
+.card-class-small.shadowcraft { color: #BA55D3; }
+.card-class-small.bloodcraft { color: #CD5C5C; }
+.card-class-small.havencraft { color: #FFFFFF; }
+.card-class-small.portalcraft { color: #00FFFF; }
 
 /* Current Deck */
 .current-deck {
@@ -2781,26 +2739,26 @@ body.exporting-deck .export-view .deck-cards {
 }
 
 /* Class colors for deck list */
-.deck-card-class.neutral { color: var(--neutral-color); }
-.deck-card-class.forestcraft { color: var(--forestcraft-color); }
-.deck-card-class.swordcraft { color: var(--swordcraft-color); }
-.deck-card-class.runecraft { color: var(--runecraft-color); }
-.deck-card-class.dragoncraft { color: var(--dragoncraft-color); }
-.deck-card-class.shadowcraft { color: var(--shadowcraft-color); }
-.deck-card-class.bloodcraft { color: var(--bloodcraft-color); }
-.deck-card-class.havencraft { color: var(--havencraft-color); }
-.deck-card-class.portalcraft { color: var(--portalcraft-color); }
+.deck-card-class.neutral { color: #d3d3d3; }
+.deck-card-class.forestcraft { color: #90EE90; }
+.deck-card-class.swordcraft { color: #FFD700; }
+.deck-card-class.runecraft { color: #4169E1; }
+.deck-card-class.dragoncraft { color: #FF8C00; }
+.deck-card-class.shadowcraft { color: #BA55D3; }
+.deck-card-class.bloodcraft { color: #CD5C5C; }
+.deck-card-class.havencraft { color: #FFFFFF; }
+.deck-card-class.portalcraft { color: #00FFFF; }
 
 /* Export view class colors - enhanced brightness for better contrast over dark backgrounds */
-.export-card .deck-card-class.neutral { color: var(--neutral-color-export); }
-.export-card .deck-card-class.forestcraft { color: var(--forestcraft-color-export); }
-.export-card .deck-card-class.swordcraft { color: var(--swordcraft-color-export); }
-.export-card .deck-card-class.runecraft { color: var(--runecraft-color-export); }
-.export-card .deck-card-class.dragoncraft { color: var(--dragoncraft-color-export); }
-.export-card .deck-card-class.shadowcraft { color: var(--shadowcraft-color-export); }
-.export-card .deck-card-class.bloodcraft { color: var(--bloodcraft-color-export); }
-.export-card .deck-card-class.havencraft { color: var(--havencraft-color-export); }
-.export-card .deck-card-class.portalcraft { color: var(--portalcraft-color-export); }
+.export-card .deck-card-class.neutral { color: #e8e8e8; }
+.export-card .deck-card-class.forestcraft { color: #a0ff9d; }
+.export-card .deck-card-class.swordcraft { color: #ffe44d; }
+.export-card .deck-card-class.runecraft { color: #6a92ff; }
+.export-card .deck-card-class.dragoncraft { color: #ffa142; }
+.export-card .deck-card-class.shadowcraft { color: #d17fef; }
+.export-card .deck-card-class.bloodcraft { color: #ff7b7b; }
+.export-card .deck-card-class.havencraft { color: #FFFFFF; }
+.export-card .deck-card-class.portalcraft { color: #4dffff; }
 
 /* Improved keyword banners in card details */
 .keyword-banner {
@@ -3116,7 +3074,19 @@ body.exporting-deck .export-view .deck-cards {
 }
 
 /* Scrollbar styling for deck builder card detail */
-/* Scrollbar styles moved to .custom-scrollbar */
+.deck-builder-card-detail .card-detail-info::-webkit-scrollbar {
+  width: 8px;
+}
+
+.deck-builder-card-detail .card-detail-info::-webkit-scrollbar-track {
+  background: #222;
+  border-radius: 4px;
+}
+
+.deck-builder-card-detail .card-detail-info::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
 
 .detail-actions {
   margin-top: 15px;
@@ -3932,7 +3902,19 @@ body.exporting-deck .export-view .deck-cards {
 }
 
 /* Scrollbar styling */
-/* Scrollbar styles moved to .custom-scrollbar */
+.deck-cards::-webkit-scrollbar {
+  width: 8px;
+}
+
+.deck-cards::-webkit-scrollbar-track {
+  background: #222;
+  border-radius: 4px;
+}
+
+.deck-cards::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
 
 /* Add styling for the text formatting toolbar */
 .text-formatting-toolbar {
@@ -4410,29 +4392,4 @@ body.exporting-deck .export-view .deck-cards {
   font-size: 24px;
   font-weight: bold;
   white-space: nowrap;
-}
-
-/* Export state styles */
-body.exporting-deck {
-  overflow: hidden;
-  height: 100vh;
-  width: 100vw;
-  
-  .deck-builder-interface {
-    display: none;
-  }
-  
-  .current-deck.export-view {
-    position: fixed;
-    inset: 0;
-    background-color: #1a1a1a;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    
-    .deck-cards {
-      height: calc(100vh - 60px);
-      overflow-y: auto;
-    }
-  }
 }
