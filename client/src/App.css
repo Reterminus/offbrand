@@ -2193,7 +2193,7 @@
   position: relative;
   overflow: visible;
   z-index: 1;
-  height: calc(100vh - 200px);
+  height: calc(100vh - 100px); /* Increased height by reducing subtraction */
   display: flex;
   flex-direction: column;
 }
@@ -2362,7 +2362,7 @@
 /* Export view styles */
 .current-deck.export-view {
   background-color: #222;
-  height: calc(100vh - 200px);
+  height: calc(100vh - 100px); /* Increased height by reducing subtraction */
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -2496,10 +2496,11 @@
 
 /* Deck Cards List */
 .deck-cards {
-  max-height: 400px;
+  max-height: none; /* Remove fixed max-height */
   overflow-y: auto;
   margin-top: 20px;
   padding-right: 10px;
+  flex-grow: 1; /* Allow it to fill available space */
 }
 
 /* Export view - scrollable in build mode but not during export */
