@@ -455,10 +455,10 @@ const DeckBuilder = () => {
 
   // Count cards in deck by cost for the mana curve
   const getManaCurve = () => {
-    const curve = Array(11).fill(0); // 0-10+ cost
+    const curve = Array(9).fill(0); // 0-8+ cost
     
     deck.forEach(card => {
-      const cost = Math.min(card.cost, 10); // Group 10+ cost cards together
+      const cost = Math.min(card.cost, 8); // Group 8+ cost cards together
       curve[cost]++;
     });
     
@@ -962,7 +962,7 @@ const DeckBuilder = () => {
                         className="mana-bar-fill" 
                         style={{ height: `${Math.min(100, count * 10)}%` }}
                       ></div>
-                      <div className="mana-cost">{cost === 10 ? "10+" : cost}</div>
+                      <div className="mana-cost">{cost === 8 ? "8+" : cost}</div>
                       <div className="mana-count">{count}</div>
                     </div>
                   ))}
