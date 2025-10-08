@@ -3,28 +3,33 @@
  */
 
 /**
- * Format text by converting markdown-like syntax to HTML elements
- * Currently supports:
- * - **text** for bold text
- * 
+ * Format text by converting simple markup to HTML elements
+ * Supports:
+ * - [b]text[/b] for bold text (new)
+ * - **text** for bold text (legacy support)
+ *
  * @param {string} text - The text to format
  * @returns {Array} - Array of React elements and strings
  */
 export const formatText = (text) => {
   if (!text) return '';
-  
-  // Split the text by the bold pattern (**text**)
-  const parts = text.split(/(\*\*.*?\*\*)/g);
-  
+
+  // Split by either [b]...[/b] or **...** blocks, preserving delimiters
+  const parts = text.split(/(\[b\].*?\[\/b\]|\*\*.*?\*\*)/g);
+
   return parts.map((part, index) => {
-    // Check if this part is a bold pattern
+    // New syntax: [b]...[/b]
+    if (part.startsWith('[b]') && part.endsWith('[/b]')) {
+      const boldText = part.slice(3, -4);
+      return <strong key={index}>{boldText}</strong>;
+    }
+
+    // Legacy syntax: **...**
     if (part.startsWith('**') && part.endsWith('**')) {
-      // Extract the text between ** markers
       const boldText = part.slice(2, -2);
       return <strong key={index}>{boldText}</strong>;
     }
-    
-    // Return regular text as is
+
     return part;
   });
-}; 
+};

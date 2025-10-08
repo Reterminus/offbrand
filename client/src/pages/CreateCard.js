@@ -354,7 +354,7 @@ const CreateCard = () => {
       
       const newText = 
         currentText.substring(0, start) + 
-        '**' + selectedText + '**' + 
+        '[b]' + selectedText + '[/b]' + 
         currentText.substring(end);
       
       setFormData({
@@ -364,7 +364,7 @@ const CreateCard = () => {
       
       setTimeout(() => {
         textarea.focus();
-        const newPosition = start + selectedText.length + 4;
+        const newPosition = start + selectedText.length + 7; // [b] + [/b]
         textarea.selectionStart = newPosition;
         textarea.selectionEnd = newPosition;
       }, 10);

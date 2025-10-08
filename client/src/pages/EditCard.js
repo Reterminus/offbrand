@@ -401,10 +401,10 @@ const EditCard = () => {
       const currentText = formData[fieldName];
       const selectedText = currentText.substring(start, end);
       
-      // Create the new text with asterisks around the selection
+      // Create the new text with [b] tags around the selection
       const newText = 
         currentText.substring(0, start) + 
-        '**' + selectedText + '**' + 
+        '[b]' + selectedText + '[/b]' + 
         currentText.substring(end);
       
       // Update form data
@@ -416,7 +416,7 @@ const EditCard = () => {
       // Reset focus and set cursor position after the formatted text
       setTimeout(() => {
         textarea.focus();
-        const newPosition = start + selectedText.length + 4; // Adding 4 for the **text**
+        const newPosition = start + selectedText.length + 7; // [b] + [/b]
         textarea.selectionStart = newPosition;
         textarea.selectionEnd = newPosition;
       }, 10);
