@@ -281,6 +281,15 @@ function TakeTwo() {
     return curve;
   };
 
+  const getDeckStats = () => {
+    const stats = {
+      followers: deck.filter(card => !card.cardType || card.cardType === 'Follower').length,
+      spells: deck.filter(card => card.cardType === 'Spell').length,
+      amulets: deck.filter(card => card.cardType === 'Amulet').length
+    };
+    return stats;
+  };
+
   const groupedDeck = useMemo(() => {
     const grouped = {};
     deck.forEach(c => {
@@ -303,6 +312,44 @@ function TakeTwo() {
     }
 
     try {
+      // Sort deck by the usual schema: cost, rarity, class, card type, name
+      const sortedDeck = [...deck].sort((a, b) => {
+        // First sort by cost
+        if (a.cost !== b.cost) {
+          return a.cost - b.cost;
+        }
+        
+        // Then sort by rarity (Legendary, Gold, Silver, Bronze)
+        const rarityOrder = { 'Legendary': 0, 'Gold': 1, 'Silver': 2, 'Bronze': 3 };
+        const aRarityValue = rarityOrder[a.rarity] !== undefined ? rarityOrder[a.rarity] : 999;
+        const bRarityValue = rarityOrder[b.rarity] !== undefined ? rarityOrder[b.rarity] : 999;
+        
+        if (aRarityValue !== bRarityValue) {
+          return aRarityValue - bRarityValue;
+        }
+        
+        // Then sort by class (selected class first, neutral last)
+        if (a.class !== b.class) {
+          if (a.class === selectedClass) return -1;
+          if (b.class === selectedClass) return 1;
+          if (a.class === 'Neutral') return 1;
+          if (b.class === 'Neutral') return -1;
+          return a.class.localeCompare(b.class);
+        }
+        
+        // Then sort by card type (Follower, Spell, Amulet)
+        const typeOrder = { 'Follower': 0, 'Spell': 1, 'Amulet': 2 };
+        const aType = a.cardType || 'Follower';
+        const bType = b.cardType || 'Follower';
+        
+        if (typeOrder[aType] !== typeOrder[bType]) {
+          return typeOrder[aType] - typeOrder[bType];
+        }
+        
+        // Finally sort by card name
+        return a.title.localeCompare(b.title);
+      });
+
       // Create a canvas with 10 columns x 3 rows, each 566x751 like TTS export
       const canvas = document.createElement('canvas');
       canvas.width = 5660; // 10 * 566
@@ -321,8 +368,8 @@ function TakeTwo() {
         });
       };
 
-      for (let i = 0; i < deck.length; i++) {
-        const card = deck[i];
+      for (let i = 0; i < sortedDeck.length; i++) {
+        const card = sortedDeck[i];
         const row = Math.floor(i / 10);
         const col = i % 10;
         try {
@@ -485,6 +532,13 @@ function TakeTwo() {
                       <div className="mana-count">{count}</div>
                     </div>
                   ))}
+                </div>
+                <div className="deck-stats">
+                  <div className="deck-stats-row">
+                    <span>Followers: {getDeckStats().followers}</span>
+                    <span>Spells: {getDeckStats().spells}</span>
+                    <span>Amulets: {getDeckStats().amulets}</span>
+                  </div>
                 </div>
               </div>
               <div className="deck-cards">
