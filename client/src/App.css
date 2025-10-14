@@ -4,6 +4,138 @@
   color: #e0e0e0;
 }
 
+/* Take Two styles */
+.take-two-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.take-two-start {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 0;
+}
+
+.take-two-class-select .class-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+@media (max-width: 768px) {
+  .take-two-class-select .class-grid {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+.take-two-class-select .class-card {
+  background: #222;
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.take-two-class-select .class-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+
+.take-two-class-select .class-icon img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+}
+
+.take-two-draft {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  margin-top: 16px;
+}
+
+.round-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.round-rule {
+  color: #aaa;
+  font-size: 14px;
+}
+
+.pairs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.pair {
+  background: #151515;
+  border-radius: 10px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  transition: box-shadow 0.15s ease;
+}
+
+.pair.hover-left {
+  box-shadow: 0 0 0 2px rgba(70,120,255,0.6), 0 10px 20px rgba(70,120,255,0.25);
+}
+
+.pair.hover-right {
+  box-shadow: 0 0 0 2px rgba(255,70,70,0.6), 0 10px 20px rgba(255,70,70,0.25);
+}
+
+.pair-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  display: block;
+}
+
+.pair-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.pair-actions .select-left {
+  background: #2b5fff;
+}
+
+.pair-actions .select-right {
+  background: #ff3b3b;
+}
+
+.draft-right .current-deck {
+  position: sticky;
+  top: 16px;
+}
+
+.deck-title-container .read-only {
+  font-weight: 600;
+}
+
+@media (max-width: 1024px) {
+  .take-two-draft {
+    grid-template-columns: 1fr;
+  }
+  .draft-right .current-deck {
+    position: static;
+  }
+}
+
 .navbar {
   background-color: #333;
   padding: 15px 0;
