@@ -312,20 +312,20 @@ function TakeTwo() {
     }
 
     try {
-      // Sort deck by the usual schema: cost, rarity, class, card type, name
+      // Sort deck by rarity descending first, then cost, class, card type, name
       const sortedDeck = [...deck].sort((a, b) => {
-        // First sort by cost
-        if (a.cost !== b.cost) {
-          return a.cost - b.cost;
-        }
-        
-        // Then sort by rarity (Legendary, Gold, Silver, Bronze)
+        // First sort by rarity descending (Legendary, Gold, Silver, Bronze)
         const rarityOrder = { 'Legendary': 0, 'Gold': 1, 'Silver': 2, 'Bronze': 3 };
         const aRarityValue = rarityOrder[a.rarity] !== undefined ? rarityOrder[a.rarity] : 999;
         const bRarityValue = rarityOrder[b.rarity] !== undefined ? rarityOrder[b.rarity] : 999;
         
         if (aRarityValue !== bRarityValue) {
           return aRarityValue - bRarityValue;
+        }
+        
+        // Then sort by cost
+        if (a.cost !== b.cost) {
+          return a.cost - b.cost;
         }
         
         // Then sort by class (selected class first, neutral last)
