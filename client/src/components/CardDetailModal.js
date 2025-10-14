@@ -102,7 +102,7 @@ const CardDetailModal = memo(({
             handleRelatedCardMouseLeave
           )}
           
-          {/* Keywords section */
+          {/* Keywords section */}
           {renderKeywords(cardDetails)}
           
           {/* Card Notes section */}
