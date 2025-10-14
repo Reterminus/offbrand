@@ -372,12 +372,12 @@ function TakeTwo() {
           <div className="draft-left">
             {phase === 'draft' ? (
               <>
-                <div className="round-header">
+                {/*<div className="round-header">
                   <h2>Round {roundIndex + 1} / 15</h2>
                   <div className="round-rule">
                     {ROUND_RULES[roundIndex].type === 'neutral' ? 'Neutral Picks' : `${selectedClass} Picks`}
                   </div>
-                </div>
+                </div>*/}
                 <div className="pairs">
                   <div className={`pair-block`}>
                     <div className={`pair pair-left ${hoverSide === 'left' ? 'hover-left' : ''}`}
@@ -397,7 +397,7 @@ function TakeTwo() {
                         onMouseLeave={() => setHoverSide(null)}
                         onClick={() => addPairToDeck('left')}
                       >
-                        Select Left
+                        Select
                       </button>
                     </div>
                   </div>
@@ -419,7 +419,7 @@ function TakeTwo() {
                         onMouseLeave={() => setHoverSide(null)}
                         onClick={() => addPairToDeck('right')}
                       >
-                        Select Right
+                        Select
                       </button>
                     </div>
                   </div>
@@ -428,7 +428,6 @@ function TakeTwo() {
             ) : (
               <div className="complete-header">
                 <h2>Draft Complete</h2>
-                <p>Your deck is ready.</p>
                 <button className="btn" onClick={exportDeckImage}>Export Deck as Image</button>
               </div>
             )}
