@@ -8,7 +8,8 @@ const CardDetailModal = memo(({
   handleRelatedCardClick,
   handleRelatedCardMouseEnter,
   handleRelatedCardMouseLeave,
-  hoveredRelatedCard
+  hoveredRelatedCard,
+  hideNotes = false
 }) => {
   if (!cardDetails) return null;
   
@@ -101,11 +102,11 @@ const CardDetailModal = memo(({
             handleRelatedCardMouseLeave
           )}
           
-          {/* Keywords section */}
+          {/* Keywords section */
           {renderKeywords(cardDetails)}
           
           {/* Card Notes section */}
-          {renderNotes(cardDetails)}
+          {!hideNotes && renderNotes(cardDetails)}
         </div>
       </div>
     </div>

@@ -194,17 +194,14 @@ function TakeTwo() {
         const selGold = pickFrom(selectedPools, ['Gold'], 1);
         if (!selGold) break;
         left = [neuLegend[0], selGold[0]];
+        // For the non-neutral pair: allow either (Legendary + Gold) OR (Gold + Gold)
+        // Try Legendary + Gold first; if not possible, fall back to Gold + Gold.
         const selLegend = pickFrom(selectedPools, ['Legendary'], 1);
         if (selLegend) {
           const selGold2 = pickFrom(selectedPools, ['Gold'], 1);
-          if (selGold2) {
-            right = [selLegend[0], selGold2[0]];
-          }
+          if (selGold2) right = [selLegend[0], selGold2[0]];
         }
-        if (!right) {
-          const gpair = ensurePairFrom(selectedPools, 'Gold', 'Gold');
-          right = gpair;
-        }
+        if (!right) right = ensurePairFrom(selectedPools, 'Gold', 'Gold');
         break;
       }
       case 'neutral_mixed_low_high': {
@@ -382,30 +379,50 @@ function TakeTwo() {
                   </div>
                 </div>
                 <div className="pairs">
-                  <div className={`pair pair-left ${hoverSide === 'left' ? 'hover-left' : ''}`}
-                       onMouseEnter={() => setHoverSide('left')}
-                       onMouseLeave={() => setHoverSide(null)}
-                  >
-                    {pairLeft.map(c => (
-                      <div key={c._id} className="pair-card" onClick={(e) => handleCardDetailView(c, e)}>
-                        <img src={c.imageUrl} alt={c.title} />
-                      </div>
-                    ))}
+                  <div className={`pair-block`}>
+                    <div className={`pair pair-left ${hoverSide === 'left' ? 'hover-left' : ''}`}
+                         onMouseEnter={() => setHoverSide('left')}
+                         onMouseLeave={() => setHoverSide(null)}
+                    >
+                      {pairLeft.map(c => (
+                        <div key={c._id} className="pair-card" onClick={(e) => handleCardDetailView(c, e)}>
+                          <img src={c.imageUrl} alt={c.title} />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="pair-actions under">
+                      <button
+                        className="btn select-left"
+                        onMouseEnter={() => setHoverSide('left')}
+                        onMouseLeave={() => setHoverSide(null)}
+                        onClick={() => addPairToDeck('left')}
+                      >
+                        Select Left
+                      </button>
+                    </div>
                   </div>
-                  <div className={`pair pair-right ${hoverSide === 'right' ? 'hover-right' : ''}`}
-                       onMouseEnter={() => setHoverSide('right')}
-                       onMouseLeave={() => setHoverSide(null)}
-                  >
-                    {pairRight.map(c => (
-                      <div key={c._id} className="pair-card" onClick={(e) => handleCardDetailView(c, e)}>
-                        <img src={c.imageUrl} alt={c.title} />
-                      </div>
-                    ))}
+                  <div className={`pair-block`}>
+                    <div className={`pair pair-right ${hoverSide === 'right' ? 'hover-right' : ''}`}
+                         onMouseEnter={() => setHoverSide('right')}
+                         onMouseLeave={() => setHoverSide(null)}
+                    >
+                      {pairRight.map(c => (
+                        <div key={c._id} className="pair-card" onClick={(e) => handleCardDetailView(c, e)}>
+                          <img src={c.imageUrl} alt={c.title} />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="pair-actions under">
+                      <button
+                        className="btn select-right"
+                        onMouseEnter={() => setHoverSide('right')}
+                        onMouseLeave={() => setHoverSide(null)}
+                        onClick={() => addPairToDeck('right')}
+                      >
+                        Select Right
+                      </button>
+                    </div>
                   </div>
-                </div>
-                <div className="pair-actions">
-                  <button className="btn select-left" onClick={() => addPairToDeck('left')}>Select Left</button>
-                  <button className="btn select-right" onClick={() => addPairToDeck('right')}>Select Right</button>
                 </div>
               </>
             ) : (
@@ -474,6 +491,7 @@ function TakeTwo() {
             handleRelatedCardMouseEnter={(rc) => setHoveredRelatedCard(rc)}
             handleRelatedCardMouseLeave={() => setHoveredRelatedCard(null)}
             hoveredRelatedCard={hoveredRelatedCard}
+            hideNotes={true}
           />
         </div>
       )}

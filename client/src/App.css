@@ -80,6 +80,12 @@
   margin-bottom: 12px;
 }
 
+.pair-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .pair {
   background: #151515;
   border-radius: 10px;
@@ -108,6 +114,10 @@
 .pair-actions {
   display: flex;
   gap: 12px;
+}
+
+.pair-actions.under {
+  justify-content: center;
 }
 
 .pair-actions .select-left {
