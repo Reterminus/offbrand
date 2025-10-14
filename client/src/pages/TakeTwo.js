@@ -194,14 +194,20 @@ function TakeTwo() {
         const selGold = pickFrom(selectedPools, ['Gold'], 1);
         if (!selGold) break;
         left = [neuLegend[0], selGold[0]];
-        // For the non-neutral pair: allow either (Legendary + Gold) OR (Gold + Gold)
-        // Try Legendary + Gold first; if not possible, fall back to Gold + Gold.
-        const selLegend = pickFrom(selectedPools, ['Legendary'], 1);
-        if (selLegend) {
-          const selGold2 = pickFrom(selectedPools, ['Gold'], 1);
-          if (selGold2) right = [selLegend[0], selGold2[0]];
+        // Weighted distribution for the non-neutral pair (Round 1):
+        // 70% Gold+Gold, 20% Gold+Legendary, 10% Legendary+Legendary
+        const roll = Math.random();
+        const tryGoldGold = () => ensurePairFrom(selectedPools, 'Gold', 'Gold');
+        const tryGoldLegend = () => ensurePairFrom(selectedPools, 'Gold', 'Legendary');
+        const tryLegendLegend = () => ensurePairFrom(selectedPools, 'Legendary', 'Legendary');
+
+        if (roll < 0.7) {
+          right = tryGoldGold() || tryGoldLegend() || tryLegendLegend();
+        } else if (roll < 0.9) {
+          right = tryGoldLegend() || tryGoldGold() || tryLegendLegend();
+        } else {
+          right = tryLegendLegend() || tryGoldLegend() || tryGoldGold();
         }
-        if (!right) right = ensurePairFrom(selectedPools, 'Gold', 'Gold');
         break;
       }
       case 'neutral_mixed_low_high': {
@@ -288,22 +294,54 @@ function TakeTwo() {
   }, [deck]);
 
   const exportDeckImage = async () => {
+    // Mirror DeckBuilder's "Export TTS Deck Image" behavior but for 30 cards
     if (!deckRef.current) return;
+
+    if (deck.length !== 30) {
+      alert('A deck must have exactly 30 cards to export.');
+      return;
+    }
+
     try {
-      const canvas = await html2canvas(deckRef.current, {
-        backgroundColor: '#1a1a1a',
-        scale: window.innerWidth <= 768 ? 1 : 2,
-        logging: false,
-        useCORS: true,
-        allowTaint: true
-      });
+      // Create a canvas with 10 columns x 3 rows, each 566x751 like TTS export
+      const canvas = document.createElement('canvas');
+      canvas.width = 5660; // 10 * 566
+      canvas.height = 2253; // 3 * 751
+      const ctx = canvas.getContext('2d');
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const loadImage = (url) => {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = 'Anonymous';
+          img.onload = () => resolve(img);
+          img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
+          img.src = url;
+        });
+      };
+
+      for (let i = 0; i < deck.length; i++) {
+        const card = deck[i];
+        const row = Math.floor(i / 10);
+        const col = i % 10;
+        try {
+          const img = await loadImage(card.imageUrl);
+          ctx.drawImage(img, col * 566, row * 751, 566, 751);
+        } catch (err) {
+          console.error(`Failed to load card image: ${card.title}`, err);
+          throw new Error(`Failed to load card image: ${card.title}`);
+        }
+      }
+
       const image = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.href = image;
-      link.download = `${selectedClass || 'Deck'}_TakeTwo.png`;
+      link.download = `${selectedClass || 'Deck'}_TakeTwo_TTS.png`;
       link.click();
-    } catch (e) {
-      alert('Failed to export deck.');
+    } catch (err) {
+      console.error('Error exporting TTS deck:', err);
+      alert('Failed to export deck for TTS. Please try again.');
     }
   };
 
