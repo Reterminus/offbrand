@@ -71,6 +71,9 @@ const Navbar = () => {
           <Link to="/deck-builder" className="navbar-link" onClick={closeMenu}>
             Deck Builder
           </Link>
+          <Link to="/take-two" className="navbar-link" onClick={closeMenu}>
+            Take Two
+          </Link>
           
           {/* Admin-only links */}
           {isAdmin && (

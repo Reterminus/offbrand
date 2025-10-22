@@ -13,6 +13,7 @@ import CreateKeyword from './pages/CreateKeyword';
 import EditKeyword from './pages/EditKeyword';
 import DeckBuilder from './pages/DeckBuilder';
 import Login from './pages/Login';
+import TakeTwo from './pages/TakeTwo';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 import './App.css';
@@ -31,6 +32,7 @@ function App() {
               <Route path="/sets/:id" element={<SetDetail />} />
               <Route path="/keywords" element={<KeywordList />} />
               <Route path="/deck-builder" element={<DeckBuilder />} />
+              <Route path="/take-two" element={<TakeTwo />} />
               <Route path="/login" element={<Login />} />
               
               {/* Admin-only routes */}
