@@ -310,13 +310,11 @@ const CreateCard = () => {
         data.append('imageUrl', formData.imageUrl);
       }
       
-      if (formData.keywords.length > 0) {
-        data.append('keywords', JSON.stringify(formData.keywords));
-      }
+      // Always append keywords, even if empty array
+      data.append('keywords', JSON.stringify(formData.keywords));
       
-      if (formData.relatedCards.length > 0) {
-        data.append('relatedCards', JSON.stringify(formData.relatedCards));
-      }
+      // Always append relatedCards, even if empty array
+      data.append('relatedCards', JSON.stringify(formData.relatedCards));
       
       const createdCard = await createCard(data);
       
