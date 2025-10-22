@@ -339,13 +339,11 @@ const EditCard = () => {
         data.append('imageUrl', formData.imageUrl);
       }
       
-      // Append keywords if selected
+      // Always append keywords, even if empty array
       data.append('keywords', JSON.stringify(formData.keywords));
       
-      // Append related cards if selected
-      if (formData.relatedCards.length > 0) {
-        data.append('relatedCards', JSON.stringify(formData.relatedCards));
-      }
+      // Always append relatedCards, even if empty array
+      data.append('relatedCards', JSON.stringify(formData.relatedCards));
       
       // Handle set assignment
       if (formData.setId) {
