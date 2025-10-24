@@ -58,23 +58,6 @@ const MultiSelectDropdown = ({
     onChange(newSelectedValues);
   };
 
-  const handleSelectAll = () => {
-    if (selectedValues.length === filteredOptions.length) {
-      // Deselect all filtered options
-      const newSelectedValues = selectedValues.filter(value => 
-        !filteredOptions.includes(value)
-      );
-      onChange(newSelectedValues);
-    } else {
-      // Select all filtered options
-      const newSelectedValues = [...new Set([...selectedValues, ...filteredOptions])];
-      onChange(newSelectedValues);
-    }
-  };
-
-  const handleClearAll = () => {
-    onChange([]);
-  };
 
   const getDisplayText = () => {
     if (selectedValues.length === 0) {
@@ -89,8 +72,6 @@ const MultiSelectDropdown = ({
     return `${selectedValues.length} selected`;
   };
 
-  const allFilteredSelected = filteredOptions.length > 0 && 
-    filteredOptions.every(option => selectedValues.includes(option));
 
   return (
     <div className={`multi-select-dropdown ${className} ${disabled ? 'disabled' : ''}`} ref={dropdownRef}>
@@ -115,24 +96,6 @@ const MultiSelectDropdown = ({
             />
           </div>
           
-          <div className="multi-select-actions">
-            <button
-              type="button"
-              className="multi-select-action-btn"
-              onClick={handleSelectAll}
-            >
-              {allFilteredSelected ? 'Deselect All' : 'Select All'}
-            </button>
-            {selectedValues.length > 0 && (
-              <button
-                type="button"
-                className="multi-select-action-btn"
-                onClick={handleClearAll}
-              >
-                Clear All
-              </button>
-            )}
-          </div>
           
           <div className="multi-select-options">
             {filteredOptions.length === 0 ? (

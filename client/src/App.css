@@ -4593,19 +4593,19 @@ body.exporting-deck .export-view .deck-cards {
   transform: rotate(180deg);
 }
 
-.multi-select-dropdown-content {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background-color: #2a2a2a;
-  border: 1px solid #444;
-  border-top: none;
-  border-radius: 0 0 4px 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  z-index: 1000;
-  overflow: hidden;
-}
+    .multi-select-dropdown-content {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background-color: #2a2a2a;
+      border: 1px solid #444;
+      border-top: none;
+      border-radius: 0 0 4px 4px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      overflow: visible;
+    }
 
 .multi-select-search {
   padding: 8px;
@@ -4628,32 +4628,11 @@ body.exporting-deck .export-view .deck-cards {
   box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
 }
 
-.multi-select-actions {
-  display: flex;
-  gap: 8px;
-  padding: 8px;
-  border-bottom: 1px solid #444;
-}
 
-.multi-select-action-btn {
-  padding: 4px 8px;
-  background-color: #4285f4;
-  border: none;
-  border-radius: 4px;
-  color: white;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.multi-select-action-btn:hover {
-  background-color: #3367d6;
-}
-
-.multi-select-options {
-  max-height: 200px;
-  overflow-y: auto;
-}
+    .multi-select-options {
+      max-height: none;
+      overflow-y: visible;
+    }
 
 .multi-select-option {
   display: flex;
@@ -4725,21 +4704,13 @@ body.exporting-deck .export-view .deck-cards {
   box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .multi-select-dropdown-content {
-    max-height: 150px;
-  }
-  
-  .multi-select-options {
-    max-height: 120px;
-  }
-  
-  .filter-group .multi-select-dropdown {
-    min-width: 120px;
-  }
-  
-  .filter-row .multi-select-dropdown {
-    min-width: 100px;
-  }
-}
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .filter-group .multi-select-dropdown {
+        min-width: 120px;
+      }
+      
+      .filter-row .multi-select-dropdown {
+        min-width: 100px;
+      }
+    }
