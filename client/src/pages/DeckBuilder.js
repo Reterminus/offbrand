@@ -251,9 +251,12 @@ const DeckBuilder = () => {
     
     setTraits(uniqueTraits);
     
-    // Reset selected trait if it's not in the new list of traits
-    if (selectedTrait && !uniqueTraits.includes(selectedTrait)) {
-      setSelectedTrait('');
+    // Reset selected traits if they're not in the new list of traits
+    if (selectedTraits.length > 0) {
+      const validTraits = selectedTraits.filter(trait => uniqueTraits.includes(trait));
+      if (validTraits.length !== selectedTraits.length) {
+        setSelectedTraits(validTraits);
+      }
     }
   }, [selectedClass, cards]);
 
@@ -420,8 +423,8 @@ const DeckBuilder = () => {
     
     // Also reset any filters
     setSearchTerm('');
-    setSelectedCost('');
-    setSelectedCardType('');
+    setSelectedCosts([]);
+    setSelectedCardTypes([]);
     setSelectedCardDetails(null);
   };
 
