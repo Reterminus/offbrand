@@ -4603,8 +4603,9 @@ body.exporting-deck .export-view .deck-cards {
       border-top: none;
       border-radius: 0 0 4px 4px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      z-index: 1000;
+      z-index: 9999;
       overflow: visible;
+      max-height: none;
     }
 
 .multi-select-search {
@@ -4677,11 +4678,24 @@ body.exporting-deck .export-view .deck-cards {
 .filter-group .multi-select-dropdown {
   min-width: 150px;
   flex: 1;
+  position: relative;
 }
 
 .filter-row .multi-select-dropdown {
   min-width: 120px;
   flex: 1;
+  position: relative;
+}
+
+/* Ensure dropdowns can extend beyond container boundaries */
+.filter-group,
+.filter-row {
+  overflow: visible;
+}
+
+.multi-select-dropdown {
+  position: relative;
+  z-index: 1;
 }
 
 /* Ensure multi-select dropdowns match existing select styling */
