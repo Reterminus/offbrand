@@ -17,7 +17,6 @@ const DeckBuilder = () => {
   const [selectedCosts, setSelectedCosts] = useState([]);
   const [selectedCardTypes, setSelectedCardTypes] = useState([]);
   const [selectedClassCardType, setSelectedClassCardType] = useState('');
-  const [selectedClassCardTypes, setSelectedClassCardTypes] = useState([]);
   const [selectedTraits, setSelectedTraits] = useState([]);
   const [selectedRarities, setSelectedRarities] = useState([]);
   const [selectedSets, setSelectedSets] = useState([]);
@@ -85,16 +84,10 @@ const DeckBuilder = () => {
     }
 
     // Filter by class card type (class/neutral)
-    if (selectedClassCardTypes.length > 0) {
-      result = result.filter(card => {
-        if (selectedClassCardTypes.includes('class') && selectedClass && card.class === selectedClass) {
-          return true;
-        }
-        if (selectedClassCardTypes.includes('neutral') && card.class === 'Neutral') {
-          return true;
-        }
-        return false;
-      });
+    if (selectedClassCardType === 'class' && selectedClass) {
+      result = result.filter(card => card.class === selectedClass);
+    } else if (selectedClassCardType === 'neutral') {
+      result = result.filter(card => card.class === 'Neutral');
     }
 
     // Filter by card type (Follower/Spell/Amulet)
@@ -235,7 +228,7 @@ const DeckBuilder = () => {
     });
 
     setFilteredCards(result);
-  }, [selectedClass, selectedCosts, searchTerm, selectedCardTypes, selectedClassCardTypes, selectedRarities, selectedTraits, selectedSets, cards, sets]);
+  }, [selectedClass, selectedCosts, searchTerm, selectedCardTypes, selectedClassCardType, selectedRarities, selectedTraits, selectedSets, cards, sets]);
 
   // Update traits list when selected class changes
   useEffect(() => {
@@ -288,9 +281,6 @@ const DeckBuilder = () => {
 
   // Card type options for dropdown
   const cardTypeOptions = ['Follower', 'Spell', 'Amulet'];
-  
-  // Class card type options for dropdown
-  const classCardTypeOptions = ['class', 'neutral'];
   
   // Rarity options for dropdown
   const rarityOptions = ['Bronze', 'Silver', 'Gold', 'Legendary'];
@@ -466,11 +456,6 @@ const DeckBuilder = () => {
     setSelectedCardTypes(values);
   };
 
-  // Handle class card type multi-select
-  const handleClassCardTypeMultiChange = (values) => {
-    setSelectedClassCardTypes(values);
-  };
-
   // Handle rarity filter
   const handleRarityChange = (values) => {
     setSelectedRarities(values);
@@ -492,7 +477,6 @@ const DeckBuilder = () => {
     setSelectedCosts([]);
     setSelectedCardTypes([]);
     setSelectedClassCardType('');
-    setSelectedClassCardTypes([]);
     setSelectedRarities([]);
     setSelectedTraits([]);
     setSelectedSets([]);
@@ -974,21 +958,11 @@ const DeckBuilder = () => {
                 
                 <div className="filter-group">
                   <div className="filter-row primary-filters">
-                    <MultiSelectDropdown
-                      options={classCardTypeOptions.map(option => 
-                        option === 'class' ? selectedClass : option === 'neutral' ? 'Neutral' : option
-                      )}
-                      selectedValues={selectedClassCardTypes.map(value => 
-                        value === 'class' ? selectedClass : value === 'neutral' ? 'Neutral' : value
-                      )}
-                      onChange={(values) => {
-                        const mappedValues = values.map(value => 
-                          value === selectedClass ? 'class' : value === 'Neutral' ? 'neutral' : value
-                        );
-                        handleClassCardTypeMultiChange(mappedValues);
-                      }}
-                      placeholder="All Classes"
-                    />
+                    <select value={selectedClassCardType} onChange={handleCardTypeChange}>
+                      <option value="">All Classes</option>
+                      <option value="class">{selectedClass}</option>
+                      <option value="neutral">Neutral</option>
+                    </select>
                     
                     <MultiSelectDropdown
                       options={cardTypeOptions}

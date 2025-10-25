@@ -6,25 +6,16 @@ const MultiSelectDropdown = ({
   onChange,
   placeholder = "Select options...",
   className = "",
-  disabled = false,
-  maxHeight = "200px"
+  disabled = false
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
   const dropdownRef = useRef(null);
-  const searchInputRef = useRef(null);
-
-  // Filter options based on search term
-  const filteredOptions = options.filter(option =>
-    option.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   // Handle clicking outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
-        setSearchTerm('');
       }
     };
 
@@ -34,19 +25,9 @@ const MultiSelectDropdown = ({
     };
   }, []);
 
-  // Focus search input when dropdown opens
-  useEffect(() => {
-    if (isOpen && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, [isOpen]);
-
   const handleToggle = () => {
     if (!disabled) {
       setIsOpen(!isOpen);
-      if (!isOpen) {
-        setSearchTerm('');
-      }
     }
   };
 
@@ -84,24 +65,12 @@ const MultiSelectDropdown = ({
       </div>
       
       {isOpen && (
-        <div className="multi-select-dropdown-content" style={{ maxHeight }}>
-          <div className="multi-select-search">
-            <input
-              ref={searchInputRef}
-              type="text"
-              placeholder="Search..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="multi-select-search-input"
-            />
-          </div>
-          
-          
+        <div className="multi-select-dropdown-content">
           <div className="multi-select-options">
-            {filteredOptions.length === 0 ? (
+            {options.length === 0 ? (
               <div className="multi-select-no-options">No options found</div>
             ) : (
-              filteredOptions.map(option => (
+              options.map(option => (
                 <div
                   key={option}
                   className={`multi-select-option ${selectedValues.includes(option) ? 'selected' : ''}`}
