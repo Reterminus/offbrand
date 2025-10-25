@@ -4557,6 +4557,8 @@ body.exporting-deck .export-view .deck-cards {
   color: #e0e0e0;
   font-size: 14px;
   min-height: 36px;
+  position: relative;
+  z-index: 1; /* Lower than card details (z-index 2000+) but higher than normal content */
 }
 
 .multi-select-trigger:hover {
@@ -4657,14 +4659,14 @@ body.exporting-deck .export-view .deck-cards {
   min-width: 150px;
   flex: 1;
   position: relative; /* Added for z-index context */
-  z-index: 10001; /* Higher than dropdown content to create proper stacking context */
+  z-index: 1; /* Lower than card details but higher than normal content */
 }
 
 .filter-row .multi-select-dropdown {
   min-width: 120px;
   flex: 1;
   position: relative; /* Added for z-index context */
-  z-index: 10001; /* Higher than dropdown content to create proper stacking context */
+  z-index: 1; /* Lower than card details but higher than normal content */
 }
 
 /* Ensure dropdowns can extend beyond container boundaries */
