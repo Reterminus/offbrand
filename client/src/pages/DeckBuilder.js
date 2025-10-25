@@ -16,7 +16,7 @@ const DeckBuilder = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCosts, setSelectedCosts] = useState([]);
   const [selectedCardTypes, setSelectedCardTypes] = useState([]);
-  const [selectedClassCardType, setSelectedClassCardType] = useState('');
+  const [selectedClassCardTypes, setSelectedClassCardTypes] = useState([]);
   const [selectedTraits, setSelectedTraits] = useState([]);
   const [selectedRarities, setSelectedRarities] = useState([]);
   const [selectedSets, setSelectedSets] = useState([]);
@@ -84,10 +84,20 @@ const DeckBuilder = () => {
     }
 
     // Filter by class card type (class/neutral)
-    if (selectedClassCardType === 'class' && selectedClass) {
-      result = result.filter(card => card.class === selectedClass);
-    } else if (selectedClassCardType === 'neutral') {
-      result = result.filter(card => card.class === 'Neutral');
+    if (selectedClassCardTypes.length > 0) {
+      result = result.filter(card => {
+        if (selectedClassCardTypes.includes('class') && selectedClassCardTypes.includes('neutral')) {
+          // Both selected - show all cards (no additional filtering)
+          return true;
+        } else if (selectedClassCardTypes.includes('class') && selectedClass) {
+          // Only class selected - show only selected class cards
+          return card.class === selectedClass;
+        } else if (selectedClassCardTypes.includes('neutral')) {
+          // Only neutral selected - show only neutral cards
+          return card.class === 'Neutral';
+        }
+        return true;
+      });
     }
 
     // Filter by card type (Follower/Spell/Amulet)
@@ -228,7 +238,7 @@ const DeckBuilder = () => {
     });
 
     setFilteredCards(result);
-  }, [selectedClass, selectedCosts, searchTerm, selectedCardTypes, selectedClassCardType, selectedRarities, selectedTraits, selectedSets, cards, sets]);
+  }, [selectedClass, selectedCosts, searchTerm, selectedCardTypes, selectedClassCardTypes, selectedRarities, selectedTraits, selectedSets, cards, sets]);
 
   // Update traits list when selected class changes
   useEffect(() => {
@@ -425,6 +435,7 @@ const DeckBuilder = () => {
     setSearchTerm('');
     setSelectedCosts([]);
     setSelectedCardTypes([]);
+    setSelectedClassCardTypes([]); // Reset class card type filter
     setSelectedCardDetails(null);
   };
 
@@ -438,17 +449,9 @@ const DeckBuilder = () => {
     setSelectedCosts(values);
   };
 
-  // Handle card type filter (class/neutral)
-  const handleCardTypeChange = (e) => {
-    const value = e.target.value;
-    // Check if it's a class/neutral filter or a card type filter
-    if (['', 'class', 'neutral'].includes(value)) {
-      // It's a class/neutral filter
-      setSelectedClassCardType(value);
-    } else if (['Follower', 'Spell', 'Amulet'].includes(value)) {
-      // It's a card type filter
-      setSelectedCardTypes([value]);
-    }
+  // Handle class card type filter (class/neutral)
+  const handleClassCardTypeChange = (values) => {
+    setSelectedClassCardTypes(values);
   };
 
   // Handle card type multi-select
@@ -958,11 +961,12 @@ const DeckBuilder = () => {
                 
                 <div className="filter-group">
                   <div className="filter-row primary-filters">
-                    <select value={selectedClassCardType} onChange={handleCardTypeChange}>
-                      <option value="">All Classes</option>
-                      <option value="class">{selectedClass}</option>
-                      <option value="neutral">Neutral</option>
-                    </select>
+                    <MultiSelectDropdown
+                      options={selectedClass ? [selectedClass, 'Neutral'] : ['Neutral']}
+                      selectedValues={selectedClassCardTypes}
+                      onChange={handleClassCardTypeChange}
+                      placeholder="All Classes"
+                    />
                     
                     <MultiSelectDropdown
                       options={cardTypeOptions}

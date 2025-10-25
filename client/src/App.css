@@ -4603,7 +4603,7 @@ body.exporting-deck .export-view .deck-cards {
       border-top: none;
       border-radius: 0 0 4px 4px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      z-index: 9999; /* High z-index to ensure it stays on top */
+      z-index: 10000; /* Higher than all card elements (max card z-index is 2000) */
       overflow: visible; /* Allow dropdown to extend beyond container */
     }
 
@@ -4657,14 +4657,14 @@ body.exporting-deck .export-view .deck-cards {
   min-width: 150px;
   flex: 1;
   position: relative; /* Added for z-index context */
-  z-index: 1; /* Added to ensure dropdown is above other elements in the filter group */
+  z-index: 10001; /* Higher than dropdown content to create proper stacking context */
 }
 
 .filter-row .multi-select-dropdown {
   min-width: 120px;
   flex: 1;
   position: relative; /* Added for z-index context */
-  z-index: 1; /* Added to ensure dropdown is above other elements in the filter row */
+  z-index: 10001; /* Higher than dropdown content to create proper stacking context */
 }
 
 /* Ensure dropdowns can extend beyond container boundaries */
