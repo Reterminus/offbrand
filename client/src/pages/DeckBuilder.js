@@ -479,7 +479,7 @@ const DeckBuilder = () => {
     setSearchTerm('');
     setSelectedCosts([]);
     setSelectedCardTypes([]);
-    setSelectedClassCardType('');
+    setSelectedClassCardTypes([]);
     setSelectedRarities([]);
     setSelectedTraits([]);
     setSelectedSets([]);
