@@ -4557,8 +4557,6 @@ body.exporting-deck .export-view .deck-cards {
   color: #e0e0e0;
   font-size: 14px;
   min-height: 36px;
-  position: relative;
-  z-index: 1; /* Lower than card details (z-index 2000+) but higher than normal content */
 }
 
 .multi-select-trigger:hover {
@@ -4605,7 +4603,7 @@ body.exporting-deck .export-view .deck-cards {
       border-top: none;
       border-radius: 0 0 4px 4px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      z-index: 10000; /* Higher than all card elements (max card z-index is 2000) */
+      z-index: 2500; /* Above cards (2000) but below modals (3000+) */
       overflow: visible; /* Allow dropdown to extend beyond container */
     }
 
@@ -4659,14 +4657,14 @@ body.exporting-deck .export-view .deck-cards {
   min-width: 150px;
   flex: 1;
   position: relative; /* Added for z-index context */
-  z-index: 1; /* Lower than card details but higher than normal content */
+  z-index: 1; /* Low z-index so trigger stays below hover details */
 }
 
 .filter-row .multi-select-dropdown {
   min-width: 120px;
   flex: 1;
   position: relative; /* Added for z-index context */
-  z-index: 1; /* Lower than card details but higher than normal content */
+  z-index: 1; /* Low z-index so trigger stays below hover details */
 }
 
 /* Ensure dropdowns can extend beyond container boundaries */
