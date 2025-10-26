@@ -4603,7 +4603,7 @@ body.exporting-deck .export-view .deck-cards {
       border-top: none;
       border-radius: 0 0 4px 4px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      z-index: 2500; /* Above cards (2000) but below modals (3000+) */
+      z-index: 3000; /* High enough to be above cards and other triggers */
       overflow: visible; /* Allow dropdown to extend beyond container */
     }
 
