@@ -68,24 +68,9 @@ export const applyFilters = (cards, filters) => {
       return false;
     }
     
-    // Set filter
-    if (selectedSets.length > 0) {
-      const isTokenSelected = selectedSets.includes('tokens');
-      const isInSelectedSets = selectedSets.some(setId => {
-        // This would need to be handled by the calling component
-        // since we don't have set data here
-        return false; // Placeholder - will be handled in component
-      });
-      
-      if (isTokenSelected && card.isToken) {
-        // Card is a token and tokens are selected
-      } else if (isInSelectedSets) {
-        // Card is in one of the selected sets
-      } else if (isTokenSelected || isInSelectedSets) {
-        // Neither token nor in selected sets, but some sets are selected
-        return false;
-      }
-    }
+    // Set filter - handled by calling component
+    // This is intentionally left empty since set filtering is handled
+    // manually in the calling component to avoid conflicts
     
     // Creator filter
     if (selectedCreators.length > 0 && !selectedCreators.includes(card.creator)) {

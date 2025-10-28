@@ -169,7 +169,13 @@ const CardList = () => {
           return isInSelectedSets;
         }
         
-        return isTokenSelected;
+        // If only tokens are selected and this card is not a token, exclude it
+        if (isTokenSelected && !card.isToken) {
+          return false;
+        }
+        
+        // If no sets are selected, include all cards
+        return true;
       });
     }
     
