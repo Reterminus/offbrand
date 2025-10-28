@@ -86,13 +86,13 @@ const DeckBuilder = () => {
     // Filter by class card type (class/neutral)
     if (selectedClassCardTypes.length > 0) {
       result = result.filter(card => {
-        if (selectedClassCardTypes.includes('class') && selectedClassCardTypes.includes('neutral')) {
+        if (selectedClassCardTypes.includes(selectedClass) && selectedClassCardTypes.includes('Neutral')) {
           // Both selected - show all cards (no additional filtering)
           return true;
-        } else if (selectedClassCardTypes.includes('class') && selectedClass) {
+        } else if (selectedClassCardTypes.includes(selectedClass)) {
           // Only class selected - show only selected class cards
           return card.class === selectedClass;
-        } else if (selectedClassCardTypes.includes('neutral')) {
+        } else if (selectedClassCardTypes.includes('Neutral')) {
           // Only neutral selected - show only neutral cards
           return card.class === 'Neutral';
         }
