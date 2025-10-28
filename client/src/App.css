@@ -4605,7 +4605,7 @@ body.exporting-deck .export-view .deck-cards {
       border-top: none;
       border-radius: 0 0 4px 4px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      z-index: 1500; /* Above cards (1000) but below hover details (2000) */
+      z-index: 1201; /* Above all triggers (500) but below hover details (2000) */
       overflow: visible; /* Allow dropdown to extend beyond container */
     }
 
@@ -4623,7 +4623,7 @@ body.exporting-deck .export-view .deck-cards {
   transition: background-color 0.2s ease;
   border-bottom: 1px solid #333;
   position: relative;
-  z-index: 1500; /* Same as dropdown content - above cards but below hover details */
+  z-index: 1200; /* Same as dropdown content - above all triggers but below hover details */
 }
 
 .multi-select-option:hover {
