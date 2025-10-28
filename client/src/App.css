@@ -3130,7 +3130,7 @@ body.exporting-deck .export-view .deck-cards {
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.8);
-  z-index: 10000; /* Higher than all other elements including dropdowns */
+  z-index: 1000;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -4558,7 +4558,7 @@ body.exporting-deck .export-view .deck-cards {
   font-size: 14px;
   min-height: 36px;
   position: relative;
-  z-index: 1; /* Lower z-index for trigger - should be below hover details */
+  z-index: 500; /* Below hover details (2000) but above cards (1000) */
 }
 
 .multi-select-trigger:hover {
@@ -4569,7 +4569,6 @@ body.exporting-deck .export-view .deck-cards {
 .multi-select-trigger.open {
   border-color: #4285f4;
   box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
-  z-index: 2; /* Slightly higher when open, but still below hover details */
 }
 
 .multi-select-trigger.disabled {
@@ -4606,7 +4605,7 @@ body.exporting-deck .export-view .deck-cards {
       border-top: none;
       border-radius: 0 0 4px 4px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      z-index: 5000; /* Above cards (max card z-index is 2000) but below Full Detail Modal (z-index: 10000) */
+      z-index: 1500; /* Above cards (1000) but below hover details (2000) */
       overflow: visible; /* Allow dropdown to extend beyond container */
     }
 
@@ -4623,6 +4622,8 @@ body.exporting-deck .export-view .deck-cards {
   cursor: pointer;
   transition: background-color 0.2s ease;
   border-bottom: 1px solid #333;
+  position: relative;
+  z-index: 1500; /* Same as dropdown content - above cards but below hover details */
 }
 
 .multi-select-option:hover {
@@ -4660,14 +4661,14 @@ body.exporting-deck .export-view .deck-cards {
   min-width: 150px;
   flex: 1;
   position: relative; /* Added for z-index context */
-  z-index: 10001; /* Higher than dropdown content to create proper stacking context */
+  z-index: 500; /* Same as trigger - below hover details but above cards */
 }
 
 .filter-row .multi-select-dropdown {
   min-width: 120px;
   flex: 1;
   position: relative; /* Added for z-index context */
-  z-index: 10001; /* Higher than dropdown content to create proper stacking context */
+  z-index: 500; /* Same as trigger - below hover details but above cards */
 }
 
 /* Ensure dropdowns can extend beyond container boundaries */
