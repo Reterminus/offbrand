@@ -12,11 +12,16 @@ const MultiSelectDropdown = ({
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const dropdownRef = useRef(null);
   const triggerRef = useRef(null);
+  const animationFrameRef = useRef(null);
 
   // Handle clicking outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      // Check if click is outside both dropdown content and trigger
+      const isOutsideDropdown = dropdownRef.current && !dropdownRef.current.contains(event.target);
+      const isOutsideTrigger = triggerRef.current && !triggerRef.current.contains(event.target);
+      
+      if (isOutsideDropdown && isOutsideTrigger) {
         setIsOpen(false);
       }
     };
@@ -27,14 +32,33 @@ const MultiSelectDropdown = ({
       }
     };
 
+    const handleScroll = () => {
+      if (isOpen) {
+        // Cancel any pending animation frame
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current);
+        }
+        
+        // Use requestAnimationFrame for smooth updates
+        animationFrameRef.current = requestAnimationFrame(() => {
+          calculateDropdownPosition();
+        });
+      }
+    };
+
     document.addEventListener('mousedown', handleClickOutside);
     window.addEventListener('resize', handleResize);
-    window.addEventListener('scroll', handleResize);
+    window.addEventListener('scroll', handleScroll);
     
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       window.removeEventListener('resize', handleResize);
-      window.removeEventListener('scroll', handleResize);
+      window.removeEventListener('scroll', handleScroll);
+      
+      // Cancel any pending animation frame on cleanup
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
     };
   }, [isOpen]);
 
