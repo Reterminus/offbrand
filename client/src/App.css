@@ -4596,19 +4596,12 @@ body.exporting-deck .export-view .deck-cards {
 }
 
     .multi-select-dropdown-content {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
       background-color: #2a2a2a;
       border: 1px solid #444;
       border-top: none;
       border-radius: 0 0 4px 4px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      z-index: 1200; /* Above all triggers (500) but below hover details (2000) */
       overflow: visible; /* Allow dropdown to extend beyond container */
-      transform: translateZ(0); /* Create new stacking context */
-      isolation: isolate; /* Additional stacking context isolation */
     }
 
 
@@ -4624,10 +4617,6 @@ body.exporting-deck .export-view .deck-cards {
   cursor: pointer;
   transition: background-color 0.2s ease;
   border-bottom: 1px solid #333;
-  position: relative;
-  z-index: 1100; /* Same as dropdown content - above all triggers but below hover details */
-  transform: translateZ(0); /* Create new stacking context */
-  isolation: isolate; /* Additional stacking context isolation */
 }
 
 .multi-select-option:hover {

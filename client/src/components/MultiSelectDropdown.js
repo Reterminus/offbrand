@@ -9,7 +9,9 @@ const MultiSelectDropdown = ({
   disabled = false
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const dropdownRef = useRef(null);
+  const triggerRef = useRef(null);
 
   // Handle clicking outside to close dropdown
   useEffect(() => {
@@ -19,14 +21,39 @@ const MultiSelectDropdown = ({
       }
     };
 
+    const handleResize = () => {
+      if (isOpen) {
+        calculateDropdownPosition();
+      }
+    };
+
     document.addEventListener('mousedown', handleClickOutside);
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('scroll', handleResize);
+    
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', handleResize);
     };
-  }, []);
+  }, [isOpen]);
+
+  const calculateDropdownPosition = () => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY,
+        left: rect.left + window.scrollX,
+        width: rect.width
+      });
+    }
+  };
 
   const handleToggle = () => {
     if (!disabled) {
+      if (!isOpen) {
+        calculateDropdownPosition();
+      }
       setIsOpen(!isOpen);
     }
   };
@@ -55,17 +82,30 @@ const MultiSelectDropdown = ({
 
 
   return (
-    <div className={`multi-select-dropdown ${className} ${disabled ? 'disabled' : ''}`} ref={dropdownRef}>
-      <div 
-        className={`multi-select-trigger ${isOpen ? 'open' : ''}`}
-        onClick={handleToggle}
-      >
-        <span className="multi-select-value">{getDisplayText()}</span>
-        <span className="multi-select-arrow">▼</span>
+    <>
+      <div className={`multi-select-dropdown ${className} ${disabled ? 'disabled' : ''}`}>
+        <div 
+          ref={triggerRef}
+          className={`multi-select-trigger ${isOpen ? 'open' : ''}`}
+          onClick={handleToggle}
+        >
+          <span className="multi-select-value">{getDisplayText()}</span>
+          <span className="multi-select-arrow">▼</span>
+        </div>
       </div>
       
       {isOpen && (
-        <div className="multi-select-dropdown-content">
+        <div 
+          ref={dropdownRef}
+          className="multi-select-dropdown-content"
+          style={{
+            position: 'fixed',
+            top: `${dropdownPosition.top}px`,
+            left: `${dropdownPosition.left}px`,
+            width: `${dropdownPosition.width}px`,
+            zIndex: 1500
+          }}
+        >
           <div className="multi-select-options">
             {options.length === 0 ? (
               <div className="multi-select-no-options">No options found</div>
@@ -89,7 +129,7 @@ const MultiSelectDropdown = ({
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
