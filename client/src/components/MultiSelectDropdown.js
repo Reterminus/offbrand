@@ -27,20 +27,14 @@ const MultiSelectDropdown = ({
       }
     };
 
-    const handleScroll = () => {
-      if (isOpen) {
-        calculateDropdownPosition();
-      }
-    };
-
     document.addEventListener('mousedown', handleClickOutside);
     window.addEventListener('resize', handleResize);
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('scroll', handleResize);
     
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       window.removeEventListener('resize', handleResize);
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', handleResize);
     };
   }, [isOpen]);
 
@@ -48,8 +42,8 @@ const MultiSelectDropdown = ({
     if (triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
       setDropdownPosition({
-        top: rect.bottom + window.scrollY,
-        left: rect.left + window.scrollX,
+        top: rect.bottom, // Use viewport coordinates directly for fixed positioning
+        left: rect.left,  // Use viewport coordinates directly for fixed positioning
         width: rect.width
       });
     }
