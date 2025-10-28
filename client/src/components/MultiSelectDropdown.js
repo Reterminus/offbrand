@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 
 const MultiSelectDropdown = ({
   options = [],
@@ -21,6 +21,17 @@ const MultiSelectDropdown = ({
       }
     };
 
+    let scrollTimeout;
+    const handleScroll = () => {
+      if (isOpen) {
+        // Throttle scroll events for better performance
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+          calculateDropdownPosition();
+        }, 10);
+      }
+    };
+
     const handleResize = () => {
       if (isOpen) {
         calculateDropdownPosition();
@@ -29,16 +40,17 @@ const MultiSelectDropdown = ({
 
     document.addEventListener('mousedown', handleClickOutside);
     window.addEventListener('resize', handleResize);
-    window.addEventListener('scroll', handleResize);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       window.removeEventListener('resize', handleResize);
-      window.removeEventListener('scroll', handleResize);
+      window.removeEventListener('scroll', handleScroll);
+      clearTimeout(scrollTimeout);
     };
-  }, [isOpen]);
+  }, [isOpen, calculateDropdownPosition]);
 
-  const calculateDropdownPosition = () => {
+  const calculateDropdownPosition = useCallback(() => {
     if (triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
       setDropdownPosition({
@@ -47,7 +59,7 @@ const MultiSelectDropdown = ({
         width: rect.width
       });
     }
-  };
+  }, []);
 
   const handleToggle = () => {
     if (!disabled) {
