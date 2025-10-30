@@ -218,7 +218,8 @@
   width: 30px;
   height: 21px;
   cursor: pointer;
-  z-index: 600;
+  position: relative; /* ensure z-index applies */
+  z-index: 1001; /* above .navbar-links (600) and backdrop (550) */
 }
 
 .hamburger-line {
