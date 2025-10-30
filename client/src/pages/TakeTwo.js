@@ -392,6 +392,21 @@ function TakeTwo() {
     }
   };
 
+  // Start a completely new draft without refreshing the page
+  const startNewDraft = () => {
+    // Reset draft-specific state
+    setSelectedClass('');
+    setDeck([]);
+    setRoundIndex(0);
+    setPairLeft([]);
+    setPairRight([]);
+    setHoverSide(null);
+    setSelectedCardDetails(null);
+
+    // Begin a new run (class selection)
+    beginRun();
+  };
+
   const handleCardDetailView = (card, e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -513,7 +528,10 @@ function TakeTwo() {
             ) : (
               <div className="complete-header">
                 <h2>Draft Complete</h2>
-                <button className="btn" onClick={exportDeckImage}>Export Deck as Image</button>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  <button className="btn" onClick={exportDeckImage}>Export Deck as Image</button>
+                  <button className="btn" onClick={startNewDraft}>New Draft</button>
+                </div>
               </div>
             )}
           </div>
