@@ -999,7 +999,7 @@ const DeckBuilder = () => {
                     />
                     
                     <MultiSelectDropdown
-                      options={['Token', ...sets.map(set => set.name)]}
+                      options={[...sets.map(set => set.name)]}
                       selectedValues={selectedSets.map(setId => 
                         setId === 'tokens' ? 'Token' : sets.find(s => s._id === setId)?.name
                       ).filter(Boolean)}
