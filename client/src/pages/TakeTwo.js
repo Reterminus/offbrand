@@ -54,14 +54,22 @@ function randomSample(array, n, excludeIds = new Set()) {
 }
 
 const buildPools = (cards, sets) => {
-  // Allow only cards in non-hidden sets and not tokens
-  const allowedCardIds = new Set();
-  sets.filter(s => !s.hidden).forEach(s => {
-    (s.cards || []).forEach(cid => allowedCardIds.add(cid.toString()));
+  // 1. Build a set of ALL card IDs that appear in ANY hidden set
+  const hiddenSetCardIds = new Set();
+  
+  sets.filter(s => s.hidden).forEach(s => {
+    (s.cards || []).forEach(cid => {
+      hiddenSetCardIds.add(cid.toString());
+    });
   });
 
-  const allowed = cards.filter(c => !c.isToken && allowedCardIds.has(c._id.toString()));
+  // 2. Filter cards: exclude tokens + exclude anything in any hidden set
+  const allowed = cards.filter(c => {
+    if (c.isToken) return false;
+    return !hiddenSetCardIds.has(c._id.toString());
+  });
 
+  // 3. Build class & neutral pools (same as before)
   const byClass = {};
   const byNeutral = {};
   ALL_CLASSES.forEach(cls => { byClass[cls] = { Bronze: [], Silver: [], Gold: [], Legendary: [] }; });
@@ -77,8 +85,12 @@ const buildPools = (cards, sets) => {
   });
 
   // Sort within pools for stability
-  Object.values(byClass).forEach(map => rarityOrder.forEach(r => map[r] = sortCards(map[r])));
-  rarityOrder.forEach(r => byNeutral['Neutral'][r] = sortCards(byNeutral['Neutral'][r]));
+  Object.values(byClass).forEach(map => 
+    rarityOrder.forEach(r => map[r] = sortCards(map[r]))
+  );
+  rarityOrder.forEach(r => 
+    byNeutral['Neutral'][r] = sortCards(byNeutral['Neutral'][r])
+  );
 
   return { byClass, byNeutral };
 };
