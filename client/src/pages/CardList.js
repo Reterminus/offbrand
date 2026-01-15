@@ -568,10 +568,9 @@ const CardList = () => {
       <div className="loading">
         <h2>{randomLoadingPhrase}</h2>
         <div>
-          <li>Fetching cards: {getStepStatus('cards')}</li>
-          <li>Fetching sets: {getStepStatus('sets')}</li>
-          <li>Fetching keywords: {getStepStatus('keywords')}</li>
-          <li>Processing data: {getStepStatus('processing')}</li>
+          <p>Fetching cards: {getStepStatus('cards')}</p>
+          <p>Fetching sets: {getStepStatus('sets')}</p>
+          <p>Fetching keywords: {getStepStatus('keywords')}</p>
         </div>
       </div>
     );
