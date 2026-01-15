@@ -38,17 +38,55 @@ const CardList = () => {
   const [preloadedRelatedCards, setPreloadedRelatedCards] = useState({});
   const [showHiddenSetCards, setShowHiddenSetCards] = useState(false);
   const [cardsFromHiddenSets, setCardsFromHiddenSets] = useState([]);
+  const [loadingSteps, setLoadingSteps] = useState({
+    cards: 'loading',
+    sets: 'loading',
+    keywords: 'loading',
+    processing: 'pending'
+  });
 
   // Fetch data on component mount
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const cardsPromise = getCards()
+          .then(data => {
+            setLoadingSteps(prev => ({ ...prev, cards: 'done' }));
+            return data;
+          })
+          .catch(err => {
+            setLoadingSteps(prev => ({ ...prev, cards: 'error' }));
+            throw err; // Re-throw to let Promise.all handle the rejection
+          });
+
+        const setsPromise = getSets()
+          .then(data => {
+            setLoadingSteps(prev => ({ ...prev, sets: 'done' }));
+            return data;
+          })
+          .catch(err => {
+            setLoadingSteps(prev => ({ ...prev, sets: 'error' }));
+            throw err;
+          });
+
+        const keywordsPromise = getKeywords()
+          .then(data => {
+            setLoadingSteps(prev => ({ ...prev, keywords: 'done' }));
+            return data;
+          })
+          .catch(err => {
+            setLoadingSteps(prev => ({ ...prev, keywords: 'error' }));
+            throw err;
+          });
+
         const [cardsData, setsData, keywordsData] = await Promise.all([
-          getCards(),
-          getSets(),
-          getKeywords()
+          cardsPromise,
+          setsPromise,
+          keywordsPromise
         ]);
-        
+
+        setLoadingSteps(prev => ({ ...prev, processing: 'loading' }));
+
         // Identify cards from hidden sets for admin toggle functionality
         const hiddenSets = setsData.filter(set => set.hidden);
         const hiddenSetCards = [];
@@ -118,6 +156,8 @@ const CardList = () => {
         setSets(setsData);
         setKeywords(keywordsData);
         setPreloadedRelatedCards(relatedCardsCache);
+
+        setLoadingSteps(prev => ({ ...prev, processing: 'done' }));
         setLoading(false);
       } catch (err) {
         setError('Failed to fetch data. Please try again later.');
@@ -484,8 +524,33 @@ const CardList = () => {
     setShowHiddenSetCards(prev => !prev);
   }, []);
 
+  const getStepStatus = (step) => {
+    switch (loadingSteps[step]) {
+      case 'done':
+        return '✓ Done';
+      case 'error':
+        return '✗ Error';
+      case 'loading':
+        return '... Loading';
+      case 'pending':
+        return 'Pending';
+      default:
+        return '';
+    }
+  };
+
   if (loading) {
-    return <div className="loading">Loading cards...</div>;
+    return (
+      <div className="loading">
+        <h2>Loading data...</h2>
+        <ul>
+          <li>Fetching cards: {getStepStatus('cards')}</li>
+          <li>Fetching sets: {getStepStatus('sets')}</li>
+          <li>Fetching keywords: {getStepStatus('keywords')}</li>
+          <li>Processing data: {getStepStatus('processing')}</li>
+        </ul>
+      </div>
+    );
   }
 
   if (error) {
@@ -630,4 +695,4 @@ const CardList = () => {
   );
 };
 
-export default CardList; 
+export default CardList;
