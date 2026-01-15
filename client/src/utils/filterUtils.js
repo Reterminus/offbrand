@@ -4,14 +4,13 @@
  * @param {Array} cards - Array of card objects
  * @param {Object} filters - Filter criteria
  * @param {string} filters.searchTerm - Text search term
- * @param {string} filters.selectedClass - Selected card class
- * @param {string} filters.selectedRarity - Selected card rarity
- * @param {string} filters.selectedSet - Selected set ID
- * @param {Object} filters.selectedSetData - Selected set data object (if selectedSet is set)
- * @param {string} filters.selectedCreator - Selected creator
- * @param {string} filters.selectedCost - Selected cost 
- * @param {string} filters.selectedCardType - Selected card type (Follower, Spell, Amulet)
- * @param {string} filters.selectedTrait - Selected card trait
+ * @param {Array} filters.selectedClasses - Selected card classes
+ * @param {Array} filters.selectedRarities - Selected card rarities
+ * @param {Array} filters.selectedSets - Selected set IDs
+ * @param {Array} filters.selectedCreators - Selected creators
+ * @param {Array} filters.selectedCosts - Selected costs
+ * @param {Array} filters.selectedCardTypes - Selected card types (Follower, Spell, Amulet)
+ * @param {Array} filters.selectedTraits - Selected card traits
  * @param {Array} filters.cardsFromHiddenSets - IDs of cards from hidden sets
  * @param {boolean} filters.showHiddenSetCards - Whether to show cards from hidden sets
  * @returns {Array} - Filtered array of cards
@@ -19,14 +18,13 @@
 export const applyFilters = (cards, filters) => {
   const {
     searchTerm,
-    selectedClass,
-    selectedRarity,
-    selectedSet,
-    selectedSetData,
-    selectedCreator,
-    selectedCost,
-    selectedCardType,
-    selectedTrait,
+    selectedClasses = [],
+    selectedRarities = [],
+    selectedSets = [],
+    selectedCreators = [],
+    selectedCosts = [],
+    selectedCardTypes = [],
+    selectedTraits = [],
     cardsFromHiddenSets = [],
     showHiddenSetCards = false
   } = filters;
@@ -61,55 +59,62 @@ export const applyFilters = (cards, filters) => {
     }
     
     // Class filter
-    if (selectedClass && card.class !== selectedClass) {
+    if (selectedClasses.length > 0 && !selectedClasses.includes(card.class)) {
       return false;
     }
     
     // Rarity filter
-    if (selectedRarity && card.rarity !== selectedRarity) {
+    if (selectedRarities.length > 0 && !selectedRarities.includes(card.rarity)) {
       return false;
     }
     
-    // Set filter
-    if (selectedSet) {
-      if (selectedSet === 'tokens') {
-        if (!card.isToken) return false;
-      } else if (selectedSetData) {
-        if (!selectedSetData.cards.includes(card._id)) return false;
-      }
-    }
+    // Set filter - handled by calling component
+    // This is intentionally left empty since set filtering is handled
+    // manually in the calling component to avoid conflicts
     
     // Creator filter
-    if (selectedCreator && card.creator !== selectedCreator) {
+    if (selectedCreators.length > 0 && !selectedCreators.includes(card.creator)) {
       return false;
     }
     
     // Card type filter
-    if (selectedCardType && card.cardType !== selectedCardType) {
+    if (selectedCardTypes.length > 0 && !selectedCardTypes.includes(card.cardType || 'Follower')) {
       return false;
     }
     
     // Trait filter
-    if (selectedTrait && card.trait) {
-      // Split the trait string by slash only to handle multiple traits
+    if (selectedTraits.length > 0) {
+      if (!card.trait) {
+        return false; // Card has no traits but trait filter is applied
+      }
+      
+      // Split the trait string by slash to handle multiple traits
       const cardTraits = card.trait.split('/').map(t => t.trim()).filter(t => t);
-      // Check if the selected trait is included in the card's traits
-      if (!cardTraits.includes(selectedTrait)) {
+      // Check if any of the selected traits match any of the card's traits
+      const hasMatchingTrait = selectedTraits.some(selectedTrait => 
+        cardTraits.includes(selectedTrait)
+      );
+      
+      if (!hasMatchingTrait) {
         return false;
       }
-    } else if (selectedTrait) {
-      // Card has no traits but trait filter is applied
-      return false;
     }
     
     // Cost filter
-    if (selectedCost) {
-      const cost = parseInt(selectedCost);
-      if (cost < 10) {
-        if (card.cost !== cost) return false;
-      } else {
-        // Cost 10+
-        if (card.cost < 10) return false;
+    if (selectedCosts.length > 0) {
+      const cardCost = card.cost;
+      const hasMatchingCost = selectedCosts.some(selectedCost => {
+        const cost = parseInt(selectedCost);
+        if (cost < 10) {
+          return cardCost === cost;
+        } else {
+          // Cost 10+
+          return cardCost >= 10;
+        }
+      });
+      
+      if (!hasMatchingCost) {
+        return false;
       }
     }
     

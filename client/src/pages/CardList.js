@@ -7,6 +7,7 @@ import { applyFilters } from '../utils/filterUtils';
 import { debounce } from '../utils/debounce';
 import CardItem from '../components/CardItem';
 import CardDetailModal from '../components/CardDetailModal';
+import MultiSelectDropdown from '../components/MultiSelectDropdown';
 import { AuthContext } from '../context/AuthContext';
 
 const CardList = () => {
@@ -21,13 +22,13 @@ const CardList = () => {
   const [activeCardId, setActiveCardId] = useState(null);
   const [detailPositions, setDetailPositions] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedClass, setSelectedClass] = useState('');
-  const [selectedRarity, setSelectedRarity] = useState('');
-  const [selectedSet, setSelectedSet] = useState('');
-  const [selectedCreator, setSelectedCreator] = useState('');
-  const [selectedCost, setSelectedCost] = useState('');
-  const [selectedCardType, setSelectedCardType] = useState('');
-  const [selectedTrait, setSelectedTrait] = useState('');
+  const [selectedClasses, setSelectedClasses] = useState([]);
+  const [selectedRarities, setSelectedRarities] = useState([]);
+  const [selectedSets, setSelectedSets] = useState([]);
+  const [selectedCreators, setSelectedCreators] = useState([]);
+  const [selectedCosts, setSelectedCosts] = useState([]);
+  const [selectedCardTypes, setSelectedCardTypes] = useState([]);
+  const [selectedTraits, setSelectedTraits] = useState([]);
   const [creators, setCreators] = useState([]);
   const [traits, setTraits] = useState([]);
   const [showNotesForCard, setShowNotesForCard] = useState(null);
@@ -134,9 +135,9 @@ const CardList = () => {
 
   // Memoize the selected set data to avoid repeated lookups
   const selectedSetData = useMemo(() => {
-    if (!selectedSet || selectedSet === 'tokens' || !sets.length) return null;
-    return sets.find(set => set._id === selectedSet);
-  }, [selectedSet, sets]);
+    if (selectedSets.length === 0 || !sets.length) return null;
+    return sets.filter(set => selectedSets.includes(set._id));
+  }, [selectedSets, sets]);
 
   // Memoize search term in lowercase to avoid repeated conversion
   const searchTermLower = useMemo(() => {
@@ -147,33 +148,62 @@ const CardList = () => {
   const memoizedFilteredCards = useMemo(() => {
     if (cards.length === 0) return [];
     
-    // Use the common filter utility function
-    return applyFilters(sortedCards, {
+    // Handle set filtering manually since we need to check if cards belong to selected sets
+    let filteredCards = sortedCards;
+    
+    // Apply set filter manually
+    if (selectedSets.length > 0) {
+      const isTokenSelected = selectedSets.includes('tokens');
+      const selectedSetIds = selectedSets.filter(setId => setId !== 'tokens');
+      
+      filteredCards = filteredCards.filter(card => {
+        if (isTokenSelected && card.isToken) {
+          return true;
+        }
+        
+        if (selectedSetIds.length > 0) {
+          const isInSelectedSets = selectedSetIds.some(setId => {
+            const set = sets.find(s => s._id === setId);
+            return set && set.cards && set.cards.includes(card._id);
+          });
+          return isInSelectedSets;
+        }
+        
+        // If only tokens are selected and this card is not a token, exclude it
+        if (isTokenSelected && !card.isToken) {
+          return false;
+        }
+        
+        // If no sets are selected, include all cards
+        return true;
+      });
+    }
+    
+    // Use the common filter utility function for other filters
+    return applyFilters(filteredCards, {
       searchTerm: searchTermLower,
-      selectedClass,
-      selectedRarity,
-      selectedSet,
-      selectedSetData,
-      selectedCreator,
-      selectedCost,
-      selectedCardType,
-      selectedTrait,
+      selectedClasses,
+      selectedRarities,
+      selectedCreators,
+      selectedCosts,
+      selectedCardTypes,
+      selectedTraits,
       cardsFromHiddenSets,
       showHiddenSetCards
     });
   }, [
     sortedCards, 
     searchTermLower, 
-    selectedClass, 
-    selectedRarity, 
-    selectedSet, 
-    selectedSetData, 
-    selectedCreator, 
-    selectedCost, 
-    selectedCardType,
-    selectedTrait,
+    selectedClasses, 
+    selectedRarities, 
+    selectedSets,
+    selectedCreators, 
+    selectedCosts, 
+    selectedCardTypes,
+    selectedTraits,
     cardsFromHiddenSets, 
-    showHiddenSetCards
+    showHiddenSetCards,
+    sets
   ]);
 
   // Update filteredCards state when memoized value changes
@@ -312,50 +342,50 @@ const CardList = () => {
   }, []);
 
   // Handle class filter change
-  const handleClassChange = useCallback((e) => {
-    setSelectedClass(e.target.value);
+  const handleClassChange = useCallback((values) => {
+    setSelectedClasses(values);
   }, []);
 
   // Handle rarity filter change
-  const handleRarityChange = useCallback((e) => {
-    setSelectedRarity(e.target.value);
+  const handleRarityChange = useCallback((values) => {
+    setSelectedRarities(values);
   }, []);
 
   // Handle set filter change
-  const handleSetChange = useCallback((e) => {
-    setSelectedSet(e.target.value);
+  const handleSetChange = useCallback((values) => {
+    setSelectedSets(values);
   }, []);
 
   // Handle creator filter change
-  const handleCreatorChange = useCallback((e) => {
-    setSelectedCreator(e.target.value);
+  const handleCreatorChange = useCallback((values) => {
+    setSelectedCreators(values);
   }, []);
 
   // Handle cost filter change
-  const handleCostChange = useCallback((e) => {
-    setSelectedCost(e.target.value);
+  const handleCostChange = useCallback((values) => {
+    setSelectedCosts(values);
   }, []);
 
   // Handle card type filter change
-  const handleCardTypeChange = useCallback((e) => {
-    setSelectedCardType(e.target.value);
+  const handleCardTypeChange = useCallback((values) => {
+    setSelectedCardTypes(values);
   }, []);
 
   // Handle trait filter change
-  const handleTraitChange = useCallback((e) => {
-    setSelectedTrait(e.target.value);
+  const handleTraitChange = useCallback((values) => {
+    setSelectedTraits(values);
   }, []);
 
   // Clear all filters
   const handleClearFilters = useCallback(() => {
     setSearchTerm('');
-    setSelectedClass('');
-    setSelectedRarity('');
-    setSelectedSet('');
-    setSelectedCreator('');
-    setSelectedCost('');
-    setSelectedCardType('');
-    setSelectedTrait('');
+    setSelectedClasses([]);
+    setSelectedRarities([]);
+    setSelectedSets([]);
+    setSelectedCreators([]);
+    setSelectedCosts([]);
+    setSelectedCardTypes([]);
+    setSelectedTraits([]);
   }, []);
 
   // Add handler to close mobile detail view
@@ -494,56 +524,61 @@ const CardList = () => {
         </div>
         
         <div className="filter-group">
-          <select value={selectedClass} onChange={handleClassChange}>
-            <option value="">All Classes</option>
-            {classOptions.map(option => (
-              <option key={option} value={option}>{option}</option>
-            ))}
-          </select>
+          <MultiSelectDropdown
+            options={classOptions}
+            selectedValues={selectedClasses}
+            onChange={handleClassChange}
+            placeholder="All Classes"
+          />
           
-          <select value={selectedRarity} onChange={handleRarityChange}>
-            <option value="">All Rarities</option>
-            {rarityOptions.map(option => (
-              <option key={option} value={option}>{option}</option>
-            ))}
-          </select>
+          <MultiSelectDropdown
+            options={rarityOptions}
+            selectedValues={selectedRarities}
+            onChange={handleRarityChange}
+            placeholder="All Rarities"
+          />
           
-          <select value={selectedCost} onChange={handleCostChange}>
-            <option value="">All Costs</option>
-            {[...Array(10).keys()].map(i => (
-              <option key={i} value={i}>{i}</option>
-            ))}
-            <option value="10">10+</option>
-          </select>
+          <MultiSelectDropdown
+            options={[...Array(10).keys()].map(i => i.toString()).concat(['10+'])}
+            selectedValues={selectedCosts}
+            onChange={handleCostChange}
+            placeholder="All Costs"
+          />
           
-          <select value={selectedCardType} onChange={handleCardTypeChange}>
-            <option value="">All Card Types</option>
-            {cardTypeOptions.map(option => (
-              <option key={option} value={option}>{option}</option>
-            ))}
-          </select>
+          <MultiSelectDropdown
+            options={cardTypeOptions}
+            selectedValues={selectedCardTypes}
+            onChange={handleCardTypeChange}
+            placeholder="All Card Types"
+          />
           
-          <select value={selectedTrait} onChange={handleTraitChange}>
-            <option value="">All Traits</option>
-            {traits.map(trait => (
-              <option key={trait} value={trait}>{trait}</option>
-            ))}
-          </select>
+          <MultiSelectDropdown
+            options={traits}
+            selectedValues={selectedTraits}
+            onChange={handleTraitChange}
+            placeholder="All Traits"
+          />
           
-          <select value={selectedSet} onChange={handleSetChange}>
-            <option value="">All Sets</option>
-            <option value="tokens">Token</option>
-            {sets.map(set => (
-              <option key={set._id} value={set._id}>{set.name}</option>
-            ))}
-          </select>
+          <MultiSelectDropdown
+            options={['Token', ...sets.map(set => set.name)]}
+            selectedValues={selectedSets.map(setId => 
+              setId === 'tokens' ? 'Token' : sets.find(s => s._id === setId)?.name
+            ).filter(Boolean)}
+            onChange={(values) => {
+              const mappedValues = values.map(value => 
+                value === 'Token' ? 'tokens' : sets.find(s => s.name === value)?._id
+              ).filter(Boolean);
+              handleSetChange(mappedValues);
+            }}
+            placeholder="All Sets"
+          />
 
-          <select value={selectedCreator} onChange={handleCreatorChange}>
-            <option value="">All Creators</option>
-            {creators.map(creator => (
-              <option key={creator} value={creator}>{creator}</option>
-            ))}
-          </select>
+          <MultiSelectDropdown
+            options={creators}
+            selectedValues={selectedCreators}
+            onChange={handleCreatorChange}
+            placeholder="All Creators"
+          />
           
           <button onClick={handleClearFilters} className="clear-filters-btn">
             Clear Filters
