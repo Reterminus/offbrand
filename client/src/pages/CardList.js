@@ -44,6 +44,30 @@ const CardList = () => {
     keywords: 'loading',
     processing: 'pending'
   });
+  const loadingPhrases = [
+    "Separating Abysscraft into two unique crafts...",
+    "Remembering Dualities exists...",
+    "Spiting Nova...",
+    "Adding Mode to everything...",
+    "Stealing art from Force of Will...",
+    "Crashing out over Z/X art...",
+    "Trying not to look at the ads from Buhitter...",
+    "Localizing Maximum as Maximus...",
+    "Regretting Archaic...",
+    "Commissioning MintSaDui...",
+    "Finding OCs to steal...",
+    "Eating Cookies and Cream Kitkats...",
+    "Questioning Cygames' design...",
+    "Deciphering Penguin Punisher...",
+    "Nerfing Crystal Dragon and Lania...",
+  ];
+  const [randomLoadingPhrase, setRandomLoadingPhrase] = useState("Loading data...");
+
+  useEffect(() => {
+    // Pick random phrase only once on mount
+    const randomIndex = Math.floor(Math.random() * loadingPhrases.length);
+    setRandomLoadingPhrase(loadingPhrases[randomIndex]);
+  }, []);   // empty dependency array → runs once
 
   // Fetch data on component mount
   useEffect(() => {
@@ -542,13 +566,13 @@ const CardList = () => {
   if (loading) {
     return (
       <div className="loading">
-        <h2>Loading data...</h2>
-        <ul>
+        <h2>{randomLoadingPhrase}</h2>
+        <div>
           <li>Fetching cards: {getStepStatus('cards')}</li>
           <li>Fetching sets: {getStepStatus('sets')}</li>
           <li>Fetching keywords: {getStepStatus('keywords')}</li>
           <li>Processing data: {getStepStatus('processing')}</li>
-        </ul>
+        </div>
       </div>
     );
   }
